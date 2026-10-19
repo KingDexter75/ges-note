@@ -79,6 +79,7 @@
     teacher_dashboard: 'enseignant/tableau-de-bord.html',
     teacher_classes: 'enseignant/mes-classes.html',
     teacher_saisie: 'enseignant/saisie-notes.html',
+    teacher_saisie_couplee: 'enseignant/saisie-notes-couplee.html',
     teacher_ma_classe: 'enseignant/ma-classe.html',
     teacher_rapports: 'enseignant/rapports.html',
     teacher_profil: 'enseignant/profil.html'
@@ -112,13 +113,16 @@
           { route: 'admin_affectations_sg', label: 'Surveillants', icon: 'door-open' }
         ]
       },
-      { route: 'teacher_saisie', label: 'Saisie des notes', icon: 'pencil-line' },
+      {
+        label: 'Saisie des notes', icon: 'pencil-line', enfants: [
+          { route: 'teacher_saisie', label: 'Saisie simple', icon: 'pencil-line' },
+          { route: 'teacher_saisie_couplee', label: 'Saisie couplée', icon: 'columns-2' }
+        ]
+      },
       { route: 'admin_notes', label: 'Notes (suivi)', icon: 'file-text' },
       { route: 'admin_bulletins', label: 'Bulletins', icon: 'award' },
       { route: 'admin_statistiques', label: 'Statistiques', icon: 'bar-chart-3' },
-      { route: 'admin_assiduite', label: 'Assiduité', icon: 'calendar-check' },
       { route: 'admin_rapports', label: 'Rapports', icon: 'pie-chart', groupe: 'bas' },
-      { route: 'admin_vie_scolaire', label: 'Vie scolaire', icon: 'shield-alert' },
       { route: 'admin_journal', label: 'Journal d\'audit', icon: 'history', groupe: 'bas' },
       { route: 'admin_parametres', label: 'Paramètres', icon: 'settings', groupe: 'bas' }
     ],
@@ -136,7 +140,12 @@
     enseignant: [
       { route: 'teacher_dashboard', label: 'Tableau de bord', icon: 'layout-dashboard' },
       { route: 'teacher_classes', label: 'Mes classes', icon: 'school' },
-      { route: 'teacher_saisie', label: 'Saisie des notes', icon: 'pencil-line' },
+      {
+        label: 'Saisie des notes', icon: 'pencil-line', enfants: [
+          { route: 'teacher_saisie', label: 'Saisie simple', icon: 'pencil-line' },
+          { route: 'teacher_saisie_couplee', label: 'Saisie couplée', icon: 'columns-2' }
+        ]
+      },
       { route: 'teacher_rapports', label: 'Rapports', icon: 'bar-chart-3' },
       { route: 'admin_bulletins', label: 'Bulletins', icon: 'award', profPrincipalOnly: true },
       { route: 'teacher_ma_classe', label: 'Ma classe', icon: 'users-round', profPrincipalOnly: true },
@@ -146,8 +155,14 @@
 
   /* La direction dispose des memes ecrans que l'administrateur, SAUF la
      saisie des notes : elle consulte les resultats, elle n'ecrit aucune
-     note (droits admin_notes / teacher_saisie, cote client et serveur). */
-  MENUS.direction = MENUS.admin.filter(function (i) { return i.route !== 'teacher_saisie'; });
+     note (droits admin_notes / teacher_saisie, cote client et serveur).
+     La saisie est desormais un groupe deroulant (simple + couplee) : on
+     retire le groupe entier, pas une simple entree. */
+  MENUS.direction = MENUS.admin.filter(function (i) {
+    if (i.route === 'teacher_saisie' || i.route === 'teacher_saisie_couplee') return false;
+    if (i.enfants && i.enfants.some(function (e) { return e.route === 'teacher_saisie'; })) return false;
+    return true;
+  });
 
   /* Le surveillant general est charge de l'enregistrement des heures
      d'absences : tableau de bord, assiduite et classes (lecture). */

@@ -165,12 +165,24 @@
       class: 'p-2 nm-soft-convex rounded-lg text-blue-500', title: 'Professeur principal', html: P.ico('user-round-cog', 14)
     });
     bPP.addEventListener('click', function () { formulairePP(c); });
+    var bExport = UI.el('button', {
+      class: 'p-2 nm-soft-convex rounded-lg text-green-600',
+      title: 'Exporter la liste des élèves en .xlsx', html: P.ico('file-down', 14)
+    });
+    bExport.addEventListener('click', function () { exporterClasse(c); });
+    var bImport = UI.el('button', {
+      class: 'p-2 nm-soft-convex rounded-lg text-amber-500',
+      title: 'Importer une liste .xlsx (inscription automatique)', html: P.ico('file-up', 14)
+    });
+    bImport.addEventListener('click', function () { demanderImport(c); });
     var bArch = UI.el('button', {
       class: 'p-2 nm-soft-convex rounded-lg text-red-500', title: 'Archiver', html: P.ico('archive', 14)
     });
     bArch.addEventListener('click', function () { archiver(c); });
     groupe.appendChild(bEdit);
     groupe.appendChild(bPP);
+    groupe.appendChild(bExport);
+    groupe.appendChild(bImport);
     groupe.appendChild(bArch);
     return groupe;
   }
@@ -297,6 +309,218 @@
       if (!r.ok) { UI.toast(r.motif, 'error'); return false; }
       UI.toast(r.conserve ? 'Classe archivée (historique conservé).' : 'Classe archivée.', 'info');
       refresh();
+    });
+  }
+
+  /* ----------------------- Export / import .xlsx ------------------------ */
+  /* L'export ecrit un .xlsx via ui.exporterXLSX (aucune bibliotheque) ;
+     l'importe relit le meme format via ui.lireXLSX. Les en-tetes des deux
+     sens sont identiques, donc le fichier exporte peut etre corrige dans
+     Excel puis reimporte tel quel. L'import cree les fiches manquantes
+     (matricule deja connu = fiche reutilisee) et inscrit automatiquement
+     les eleves dans la classe choisie. */
+
+  function colonnesEleves() {
+    return [
+      { titre: 'Matricule', valeurTri: function (e) { return e.matricule || ''; } },
+      { titre: 'Nom', valeurTri: function (e) { return e.nom; } },
+      { titre: 'Prénom', valeurTri: function (e) { return e.prenom; } },
+      { titre: 'Sexe', valeurTri: function (e) { return e.sexe === 'F' ? 'F' : 'M'; } },
+      { titre: 'Date de naissance', valeurTri: function (e) { return dateVersFr(e.dateNaissance); } },
+      { titre: 'Lieu de naissance', valeurTri: function (e) { return e.lieuNaissance || ''; } },
+      { titre: 'Téléphone', valeurTri: function (e) { return e.telephone || ''; } },
+      { titre: 'Téléphone parent', valeurTri: function (e) { return e.telephoneParent || ''; } },
+      { titre: 'Contact tuteur', valeurTri: function (e) { return e.contactTuteur || ''; } },
+      { titre: 'Aptitude', valeurTri: function (e) { return e.aptitude === 'I' ? 'Inapte' : 'Apte'; } },
+      { titre: 'Redoublant', valeurTri: function (e) { return e.redoublant === 'O' ? 'Oui' : 'Non'; } }
+    ];
+  }
+
+  function dateVersFr(iso) {
+    if (!iso || !/^\d{4}-\d{2}-\d{2}$/.test(iso)) return iso || '';
+    return iso.slice(8, 10) + '/' + iso.slice(5, 7) + '/' + iso.slice(0, 4);
+  }
+
+  function exporterClasse(c) {
+    var eleves = S.elevesDeClasse(c.id, an.id).filter(function (e) { return e && !e.archive; });
+    UI.exporterXLSX(colonnesEleves(), eleves, 'eleves-' + c.nom, { titreFeuille: c.nom });
+    UI.toast(eleves.length
+      ? eleves.length + ' élève(s) exporté(s) dans « ' + c.nom + ' ».'
+      : 'Classe vide : modèle .xlsx exporté (en-têtes seuls).', 'success');
+  }
+
+  /* Un seul input cache, reutilise d'une classe a l'autre : la classe
+      visee est memorisee au moment du clic. */
+  var fichierImport = null;
+  var classeCible = null;
+
+  function demanderImport(c) {
+    if (!fichierImport) {
+      fichierImport = document.createElement('input');
+      fichierImport.type = 'file';
+      fichierImport.accept = '.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+      fichierImport.className = 'hidden';
+      fichierImport.addEventListener('change', function () {
+        var f = fichierImport.files && fichierImport.files[0];
+        var cible = classeCible;
+        fichierImport.value = '';
+        classeCible = null;
+        if (f && cible) traiterImport(cible, f);
+      });
+      document.body.appendChild(fichierImport);
+    }
+    classeCible = c;
+    fichierImport.click();
+  }
+
+  function traiterImport(c, fichier) {
+    UI.lireXLSX(fichier).then(function (lignes) {
+      var objets = versObjets(lignes);
+      if (!objets.length) {
+        UI.toast('Fichier vide ou en-têtes introuvables (Matricule, Nom, Prénom…).', 'error');
+        return;
+      }
+      importerDansClasse(c, objets);
+    }, function () {
+      UI.toast('Lecture du fichier .xlsx impossible.', 'error');
+    });
+  }
+
+  /* Transforme les lignes de cellules en objets eleve, memes regles que
+      l'import CSV d'eleves.js : en-tetes insensibles a la casse/accents,
+      dates jj/mm/aaaa ou serial Excel converties en ISO. */
+  function versObjets(lignes) {
+    var utiles = (lignes || []).filter(function (l) { return l && l.join('').trim(); });
+    if (utiles.length < 2) return [];
+    function cle(s) {
+      return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z]/g, '');
+    }
+    var index = {};
+    utiles[0].map(cle).forEach(function (h, i) { if (index[h] === undefined) index[h] = i; });
+    if (index.nom === undefined || index.prenom === undefined) return [];
+    var paires = [
+      ['matricule', 'matricule'], ['nom', 'nom'], ['prenom', 'prenom'], ['sexe', 'sexe'],
+      ['datedenaissance', 'dateNaissance'], ['lieudenaissance', 'lieuNaissance'],
+      ['telephone', 'telephone'], ['telephoneparent', 'telephoneParent'],
+      ['contacttuteur', 'contactTuteur'], ['contactparenttuteur', 'contactTuteur'],
+      ['redoublant', 'redoublant'], ['aptitude', 'aptitude']
+    ];
+    return utiles.slice(1).map(function (ligne) {
+      var o = {};
+      paires.forEach(function (p) {
+        var i = index[p[0]];
+        if (i !== undefined && ligne[i] !== undefined && String(ligne[i]).trim() !== '') {
+          o[p[1]] = String(ligne[i]).trim();
+        }
+      });
+      if (o.sexe) o.sexe = /^f/i.test(o.sexe) ? 'F' : 'M';
+      if (o.dateNaissance) o.dateNaissance = normaliserDate(o.dateNaissance);
+      if (o.aptitude) o.aptitude = /^(i|inapte)/i.test(o.aptitude) ? 'I' : 'A';
+      if (o.redoublant) o.redoublant = /^(o|oui)/i.test(o.redoublant) ? 'O' : 'N';
+      return o;
+    });
+  }
+
+  function normaliserDate(v) {
+    var s = String(v).trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+    if (/^\d{4}-\d{2}-\d{2}T/.test(s)) return s.slice(0, 10);
+    var m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+    if (m) return m[3] + '-' + ('0' + m[2]).slice(-2) + '-' + ('0' + m[1]).slice(-2);
+    if (/^\d+(\.\d+)?$/.test(s)) {
+      /* Date Excel : nombre de jours depuis le 30/12/1899. */
+      var n = Math.round(Number(s));
+      if (n > 0 && n < 80000) {
+        return new Date(Date.UTC(1899, 11, 30) + n * 86400000).toISOString().slice(0, 10);
+      }
+    }
+    return s;
+  }
+
+  function importerDansClasse(c, objets) {
+    /* 1) Fiches : matricule deja connu -> fiche existante reutilisee ;
+          sinon creation en lot via le store (controles et journal). */
+    var existants = {};
+    S.all('eleves').forEach(function (e) { if (e.matricule) existants[e.matricule.trim()] = e; });
+
+    var aCreer = [], lignesAcreer = [], retenus = [], refus = [];
+    objets.forEach(function (o, i) {
+      var ex = o.matricule ? existants[o.matricule.trim()] : null;
+      if (ex) { retenus.push({ ligne: i + 2, eleve: ex }); return; }  /* ligne 1 = en-tetes */
+      aCreer.push(o);
+      lignesAcreer.push(i + 2);
+    });
+
+    var nbCrees = 0;
+    if (aCreer.length) {
+      var r = S.importerEleves(aCreer);
+      if (!r.ok) { UI.toast(r.motif, 'error'); return; }
+      var refusees = {};
+      r.refus.forEach(function (x) { refusees[x.ligne - 1] = true; });
+      var num = 0;
+      lignesAcreer.forEach(function (ligne, i) {
+        if (refusees[i]) return;
+        retenus.push({ ligne: ligne, eleve: r.crees[num++] });
+      });
+      nbCrees = num;
+      r.refus.forEach(function (x) {
+        refus.push({ ligne: lignesAcreer[x.ligne - 1], motif: x.motif });
+      });
+    }
+
+    /* 2) Inscription automatique : une seule classe par eleve et par annee,
+          deja inscrit ailleurs = signale, jamais deplacer silencieusement. */
+    var inscrits = {};
+    S.all('inscriptions').forEach(function (ins) {
+      if (ins.anneeId === an.id && !ins.archive) inscrits[ins.eleveId] = ins;
+    });
+    var paires = [], deja = 0;
+    retenus.forEach(function (t) {
+      var ins = inscrits[t.eleve.id];
+      if (ins) {
+        if (ins.classeId === c.id) { deja++; return; }
+        var autre = S.classeParId(ins.classeId);
+        refus.push({ ligne: t.ligne, motif: 'Déjà inscrit en « ' + (autre ? autre.nom : '?') + ' » pour cette année.' });
+        return;
+      }
+      paires.push({ eleveId: t.eleve.id, classeId: c.id });
+    });
+
+    var ri = { ok: true, inscrits: [], refus: [] };
+    if (paires.length) {
+      ri = S.inscrireLot(paires, an.id);
+      if (!ri.ok) { UI.toast(ri.motif, 'error'); return; }
+    }
+    ri.refus.forEach(function (x) {
+      var t = retenus.filter(function (z) { return z.eleve.id === x.eleveId; })[0];
+      refus.push({ ligne: t ? t.ligne : '—', motif: x.motif });
+    });
+
+    /* 3) Bilan : creation, inscription, deja presents, refus detailles. */
+    var morceaux = [];
+    if (nbCrees) morceaux.push(nbCrees + ' élève(s) créé(s)');
+    if (ri.inscrits.length) morceaux.push(ri.inscrits.length + ' inscrit(s) en ' + c.nom);
+    if (deja) morceaux.push(deja + ' déjà inscrit(s)');
+    if (refus.length) morceaux.push(refus.length + ' refus');
+    if (!morceaux.length) { UI.toast('Aucune ligne à importer.', 'info'); return; }
+
+    var succes = nbCrees + ri.inscrits.length > 0;
+    UI.toast(morceaux.join(', ') + '.', succes ? 'success' : 'error');
+    refresh();
+    if (refus.length) montrerRefus(refus);
+  }
+
+  function montrerRefus(refus) {
+    UI.modal({
+      titre: 'Lignes refusées (' + refus.length + ')',
+      contenu: '<div class="max-h-64 overflow-auto space-y-2">' +
+        refus.slice(0, 40).map(function (r) {
+          return '<p class="text-xs nm-inset rounded-xl p-2"><b>Ligne ' + r.ligne + ' :</b> ' + P.esc(r.motif) + '</p>';
+        }).join('') +
+        (refus.length > 40 ? '<p class="text-xs text-gray-400">… et ' + (refus.length - 40) + ' autres.</p>' : '') +
+        '</div>',
+      actions: [{ label: 'Fermer', classe: 'nm-soft-convex' }]
     });
   }
 

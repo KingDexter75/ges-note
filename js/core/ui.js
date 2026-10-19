@@ -565,6 +565,147 @@
     return true;
   }
 
+  /* ---------------------------- .xlsx (lecture) ------------------------- */
+  /* Lecture du .xlsx sans bibliotheque externe : le repertoire central du
+     ZIP est lu a la main ; les entrees "stored" sont recopiees telles
+     quelles et les entrees deflate passees par DecompressionStream
+     (natif des navigateurs modernes), ce qui couvre les fichiers ecrits
+     par le projet comme ceux produits par Excel/LibreOffice. */
+
+  function lireZIP(octets) {
+    var v = new DataView(octets.buffer, octets.byteOffset, octets.byteLength);
+    var eocd = -1;
+    var bas = Math.max(0, octets.length - 65558);
+    for (var i = octets.length - 22; i >= bas; i--) {
+      if (v.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
+    }
+    if (eocd < 0) return Promise.reject(new Error('Archive ZIP illisible.'));
+    var nombre = v.getUint16(eocd + 10, true);
+    var curseur = v.getUint32(eocd + 16, true);
+    var decode = new TextDecoder('utf-8');
+    var entrees = [];
+    for (var n = 0; n < nombre; n++) {
+      if (curseur + 46 > octets.length || v.getUint32(curseur, true) !== 0x02014b50) break;
+      var methode = v.getUint16(curseur + 10, true);
+      var tailleComp = v.getUint32(curseur + 20, true);
+      var nomLen = v.getUint16(curseur + 28, true);
+      var extraLen = v.getUint16(curseur + 30, true);
+      var commentLen = v.getUint16(curseur + 32, true);
+      var local = v.getUint32(curseur + 42, true);
+      var nom = decode.decode(octets.subarray(curseur + 46, curseur + 46 + nomLen));
+      curseur += 46 + nomLen + extraLen + commentLen;
+      entrees.push({ nom: nom, methode: methode, local: local, tailleComp: tailleComp });
+    }
+    return Promise.all(entrees.map(function (e) {
+      return extraitEntreeZIP(octets, v, e).then(function (d) { return { nom: e.nom, donnees: d }; });
+    })).then(function (liste) {
+      var d = {};
+      liste.forEach(function (x) { d[x.nom] = x.donnees; });
+      return d;
+    });
+  }
+
+  function extraitEntreeZIP(octets, v, e) {
+    if (e.local + 30 > octets.length) return Promise.reject(new Error('Entrée ZIP corrompue.'));
+    var nomLen = v.getUint16(e.local + 26, true);
+    var extraLen = v.getUint16(e.local + 28, true);
+    var debut = e.local + 30 + nomLen + extraLen;
+    var compresse = octets.subarray(debut, debut + e.tailleComp);
+    if (e.methode === 0) return Promise.resolve(compresse);
+    if (e.methode === 8 && typeof DecompressionStream !== 'undefined') {
+      var flux = new Blob([compresse]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+      return new Response(flux).arrayBuffer().then(function (b) { return new Uint8Array(b); });
+    }
+    return Promise.reject(new Error('Compression ZIP non prise en charge (' + e.methode + ').'));
+  }
+
+  /* Ref colonne Excel (« AB » -> index) pour replacer une cellule dont la
+     reference est explicite dans un range parsed creux. */
+  function indexColonne(ref) {
+    var n = 0;
+    for (var i = 0; i < ref.length; i++) {
+      var c = ref.charCodeAt(i);
+      if (c < 65 || c > 90) break;
+      n = n * 26 + (c - 64);
+    }
+    return Math.max(0, n - 1);
+  }
+
+  /* Analyse une feuille : renvoie un tableau de lignes, chaque cellule etant
+     une chaine (les nombres restent en texte ; c'est l'appelant qui decide
+     de la conversion selon l'en-tete de colonne). */
+  function lirePartiesXLSX(parties) {
+    var decode = new TextDecoder('utf-8');
+    function documentDe(cle) {
+      if (!parties[cle]) return null;
+      return new DOMParser().parseFromString(decode.decode(parties[cle]), 'application/xml');
+    }
+    var partages = [];
+    var ss = documentDe('xl/sharedStrings.xml');
+    if (ss) {
+      var sis = ss.getElementsByTagName('si');
+      for (var i = 0; i < sis.length; i++) {
+        var ts = sis[i].getElementsByTagName('t');
+        var s = '';
+        for (var j = 0; j < ts.length; j++) s += ts[j].textContent;
+        partages.push(s);
+      }
+    }
+    var cleFeuille = 'xl/worksheets/sheet1.xml';
+    if (!parties[cleFeuille]) {
+      var cles = Object.keys(parties).filter(function (k) {
+        return /^xl\/worksheets\/sheet\d+\.xml$/.test(k);
+      }).sort();
+      cleFeuille = cles[0];
+    }
+    var feuille = documentDe(cleFeuille);
+    if (!feuille) return [];
+
+    var lignes = [];
+    var rows = feuille.getElementsByTagName('row');
+    for (var r = 0; r < rows.length; r++) {
+      var cellules = rows[r].getElementsByTagName('c');
+      var ligne = [];
+      for (var c = 0; c < cellules.length; c++) {
+        var cel = cellules[c];
+        var ref = cel.getAttribute('r') || '';
+        var col = ref ? indexColonne(ref) : ligne.length;
+        var type = cel.getAttribute('t');
+        var valeur = '';
+        if (type === 'inlineStr') {
+          var ts2 = cel.getElementsByTagName('t');
+          for (var k = 0; k < ts2.length; k++) valeur += ts2[k].textContent;
+        } else {
+          var vv = cel.getElementsByTagName('v');
+          var brut = vv.length ? vv[0].textContent : '';
+          valeur = (type === 's' && partages[Number(brut)] !== undefined)
+            ? partages[Number(brut)] : brut;
+        }
+        ligne[col] = valeur;
+      }
+      for (var z = 0; z < ligne.length; z++) if (ligne[z] === undefined) ligne[z] = '';
+      if (ligne.length) lignes.push(ligne);
+    }
+    return lignes;
+  }
+
+  /* Point d'entree cote page : lit un fichier .xlsx selectionne puis
+     renvoie les lignes de la premiere feuille (promesse). */
+  function lireXLSX(fichier) {
+    return new Promise(function (ok, ko) {
+      var fr = new FileReader();
+      fr.onload = function () {
+        var octets = new Uint8Array(fr.result);
+        lireZIP(octets).then(function (parties) {
+          try { ok(lirePartiesXLSX(parties)); }
+          catch (e) { ko(e); }
+        }, ko);
+      };
+      fr.onerror = function () { ko(new Error('Lecture du fichier impossible.')); };
+      fr.readAsArrayBuffer(fichier);
+    });
+  }
+
   /* ------------------------------- .pdf -------------------------------- */
   /* Un PDF minimal mais conforme : catalogue, arbre de pages, police      */
   /* Helvetica standard (aucune police a embarquer) et flux de contenu.    */
@@ -881,7 +1022,7 @@
     etatVide: etatVide, chargement: chargement, erreur: erreur,
     champ: champ, validerChamps: validerChamps,
     tableau: tableau, exporterCSV: exporterCSV,
-    exporterXLSX: exporterXLSX, exporterPDF: exporterPDF, imprimer: imprimer,
+    exporterXLSX: exporterXLSX, lireXLSX: lireXLSX, exporterPDF: exporterPDF, imprimer: imprimer,
     telecharger: telecharger, emballerTableaux: emballerTableaux,
     nombre: nombre, dateFr: dateFr
   };

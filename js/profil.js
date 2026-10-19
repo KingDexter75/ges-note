@@ -75,16 +75,7 @@
         : UI.etatVide('Aucune activité enregistrée.')
     }),
 
-    P.section({
-      titre: 'Sécurité', icone: 'lock',
-      contenu: '<div class="p-6 rounded-[32px] nm-flat bg-amber-500/5 border border-amber-500/20 space-y-3">' +
-        '<p class="text-sm font-bold flex items-center gap-2">' + P.ico('triangle-alert', 16) + 'Application de démonstration</p>' +
-        '<p class="text-xs text-gray-500 leading-relaxed">Les données sont enregistrées uniquement dans ce navigateur (localStorage). ' +
-        'Ce contrôle d\'accès est une contrainte d\'interface : il n\'apporte aucune sécurité réelle et serait contournable depuis la console. ' +
-        'Un déploiement scolaire doit appliquer les droits et les rôles côté serveur.</p>' +
-        '<button type="button" id="btn-deconnexion" class="px-5 py-3 nm-soft-convex rounded-2xl text-xs font-bold text-red-500 flex items-center gap-2">' +
-        P.ico('log-out', 14) + 'Se déconnecter</button></div>'
-    })
+    
   ]);
 
   var btn = document.getElementById('btn-deconnexion');

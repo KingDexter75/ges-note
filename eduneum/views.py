@@ -61,6 +61,7 @@ PAGE_MODULES = {
     'enseignant/tableau-de-bord.html': 'teacher_dashboard',
     'enseignant/mes-classes.html': 'teacher_classes',
     'enseignant/saisie-notes.html': 'teacher_saisie',
+    'enseignant/saisie-notes-couplee.html': 'teacher_saisie',
     'enseignant/ma-classe.html': 'teacher_ma_classe',
     'enseignant/rapports.html': 'teacher_rapports',
     'enseignant/profil.html': 'teacher_profil',

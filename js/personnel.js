@@ -238,14 +238,81 @@
       class: 'p-2 nm-soft-convex rounded-lg text-accent', title: 'Modifier', html: P.ico('pencil', 14)
     });
     bEdit.addEventListener('click', function () { formulaire(p); });
+    /* Miroir de la page Classes : la on designe le PROFESSEUR, ici on
+       choisit sa CLASSE. Reservé aux membres dont la fonction est
+       « enseignant ». */
+    var bPP = null;
+    if (p.fonction === 'enseignant') {
+      bPP = UI.el('button', {
+        class: 'p-2 nm-soft-convex rounded-lg text-blue-500',
+        title: 'Nommer professeur principal d\'une classe', html: P.ico('user-round-cog', 14)
+      });
+      bPP.addEventListener('click', function () { nommerPP(p); });
+    }
     var bArch = UI.el('button', {
       class: 'p-2 nm-soft-convex rounded-lg text-red-500', title: 'Archiver', html: P.ico('archive', 14)
     });
     bArch.addEventListener('click', function () { archiver(p); });
     groupe.appendChild(bFiche);
     groupe.appendChild(bEdit);
+    if (bPP) groupe.appendChild(bPP);
     groupe.appendChild(bArch);
     return groupe;
+  }
+
+  /* --------------------- Professeur principal ---------------------------- */
+  /* Chaque classe de l'annee consultee est proposee avec son effectif et
+     son PP actuel, pour que le remplacement soit visible avant validation.
+     Le store recontrole les deux regles : une seule classe par PP par
+     annee, et le PP sortant de la classe choisie est remplace. */
+  function nommerPP(p) {
+    var classes = S.classesDe(an.id).filter(function (c) { return !c.archive; });
+    if (!classes.length) { UI.toast('Aucune classe pour ' + an.libelle + '.', 'error'); return; }
+
+    var options = [{ valeur: '', libelle: '— Choisir une classe —' }].concat(
+      classes.map(function (c) {
+        var ppId = S.ppDeClasse(c.id);
+        var pp = ppId ? S.enseignantParId(ppId) : null;
+        var n = S.elevesDeClasse(c.id, an.id).length;
+        return {
+          valeur: c.id,
+          libelle: c.nom + ' — ' + n + ' élève(s) — ' + (pp
+            ? (ppId === p.id ? 'PP actuel' : 'PP : ' + pp.prenom + ' ' + pp.nom)
+            : 'sans PP')
+        };
+      }));
+
+    var fClasse = UI.champ({
+      label: 'Classe à diriger en ' + an.libelle, type: 'select', requis: true, options: options
+    });
+
+    var deja = ppDeClasseDe(p);
+    UI.modal({
+      titre: 'Nommer professeur principal',
+      contenu: '<div class="space-y-3" id="form-nommer-pp"></div>' +
+        '<p class="text-xs text-gray-500">' +
+        (deja.length
+          ? '<b>' + P.esc(p.prenom + ' ' + p.nom) + '</b> est déjà professeur principal de <b>' +
+            P.esc(deja.map(function (c) { return c.nom; }).join(', ')) +
+            '</b> : un professeur principal ne dirige qu\'une seule classe par année.'
+          : 'Un professeur principal ne dirige qu\'une seule classe par année. Si la classe choisie a déjà un PP, il est remplacé.') +
+        '</p>',
+      actions: [
+        { label: 'Annuler', classe: 'nm-soft-convex' },
+        {
+          label: 'Nommer', classe: 'bg-accent text-white',
+          onClick: function () {
+            if (!UI.validerChamps([fClasse])) return false;
+            if (!fClasse.valeur()) { UI.toast('Choisissez une classe.', 'error'); return false; }
+            var r = S.definirPP(fClasse.valeur(), p.id);
+            if (!r.ok) { UI.toast(r.motif, 'error'); return false; }
+            UI.toast(p.prenom + ' ' + p.nom + ' est maintenant professeur principal.', 'success');
+            refresh();
+          }
+        }
+      ]
+    });
+    document.getElementById('form-nommer-pp').appendChild(fClasse.element);
   }
 
   /* ------------------------------- Fiche ---------------------------------- */

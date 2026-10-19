@@ -61,6 +61,9 @@
     /* La direction n'ecrit pas les notes : seul l'admin gere les sujets ;
        l'enseignant reste maitre de sa saisie. */
     teacher_saisie:    { lire: [ENSEIGNANT, ADMIN, DIRECTION], ecrire: [ENSEIGNANT, ADMIN] },
+    /* Saisie couplee (les sequences d'un trimestre en une passe) : memes
+       droits que la saisie simple. */
+    teacher_saisie_couplee: { lire: [ENSEIGNANT, ADMIN, DIRECTION], ecrire: [ENSEIGNANT, ADMIN] },
     teacher_rapports:  { lire: [ENSEIGNANT, ADMIN, DIRECTION], ecrire: [] },
     teacher_ma_classe: { lire: [ENSEIGNANT], ecrire: [ENSEIGNANT] },
     teacher_profil:    { lire: [ENSEIGNANT, ADMIN, DIRECTION, CENSEUR, SURVEILLANT], ecrire: [ENSEIGNANT, ADMIN, DIRECTION, CENSEUR, SURVEILLANT] }
@@ -85,6 +88,7 @@
     censeur_profil: 'Mon Profil',
     teacher_dashboard: 'Tableau de bord enseignant', teacher_classes: 'Mes classes',
     teacher_saisie: 'Saisie des notes', teacher_rapports: 'Mes rapports',
+    teacher_saisie_couplee: 'Saisie couplée',
     teacher_ma_classe: 'Ma classe', teacher_profil: 'Mon profil'
   };
   function libelleDe(mod) { return LIBELLES[mod] || mod; }

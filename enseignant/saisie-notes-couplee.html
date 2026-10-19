@@ -1,0 +1,177 @@
+<!DOCTYPE html><html lang="fr" class="light"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Saisie des Notes (Couplée) | EduNeum Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+  <link rel="stylesheet" href="../css/eduneum-core.css?v=4"><link rel="stylesheet" href="../css/saisie-des-notes.css?v=2">
+                  <script src="../js/core/routes.js?v=3"></script>
+    <script src="../js/core/store.js?v=6"></script>
+    <script src="../js/core/calculs.js?v=3"></script>
+    <script src="../js/core/auth.js?v=2"></script>
+    <script src="../js/core/ui.js?v=2"></script>
+    <script src="../js/core/page.js?v=2"></script>
+    <script src="../js/core/acces.js?v=3"></script>
+    <script src="../js/core/layout.js?v=5"></script>
+<script src="../js/saisie-des-notes.tailwind.js?v=2"></script>
+  <!-- i18n apres layout : le menu est genere au DOMContentLoaded, il doit
+       exister deja pour que la traduction s'y applique. -->
+  <script src="../js/core/i18n.js?v=2"></script>
+</head>
+<body>
+  <div class="min-h-screen flex flex-col md:flex-row" data-sd-id="1">
+
+    <!-- Menu par role : genere par js/core/layout.js a partir de js/core/routes.js. -->
+    <aside class="w-full md:w-64 flex flex-col p-6 space-y-8 z-50 vt-sidebar">
+      <div class="flex items-center space-x-3 nm-soft-convex p-4 rounded-2xl">
+        <div class="w-10 h-10 bg-accent rounded-xl flex items-center justify-center text-white shadow-lg">
+          <iconify-icon icon="lucide:graduation-cap" width="24"></iconify-icon>
+        </div>
+        <span class="font-bold text-xl tracking-tight display-font">EduNeum.</span>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col p-6 md:p-10 space-y-8 overflow-y-auto vt-main-content" data-sd-id="2" id="main-content-area">
+
+      <!-- Header -->
+      <header class="flex flex-col md:flex-row justify-between items-center gap-4" data-sd-id="3">
+        <div class="flex flex-col" data-sd-id="4">
+          <h1 class="text-3xl font-extrabold display-font tracking-tight">Saisie des Notes (Couplée)</h1>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Gestion académique • Saisie simultanée des séquences du trimestre</p>
+        </div>
+
+        <div class="flex items-center space-x-4" data-sd-id="7">
+          <div class="nm-inset p-1 rounded-full flex" role="group" aria-label="Langue" data-sd-id="8">
+            <button type="button" class="px-4 py-1 text-xs font-bold bg-accent text-white rounded-full shadow-md" id="lang-fr" data-sd-id="9">FR</button>
+            <button type="button" class="px-4 py-1 text-xs text-gray-500 font-medium rounded-full" id="lang-en" data-sd-id="10">EN</button>
+          </div>
+
+          <button type="button" id="theme-toggle" class="w-10 h-10 nm-soft-convex rounded-full flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-accent transition-colors" data-sd-id="11">
+            <iconify-icon icon="lucide:sun" class="dark:hidden"></iconify-icon>
+            <iconify-icon icon="lucide:moon" class="hidden dark:block"></iconify-icon>
+          </button>
+        </div>
+      </header>
+
+      <!-- Filter Selection Section -->
+      <section id="zone-filtres" class="nm-flat p-8 rounded-[40px] grid grid-cols-1 md:grid-cols-4 gap-6 items-end" data-sd-id="15">
+        <div class="space-y-2" data-sd-id="16">
+          <label class="text-xs font-bold text-gray-400 uppercase tracking-widest">Classe</label>
+          <select id="sel-classe" class="w-full p-4 rounded-2xl input-nm text-sm font-medium focus:ring-2 focus:ring-accent" data-sd-id="18">
+            <option value="">Sélectionner une classe</option>
+          </select>
+        </div>
+        <div class="space-y-2" data-sd-id="24">
+          <label class="text-xs font-bold text-gray-400 uppercase tracking-widest">Matière</label>
+          <select id="sel-matiere" class="w-full p-4 rounded-2xl input-nm text-sm font-medium focus:ring-2 focus:ring-accent" data-sd-id="26">
+            <option value="">Sélectionner une matière</option>
+          </select>
+        </div>
+        <div class="space-y-2">
+          <label class="text-xs font-bold text-gray-400 uppercase tracking-widest">Trimestre</label>
+          <select id="sel-trimestre" class="w-full p-4 rounded-2xl input-nm text-sm font-medium focus:ring-2 focus:ring-accent">
+            <option value="">Sélectionner un trimestre</option>
+          </select>
+        </div>
+        <div class="flex space-x-4" data-sd-id="32">
+          <button id="btn-load-list" class="flex-1 py-4 px-6 nm-soft-convex rounded-2xl text-accent font-bold hover:nm-inset transition-all flex items-center justify-center space-x-2" data-sd-id="33">
+            <iconify-icon icon="lucide:rotate-cw" id="load-spinner" class="hidden animate-spin"></iconify-icon>
+            <iconify-icon icon="lucide:search" id="load-icon"></iconify-icon>
+            <span data-sd-id="34">Charger la liste</span>
+          </button>
+        </div>
+      </section>
+
+      <div id="alerte-saisie"></div>
+
+      <!-- Grade Entry Grid -->
+      <section class="space-y-6" data-sd-id="36">
+        <div class="flex flex-col space-y-4 px-2" data-sd-id="37">
+          <div class="flex justify-between items-center w-full">
+            <h2 id="saisie-titre" class="text-xl font-bold display-font" data-sd-id="38">Sélectionnez une classe, une matière et un trimestre</h2>
+            <div class="flex items-center space-x-3">
+              <button id="btn-undo" class="p-2 nm-soft-convex rounded-lg text-gray-400 opacity-50 cursor-not-allowed" title="Annuler (Ctrl+Z)"><iconify-icon icon="lucide:undo-2"></iconify-icon></button>
+              <button id="btn-redo" class="p-2 nm-soft-convex rounded-lg text-gray-400 opacity-50 cursor-not-allowed" title="Rétablir (Ctrl+Y)"><iconify-icon icon="lucide:redo-2"></iconify-icon></button>
+              <span id="badge-trimestre" class="text-xs font-semibold px-3 py-1 bg-accent/10 text-accent rounded-full" data-sd-id="39">—</span>
+            </div>
+          </div>
+
+          <div class="w-full nm-inset rounded-full h-3 overflow-hidden bg-gray-200 dark:bg-gray-800">
+            <div id="progress-bar" class="h-full bg-accent transition-all duration-500 w-[5%] bg-red-500"></div>
+          </div>
+          <div class="flex justify-between text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">
+            <span id="progress-text">Aucune séquence chargée</span>
+            <div class="flex space-x-4">
+              <button id="btn-avg" class="text-accent hover:underline">Calculer Moyenne</button>
+              <button id="btn-export" class="text-accent hover:underline">Exporter CSV</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="nm-flat rounded-[40px] overflow-hidden" data-sd-id="40">
+          <table class="w-full text-left" data-sd-id="41">
+            <thead data-sd-id="42">
+              <tr id="grade-table-head" class="text-xs font-bold text-gray-400 uppercase border-b border-gray-200 dark:border-gray-700" data-sd-id="43">
+                <th class="py-6 px-8" data-sd-id="44">Élève</th>
+                <th class="py-6 px-4 w-32" data-sd-id="45">Note /20</th>
+                <th class="py-6 px-8 text-right" data-sd-id="47">Statut</th>
+              </tr>
+            </thead>
+            <tbody id="grade-table-body" class="divide-y divide-gray-100 dark:divide-gray-800" data-sd-id="48">
+              <!-- Les lignes sont generees par js/saisie-notes-couplee.js depuis le store. -->
+            </tbody>
+          </table>
+
+          <!-- Table Footer Actions -->
+          <div class="p-8 bg-gray-50/50 dark:bg-gray-900/50 flex justify-between items-center border-t border-gray-100 dark:border-gray-800" data-sd-id="82">
+            <div class="flex space-x-4 items-center">
+              <p class="text-sm text-gray-500" data-sd-id="83" id="summary-count">Aucune liste chargée</p>
+              <p class="text-xs text-gray-400">Effectif géré depuis le module Inscriptions.</p>
+            </div>
+            <div class="flex space-x-4" data-sd-id="84">
+              <button id="btn-cancel" class="px-6 py-3 nm-soft-convex rounded-xl text-sm font-bold text-gray-500 hover:text-red-500 hover:nm-inset transition-all" data-sd-id="85">Annuler les modifications</button>
+              <button id="btn-save" class="px-8 py-3 bg-accent text-white rounded-xl text-sm font-bold btn-primary" data-sd-id="86">Enregistrer les notes</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Dernières notes saisies par l'enseignant. -->
+      <section class="space-y-5">
+        <div class="flex items-center justify-between gap-4">
+          <h2 class="text-xl font-bold display-font flex items-center gap-2">
+            <span class="text-accent"><iconify-icon icon="lucide:history" width="20"></iconify-icon></span>
+            <span>Dernières notes saisies</span>
+          </h2>
+          <a href="rapports.html" class="text-accent text-sm font-semibold hover:underline flex items-center gap-1">
+            <span>Rapports</span>
+            <iconify-icon icon="lucide:arrow-right" width="14"></iconify-icon>
+          </a>
+        </div>
+        <div class="nm-flat p-8 rounded-[40px] overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left">
+              <thead>
+                <tr class="text-xs font-bold text-gray-400 uppercase border-b border-gray-200 dark:border-gray-700">
+                  <th class="pb-4 px-2">Élève</th>
+                  <th class="pb-4 px-2">Matière</th>
+                  <th class="pb-4 px-2">Note</th>
+                  <th class="pb-4 px-2 text-right">Statut</th>
+                </tr>
+              </thead>
+              <tbody id="dernieres-notes" class="text-sm"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Notifications Stack -->
+  <div id="toast-container" class="fixed bottom-8 right-8 space-y-4 z-50" data-sd-id="87"></div>
+
+  <script src="../js/saisie-notes-couplee.js?v=1"></script>
+
+</body></html>

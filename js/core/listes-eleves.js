@@ -137,11 +137,102 @@
     return n > 0 ? n : 6;
   }
 
-  /* Lignes d'eleves par page A4. Les colonnes SEQ resserrent le tableau (risque
-     de retour a la ligne) : on garde alors un peu moins de lignes par page. */
-  function lignesParPage(avecSequences) { return avecSequences ? 22 : 26; }
+  /* ------------------------- Repartition des pages ----------------------- */
+  /* Remplit les pages A4 en mesurant la hauteur reelle des lignes : chaque page
+     recoit le maximum d'eleves qui tient sans jamais rogner une ligne, quel que
+     soit le mode (avec/sans colonnes SEQ, noms longs, en-tete plus ou moins
+     haut). La premiere page, qui porte l'en-tete officiel et le bandeau
+     d'informations, est mesuree separement des suivantes. */
+  function paginerA4(classe, annee, t, cfg) {
+    var lignes = cfg.lignesHtml || [];
+    var videHtml = '<table class="lst-table">' + (cfg.colsHtml || '') + '<thead><tr>' + cfg.theadHtml +
+      '</tr></thead><tbody></tbody></table>';
+    var hote = document.createElement('div');
+    hote.style.cssText = 'position:absolute;left:-10000px;top:0;width:210mm;';
+    if (!document.getElementById('eduneum-listes-style')) assurerStyle();
+    document.body.appendChild(hote);
+
+    function enveloppe(entete, corps) {
+      return '<div class="lst-page">' + entete + '<div class="lst-corps">' + corps + '</div>' +
+        piedBas(classe, annee, cfg.effectif, 1, 1, t) + '</div>';
+    }
+    /* Place disponible dans le corps de la page (px). La marge de 6 px couvre
+       l'arrondi des hauteurs et la hauteur d'impression (296 mm au lieu de
+       297 mm). */
+    function capacite(entete) {
+      hote.innerHTML = enveloppe(entete, videHtml);
+      var page = hote.firstChild;
+      var corps = page.querySelector('.lst-corps');
+      var th = page.querySelector('thead');
+      var pad = parseFloat(window.getComputedStyle(corps).paddingTop) || 0;
+      return Math.max(0, corps.clientHeight - pad - (th ? th.offsetHeight : 0) - 6);
+    }
+
+    var tranches = [];
+    try {
+      var capPremiere = capacite(enteteHaut(classe, annee, cfg.titreListe, cfg.bloc || ''));
+      var capSuivantes = capacite('');
+
+      var hauteurs = [];
+      if (lignes.length) {
+        hote.innerHTML = enveloppe('', '<table class="lst-table">' + (cfg.colsHtml || '') +
+          '<thead><tr>' + cfg.theadHtml + '</tr></thead><tbody>' + lignes.join('') + '</tbody></table>');
+        var trs = hote.querySelectorAll('tbody tr');
+        for (var i = 0; i < trs.length; i++) hauteurs.push(trs[i].getBoundingClientRect().height);
+      }
+
+      var courante = [];
+      var utilise = 0;
+      var cap = capPremiere;
+      for (var j = 0; j < lignes.length; j++) {
+        var h = hauteurs[j] + 1;
+        if (courante.length && utilise + h > cap) {
+          tranches.push(courante);
+          courante = [];
+          utilise = 0;
+          cap = capSuivantes;
+        }
+        courante.push(lignes[j]);
+        utilise += h;
+      }
+      tranches.push(courante);
+    } finally {
+      hote.remove();
+    }
+
+    var total = tranches.length;
+    return tranches.map(function (groupe, idx) {
+      var corps = groupe.length ? groupe.join('') :
+        '<tr><td class="lst-vide" colspan="' + cfg.nbColonnes + '">' + esc(cfg.vide) + '</td></tr>';
+      var tableau = '<table class="lst-table">' + (cfg.colsHtml || '') +
+        '<thead><tr>' + cfg.theadHtml + '</tr></thead><tbody>' + corps + '</tbody></table>';
+      var entete = idx === 0 ? enteteHaut(classe, annee, cfg.titreListe, cfg.bloc || '') : '';
+      return pageA4(entete, tableau, piedBas(classe, annee, cfg.effectif, idx + 1, total, t));
+    });
+  }
 
   /* ------------------------- Pieces reutilisables ------------------------ */
+
+  /* Largeurs fixes des colonnes : elles permettent au maximum de lignes de
+     rester sur une seule ligne (les noms longs ne prennent la place que d'une
+     ligne), donc de remplir chaque page A4 au maximum. */
+  function colonnesEleves(enseignant, nbSeq) {
+    var cols = '<col style="width:9mm"><col style="width:18mm">' +
+      '<col style="width:' + (enseignant ? 64 : 48) + 'mm">';
+    if (!enseignant) cols += '<col style="width:19mm"><col style="width:25mm">';
+    cols += '<col style="width:10mm"><col style="width:13mm">';
+    if (!enseignant) cols += '<col style="width:12mm"><col style="width:24mm">';
+    for (var s = 0; s < nbSeq; s++) cols += '<col style="width:11mm">';
+    return '<colgroup>' + cols + '</colgroup>';
+  }
+
+  function colonnesAbsences() {
+    return '<colgroup>' +
+      '<col style="width:9mm"><col style="width:52mm"><col style="width:20mm">' +
+      '<col style="width:19mm"><col style="width:26mm"><col style="width:9mm">' +
+      '<col style="width:18mm"><col style="width:15mm">' +
+      '</colgroup>';
+  }
 
   function enteteColonnes(t, nbSeq, mode, enseignant) {
     if (mode === 'absences') {
@@ -151,7 +242,7 @@
         '<th class="lst-c">' + esc(t.cDate) + '</th>' +
         '<th>' + esc(t.cLieu) + '</th>' +
         '<th class="lst-c">' + esc(t.cSexe) + '</th>' +
-        '<th class="lst-c">' + esc(t.cRedoublant) + '</th>' +
+        '<th class="lst-c">' + esc(t.cRed) + '</th>' +
         '<th class="lst-c">' + esc(t.cHeures) + '</th>';
     }
     var t2 = '<th class="lst-c">' + esc(t.cNumero) + '</th>' +
@@ -162,7 +253,7 @@
         '<th>' + esc(t.cLieu) + '</th>';
     }
     t2 += '<th class="lst-c">' + esc(t.cSexe) + '</th>' +
-      '<th class="lst-c">' + esc(enseignant ? t.cRed : t.cRedoublant) + '</th>';
+      '<th class="lst-c">' + esc(t.cRed) + '</th>';
     if (!enseignant) {
       t2 += '<th class="lst-c">' + esc(t.cStatut) + '</th>' +
         '<th class="lst-c">' + esc(t.cTelParent) + '</th>';
@@ -280,7 +371,6 @@
     var t = T(classe);
     var eleves = elevesTries(classe.id, annee.id);
     var insMap = inscriptionsParEleve(classe.id, annee.id);
-    var parPage = lignesParPage(avecSeq);
     var nbColonnes = (enseignant ? 5 : 9) + nbSeq;
 
     var matiereId = options.matiereId || '';
@@ -299,27 +389,17 @@
       });
     }
 
-    var tranches = [];
-    if (!eleves.length) tranches.push([]);
-    else {
-      for (var i = 0; i < eleves.length; i += parPage) tranches.push(eleves.slice(i, i + parPage));
-    }
-    var total = tranches.length;
-
-    return tranches.map(function (groupe, idx) {
-      var numero = idx + 1;
-      var rangDebut = idx * parPage;
-      var corps = groupe.map(function (e, k) {
-        return ligneEleve(e, rangDebut + k + 1, nbSeq, insMap[e.id], t, enseignant);
-      }).join('');
-      if (!corps) corps = '<tr><td class="lst-vide" colspan="' + nbColonnes + '">' + esc(t.vide) + '</td></tr>';
-
-      var tableau = '<table class="lst-table"><thead><tr>' + enteteColonnes(t, nbSeq, 'eleves', enseignant) +
-        '</tr></thead><tbody>' + corps + '</tbody></table>';
-      var entete = numero === 1
-        ? enteteHaut(classe, annee, titreListe, stats ? blocInfosEnseignant(info, stats, t) : '')
-        : '';
-      return pageA4(entete, tableau, piedBas(classe, annee, eleves.length, numero, total, t));
+    return paginerA4(classe, annee, t, {
+      titreListe: titreListe,
+      theadHtml: enteteColonnes(t, nbSeq, 'eleves', enseignant),
+      colsHtml: colonnesEleves(enseignant, nbSeq),
+      lignesHtml: eleves.map(function (e, k) {
+        return ligneEleve(e, k + 1, nbSeq, insMap[e.id], t, enseignant);
+      }),
+      nbColonnes: nbColonnes,
+      effectif: eleves.length,
+      vide: t.vide,
+      bloc: stats ? blocInfosEnseignant(info, stats, t) : ''
     });
   }
 
@@ -343,26 +423,17 @@
         return true;
       });
 
-    var parPage = lignesParPage(false);
-    var tranches = [];
-    if (!lignes.length) tranches.push([]);
-    else {
-      for (var i = 0; i < lignes.length; i += parPage) tranches.push(lignes.slice(i, i + parPage));
-    }
-    var total = tranches.length;
-
-    return tranches.map(function (groupe, idx) {
-      var numero = idx + 1;
-      var rangDebut = idx * parPage;
-      var corps = groupe.map(function (l, k) {
-        return ligneAbsence(l, rangDebut + k + 1, t);
-      }).join('');
-      if (!corps) corps = '<tr><td class="lst-vide" colspan="8">' + esc(t.videAbsences) + '</td></tr>';
-
-      var tableau = '<table class="lst-table"><thead><tr>' + enteteColonnes(t, 0, 'absences') +
-        '</tr></thead><tbody>' + corps + '</tbody></table>';
-      var entete = numero === 1 ? enteteHaut(classe, annee, t.titreAbsences) : '';
-      return pageA4(entete, tableau, piedBas(classe, annee, lignes.length, numero, total, t));
+    return paginerA4(classe, annee, t, {
+      titreListe: t.titreAbsences,
+      theadHtml: enteteColonnes(t, 0, 'absences'),
+      colsHtml: colonnesAbsences(),
+      lignesHtml: lignes.map(function (l, k) {
+        return ligneAbsence(l, k + 1, t);
+      }),
+      nbColonnes: 8,
+      effectif: lignes.length,
+      vide: t.videAbsences,
+      bloc: ''
     });
   }
 
@@ -442,9 +513,9 @@
     '.lst-pied{flex:0 0 auto;margin-top:auto;padding-top:3mm;border-top:1px solid #cbd5e1;text-align:center}' +
     '.lst-classe-meta{font-size:10px;color:#475569}' +
     '.lst-page-num{font-size:10px;font-weight:700;color:#0f766e;margin-top:1mm}' +
-    '.lst-table{width:100%;border-collapse:collapse;font-size:11px;margin:0}' +
-    '.lst-table th,.lst-table td{border:1px solid #333;padding:4px 6px;text-align:left;vertical-align:top}' +
-    '.lst-table thead th{background:#e2e8f0;font-size:10px;text-transform:uppercase;letter-spacing:.3px;text-align:center}' +
+    '.lst-table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:10px;line-height:1.15;margin:0}' +
+    '.lst-table th,.lst-table td{border:1px solid #333;padding:2px 5px;text-align:left;vertical-align:top}' +
+    '.lst-table thead th{background:#e2e8f0;font-size:9px;text-transform:uppercase;letter-spacing:.3px;text-align:center}' +
     '.lst-table .lst-c{text-align:center}' +
     '.lst-table .lst-seq{width:30px}' +
     '.lst-table tbody tr:nth-child(even){background:#f8fafc}' +
@@ -476,6 +547,8 @@
 
   function assurerStyle() {
     purger();
+    var ancien = document.getElementById('eduneum-listes-style');
+    if (ancien) ancien.remove();
     var style = document.createElement('style');
     style.id = 'eduneum-listes-style';
     style.textContent = CSS;

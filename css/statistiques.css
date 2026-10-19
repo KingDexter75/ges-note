@@ -40,54 +40,10 @@
     .nm-soft-convex {
       box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
     }
-    .hover-nm:hover {
-      transform: translateY(-2px);
-      box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
-      transition: all 0.3s ease;
-    }
 
-    .chart-bar {
-      background: var(--accent);
-      box-shadow: 3px 3px 6px var(--shadow-dark), -3px -3px 6px var(--shadow-light);
+    /* Barres de la repartition des moyennes : transition douce au rendu. */
+    .stat-bar-item > div > div {
       transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .loading-spinner {
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-
-    .modal-overlay {
-      backdrop-filter: blur(8px);
-      background: rgba(0, 0, 0, 0.4);
-      opacity: 0;
-      visibility: hidden;
-      transition: all 0.3s ease;
-    }
-    .modal-overlay.active {
-      opacity: 1;
-      visibility: visible;
-    }
-    .modal-content {
-      transform: scale(0.9);
-      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    .modal-overlay.active .modal-content {
-      transform: scale(1);
-    }
-
-    .tooltip {
-      visibility: hidden;
-      opacity: 0;
-      transition: opacity 0.2s;
-    }
-    .chart-item:hover .tooltip {
-      visibility: visible;
-      opacity: 1;
     }
 
     @media print {
@@ -104,50 +60,9 @@
       }
     }
 
-sd-component { display: block; }
-
-.vt-sidebar {
-  view-transition-name: sidebar;
-}
-.vt-main-content {
-  view-transition-name: main-content;
-}
-.pct-h-40 {
-  height: 40%;
-}
-.pct-h-55 {
-  height: 55%;
-}
-.pct-h-70 {
-  height: 70%;
-}
-.pct-h-65 {
-  height: 65%;
-}
-.pct-h-85 {
-  height: 85%;
-}
-.pct-h-95 {
-  height: 95%;
-}
-
-/* Graphique « Repartition des notes » agrandi (bouton maximize-2).
-   On etale la carte sur toute la zone de contenu sans sortir du document :
-   une position fixed ecraserait le bandeau et le menu lateral. */
-.chart-fullscreen {
-  position: absolute;
-  inset: 0;
-  z-index: 40;
-  height: 100% !important;
-  min-height: 100%;
-  background: var(--nm-surface, #fff);
-  border-radius: 0;
-  padding: 2rem;
-  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.25);
-}
-
-@media (prefers-color-scheme: dark) {
-  .chart-fullscreen {
-    background: var(--nm-surface-dark, #0f172a);
-  }
-}
+    .vt-sidebar {
+      view-transition-name: sidebar;
+    }
+    .vt-main-content {
+      view-transition-name: main-content;
+    }
