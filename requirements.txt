@@ -1,0 +1,11 @@
+# GesNote2 (EduNeum) - Dépendances Python
+# Python 3.14+
+# Installation : pip install -r requirements.txt
+
+Django==6.1.2
+PyMySQL==1.2.3
+
+# Dépendances transitives de Django
+asgiref==3.12.1
+sqlparse==0.6.0
+tzdata==2026.5

@@ -1,0 +1,1142 @@
+================================================================================
+                         GESNOTE2 / EDUNEUM
+                 DOCUMENTATION COMPLETE DU PROJET
+================================================================================
+
+Date de redaction : 19/10/2026
+
+Application web de gestion des notes, bulletins et disciplines scolaires.
+Backend Django 6.1 (Python 3.14) + MySQL, front-end HTML/CSS/JS servi par
+Django, authentification JWT (cookies HttpOnly) avec code OTP par SMS
+optionnel (Africa's Talking).
+
+--------------------------------------------------------------------------------
+SOMMAIRE
+--------------------------------------------------------------------------------
+
+  1.  Presentation generale
+  2.  Prérequis et installation
+  3.  Structure du projet
+  4.  Configuration (config/settings.py)
+  5.  Base de donnees et modeles
+  6.  Authentification (JWT + OTP)
+  7.  API REST
+  8.  Droits et permissions
+  9.  Instantane (snapshot)
+  10. Front-end : pages, routes, modules JS, CSS
+  11. Passerelle SMS
+  12. Commandes de gestion
+  13. Mise en production
+  14. Annexes (matrice des roles, glossaire)
+
+================================================================================
+1. PRESENTATION GENERALE
+================================================================================
+
+GesNote2 (« EduNeum ») est une application web multi-roles destinee a la
+gestion scolaire : annees/trimestres/sequences, classes, eleves, enseignants,
+notes, bulletins, assiduite, vie scolaire et statistiques.
+
+Principes architecturaux :
+  - Un backend Django unique (app `eduneum`) expose une API JSON et sert les
+    pages HTML/JS/CSS statiques du front.
+  - Le front est une application de type SPA sans framework : HTML + JS
+    vanilla organises par espace (admin, censeur, enseignant).
+  - La persistance se fait via un « instantane » (snapshot) : le front charge
+    l'etat complet via GET /api/bootstrap/ et l'enregistre via POST /api/store/
+    (avec verification des droits par DIFF cote serveur).
+  - L'authentification utilise des JWT HS256 signes (implementation maison
+    dans eduneum/jwtauth.py), transportes par cookies HttpOnly, avec rotation
+    du refresh token et OTP par SMS optionnel.
+  - Roles : admin, direction, censeur, surveillant, enseignant.
+
+Roles et espaces :
+  - admin / direction  -> espace `admin/`   (18 pages)
+  - censeur            -> espace `censeur/` (9 pages)
+  - surveillant        -> menu restreint (tableau de bord, absences, classes)
+  - enseignant         -> espace `enseignant/` (6 pages)
+
+Langue : fr-fr par defaut, i18n FR/EN cote front (js/core/i18n.js).
+Fuseau horaire : Africa/Douala.
+
+================================================================================
+2. PREREQUIS ET INSTALLATION
+================================================================================
+
+Prerequis :
+  - Python 3.14+
+  - MySQL 8 (ou MariaDB 10.6+) sur 127.0.0.1:3306
+  - Acces reseau au navigateur (CDN : cdn.tailwindcss.com,
+    code.iconify.design)
+
+Etapes :
+
+  2.1 Recuperer le code
+      git clone <url-du-depot> GesNote2
+      cd GesNote2
+
+  2.2 Creer l'environnement virtuel
+      Windows (PowerShell) :
+          python -m venv env
+          env\Scripts\Activate.ps1
+      Linux / macOS :
+          python3 -m venv env
+          source env/bin/activate
+
+  2.3 Installer les dépendances
+      pip install -r requirements.txt
+
+      Contenu de requirements.txt :
+          Django==6.1.2
+          PyMySQL==1.2.3
+          asgiref==3.12.1      (transitive)
+          sqlparse==0.6.0      (transitive)
+          tzdata==2026.5       (transitive)
+
+  2.4 Creer la base de donnees
+      Se connecter a MySQL (compte root par defaut) :
+          CREATE DATABASE gesnotes2
+            CHARACTER SET utf8mb4
+            COLLATE utf8mb4_unicode_ci;
+
+  2.5 Appliquer les migrations
+      python manage.py migrate
+
+  2.6 Creer le compte administrateur
+      python manage.py admin_init
+      Compte par defaut : telephone 672647904 / mot de passe admin1234
+      Options : --telephone 6XXXXXXXX --mot-de-passe MonMotDePasse
+
+  2.7 Demarrer le serveur
+      python manage.py runserver
+      Ouvrir http://127.0.0.1:8000/
+
+Remarque : le projet demarre vide ; aucune donnee de demonstration n'est
+inseree. Le dossier `env/` (venv) ne doit pas etre versionne.
+
+================================================================================
+3. STRUCTURE DU PROJET
+================================================================================
+
+GesNote2/
+|-- index.html                  Page de connexion (entry point front)
+|-- manage.py                   CLI Django (DJANGO_SETTINGS_MODULE=config.settings)
+|-- requirements.txt            Dépendances Python
+|-- README.md                   Instructions d'installation/demarrage
+|-- doc-ges-note.txt            Présente documentation
+|
+|-- config/                     Package Django
+|   |-- __init__.py             pymysql.install_as_MySQLdb()
+|   |-- settings.py             Configuration (MySQL, OTP, JWT, i18n...)
+|   |-- urls.py                 /django-admin/ + inclusion eduneum.urls
+|   |-- wsgi.py                 Point d'entree WSGI
+|   `-- asgi.py                 Point d'entree ASGI
+|
+|-- eduneum/                    Application unique
+|   |-- models.py               27 modeles (voir section 5)
+|   |-- views.py                API JSON + serveur de pages (serve_page)
+|   |-- urls.py                 Routes API + catch-all pages
+|   |-- droits.py               Controle d'ecriture par DIFF (miroir acces.js)
+|   |-- snapshot.py             Conversion base <-> instantane JSON
+|   |-- jwtauth.py              JWT HS256 maison (emission/verif/cookies)
+|   |-- middleware.py           JWTAuthenticationMiddleware (request.user)
+|   |-- sms.py                  Passerelle SMS Africa's Talking
+|   |-- seed.py                 Constantes par defaut (parametres, sequenceur)
+|   |-- admin.py                Enregistrement des modeles dans Django admin
+|   |-- apps.py                 Configuration de l'app
+|   |-- migrations/             0001_initial ... 0008_eleve_redoublant
+|   `-- management/commands/
+|       `-- admin_init.py       Creation/reinitialisation du compte admin
+|
+|-- admin/                      18 pages HTML (espace administration)
+|-- censeur/                    9 pages HTML (espace censeur)
+|-- enseignant/                 6 pages HTML (espace enseignant)
+|
+|-- css/                        Feuilles de style (eduneum-core.css + 1/page)
+|-- js/
+|   |-- core/                   Modules partages (voir section 10)
+|   |-- tailwind.config.js      Config Tailwind runtime (darkMode: class)
+|   `-- *.js                    Scripts JS par page (~40 fichiers)
+|
+`-- env/                        Environnement virtuel Python (hors VCS)
+
+================================================================================
+4. CONFIGURATION (config/settings.py)
+================================================================================
+
+Parametres principaux :
+
+  SECRET_KEY      'django-insecure-eduneum-gesnote2-changez-moi-en-production'
+                  (a changer imperativement en production)
+  DEBUG           True
+  ALLOWED_HOSTS   ['*']
+
+  DATABASES       MySQL : base `gesnotes2`, user `root`, password vide,
+                  host 127.0.0.1, port 3306, charset utf8mb4,
+                  sql_mode STRICT_TRANS_TABLES
+
+  AUTH_USER_MODEL 'eduneum.Compte'
+
+  LANGUAGE_CODE   'fr-fr'
+  TIME_ZONE       'Africa/Douala'
+  USE_I18N        True
+  USE_TZ          True
+
+  STATIC_URL      'static/'
+
+  SESSION_ENGINE                django.contrib.sessions.backends.db
+  SESSION_COOKIE_SAMESITE       Lax
+  CSRF_COOKIE_SAMESITE          Lax
+
+  DATA_UPLOAD_MAX_MEMORY_SIZE   64 Mo (instantanes volumineux)
+  DATA_UPLOAD_MAX_NUMBER_FIELDS None
+
+Authentification / OTP :
+  OTP_TTL_SECONDS       300   (validite d'un code OTP)
+  OTP_MAX_ATTEMPTS      5
+  OTP_OBLIGATOIRE       None  (None = automatique : OTP requis si la passerelle
+                               SMS est configuree, sinon connexion directe ;
+                               True = toujours ; False = jamais)
+
+JWT :
+  JWT_SECRET                (facultatif ; sinon SECRET_KEY)
+  JWT_ACCESS_TTL_SECONDS    43200   (12 h)
+  JWT_REFRESH_TTL_SECONDS   604800  (7 j)
+
+Passerelle SMS (variables d'environnement, voir section 11) :
+  AT_USERNAME, AT_API_KEY, AT_SENDER_ID, AT_SANDBOX, SMS_PAYS
+
+Middleware (ordre) :
+  Security, Sessions, Common, CSRF, Authentication,
+  eduneum.middleware.JWTAuthenticationMiddleware, Messages, XFrameOptions
+
+Remarques :
+  - Le projet n'utilise pas de fichier .env ; les secrets SMS passent par des
+    variables d'environnement, et le reste est code dans settings.py.
+  - TEMPLATES DIRS pointe vers BASE_DIR/templates (repertoire absent ; les
+    pages HTML sont servies par la vue catch-all serve_page).
+
+================================================================================
+5. BASE DE DONNEES ET MODELES
+================================================================================
+
+Base MySQL `gesnotes2`, pilote PyMySQL (active par
+pymysql.install_as_MySQLdb() dans config/__init__.py).
+
+Principes de modelisation (eduneum/models.py) :
+  - Chaque modele correspond a une collection du localStorage d'origine
+    (js/core/store.js).
+  - PK = chaines produites par le front (`e1`, `c1`, `an2025`...), sauf
+    Compte, Coefficient, Parametres.
+  - Dates/horodatages souvent stockes en texte ISO (CharField) pour rester
+    fideles au front, y compris chaines vides.
+  - db_table explicite pour chaque modele (prefixe `eduneum_`).
+  - Migrations : 0001_initial -> 0008_eleve_redoublant.
+
+--------------------------------------------------------------------------------
+5.1 AUTH / COMPTES
+--------------------------------------------------------------------------------
+
+Compte (AUTH_USER_MODEL, eduneum_compte)
+  Hérite AbstractBaseUser + PermissionsMixin
+  telephone     Char(20) unique          USERNAME_FIELD
+  role          Char(20) choices         admin / direction / censeur /
+                                         surveillant / enseignant
+                                         (defaut : enseignant)
+  nom, prenom   Char(80) blank
+  enseignant_id Char(40) blank           reference par identifiant (pas de FK,
+                                         volontaire pour la restauration)
+  is_active     Bool (defaut True)
+  is_staff      Bool (defaut False)
+  date_creation DateTime auto_now_add
+  Manager       CompteManager (use_in_migrations) : create_user,
+                create_superuser
+  property      identite -> {telephone, role, nom, prenom, enseignantId}
+
+RefreshToken (eduneum_refresh_token)
+  jti       Char(64) unique
+  compte    FK Compte (CASCADE, related refresh_tokens)
+  expire_le DateTime
+  cree_le   DateTime auto_now_add
+
+OTPCode (eduneum_otp, ordering ['-cree_le'])
+  telephone  Char(20) db_index
+  code       Char(6)
+  cree_le    DateTime auto_now_add
+  expire_le  DateTime
+  utilise    Bool (defaut False)
+  tentatives PositiveInteger (defaut 0)
+
+--------------------------------------------------------------------------------
+5.2 CADRE PEDAGOGIQUE
+--------------------------------------------------------------------------------
+
+Annee (eduneum_annee, ordering ['dateDebut'])
+  PK id Char(64), libelle Char(40), active Bool, cloturee Bool,
+  dateDebut/dateFin Char(32) blank
+
+Trimestre (eduneum_trimestre, ordering ['annee_id','numero'])
+  PK id, annee FK Annee (CASCADE, related trimestres), libelle Char(60),
+  numero Int, dateDebut/dateFin Char(32), ouvert Bool, valide Bool
+
+Sequence (eduneum_sequence, ordering ['annee_id','trimestre_id','numero'])
+  PK id, annee FK Annee, trimestre FK Trimestre, numero Int,
+  libelle Char(60), dateDebut/dateFin Char(32),
+  ouverte Bool, verrouillee Bool, validee Bool
+
+Section (eduneum_section, ordering ['nom'])
+  PK id, nom Char(80)   (sec-fr Francophone, sec-en Anglophone)
+
+Classe (eduneum_classe, ordering ['nom'])
+  PK id, nom Char(100), niveau Char(60), cycle Char(60),
+  section Char(20) defaut 'francophone'  (chaine legacy)
+  sectionId FK Section (null, SET_NULL, related classes)
+  effectifMax Int (30), annee FK Annee (CASCADE), archive Bool
+
+Matiere (eduneum_matiere, ordering ['nom'])
+  PK id, code Char(20), nom Char(120), noteMax Int (20), archive Bool
+
+Coefficient (eduneum_coefficient)
+  classe FK Classe (CASCADE, related coefficients)
+  matiere FK Matiere (CASCADE)
+  coefficient Int (0)
+  UNIQUE (classe, matiere)
+
+--------------------------------------------------------------------------------
+5.3 ELEVES, ENSEIGNANTS, INSCRIPTIONS
+--------------------------------------------------------------------------------
+
+Eleve (eduneum_eleve, ordering ['nom','prenom'])
+  PK id, matricule Char(40) db_index, nom, prenom Char(80)
+  dateNaissance Char(32), lieuNaissance Char(120), sexe Char(1)
+  telephone Char(30), telephoneParent Char(30), contactTuteur Char(120)
+  aptitude Char(1) defaut 'A'       A=apte / I=inapte
+  redoublant Char(1) defaut 'N'     O=oui / N=non
+  photo Text, archive Bool, dateCreation Char(32)
+
+Enseignant (eduneum_enseignant, ordering ['nom','prenom'])
+  PK id, matricule Char(40), nom, prenom Char(80)
+  fonction Char(30) defaut 'enseignant'
+  email Char(160) db_index, dateNaissance Char(32), telephone Char(30)
+  archive Bool, dateCreation Char(32)
+
+Inscription (eduneum_inscription, ordering ['annee_id','classe_id'])
+  PK id, eleve FK Eleve (CASCADE), classe FK Classe, annee FK Annee
+  dateInscription Char(32), statut Char(20) defaut 'active'
+  archive Bool, dateMigration Char(32)
+
+Affectation - enseignant x classe x matiere (eduneum_affectation)
+  PK id, classe FK, matiere FK, enseignant FK, annee FK
+  (tous CASCADE avec related_name propres), archive Bool
+
+AffectationCenseur (eduneum_affectation_censeur,
+                    ordering ['annee_id','classe_id'])
+  PK id, classe FK (affectations_censeurs), enseignant FK, annee FK
+  UNIQUE (classe, enseignant, annee)
+  censeur_unique_classe_enseignant_annee
+
+ProfPrincipal (eduneum_prof_principal, ordering ['annee_id','classe_id'])
+  PK id, classe FK (profs_principaux), enseignant FK, annee FK
+  UNIQUE (classe, annee)       pp_unique_classe_annee
+                               -> une classe = 1 prof principal par an
+  UNIQUE (enseignant, annee)   pp_unique_enseignant_annee
+                               -> un enseignant ne dirige qu'une classe/an
+
+--------------------------------------------------------------------------------
+5.4 NOTES ET VIE SCOLAIRE
+--------------------------------------------------------------------------------
+
+Note (eduneum_note, ordering ['sequence_id','classe_id','matiere_id'])
+  PK id, sequence FK (CASCADE, related notes), eleve FK, classe FK,
+  matiere FK
+  valeur Float (null), statut Char(20) defaut 'note'
+  remarque Text, appreciation Text, dateSaisie Char(40)
+  modifiePar Char(64), modifieLe Char(40)
+  UNIQUE (eleve, matiere, sequence)
+  note_unique_eleve_matiere_sequence
+
+Absence (eduneum_absence)
+  PK id, sequence FK (null), eleve FK, classe FK (null), annee FK (null)
+  date Char(32), periode Char(60), motif Char(200)
+  heures / justifiees / nonJustifiees Float (null)
+  modifiePar Char(64), modifieLe Char(40), archive Bool
+
+Sanction (eduneum_sanction)
+  PK id, sequence FK (null), eleve FK, classe FK (null)
+  type Char(40), duree Float (null), motif Char(200)
+  modifiePar Char(64), modifieLe Char(40), archive Bool
+
+Discipline - agregat eleve x sequence (eduneum_discipline,
+             ordering ['sequence_id','eleve_id'])
+  PK id, eleve FK, sequence FK (CASCADE)
+  heures_nj Float (0), heures_j Float (0)
+  avertissement Bool (False), blame Bool (False), exclusion_jours Int (0)
+  UNIQUE (eleve, sequence)  discipline_unique_eleve_sequence
+
+--------------------------------------------------------------------------------
+5.5 DECISIONS, MIGRATIONS, BULLETINS
+--------------------------------------------------------------------------------
+
+MigrationEleve (eduneum_migration)
+  PK id, type Char(30), eleve FK (related migrations)
+  deClasse FK Classe (SET_NULL, related '+')
+  versClasse FK Classe (SET_NULL, related '+')
+  annee FK Annee (null, SET_NULL)
+  decision Char(30), motif Char(200), auteurId Char(64), date Char(40)
+
+Decision (eduneum_decision)
+  PK id, eleve FK (related decisions), annee FK (related decisions)
+  decision Char(30), moyenneAnnuelle Float (null)
+  modifiePar Char(64), modifieLe Char(40)
+
+Appreciation (eduneum_appreciation)
+  PK id, eleve FK (related appreciations), classe FK (null, SET_NULL,
+  related '+'), annee FK (CASCADE, related appreciations)
+  periode Char(40), texte Text, conduite Float (null)
+  auteurId Char(64), date Char(40)
+
+BulletinValide (eduneum_bulletin_valide)
+  PK id, cle Char(160) unique
+  classe FK (null, CASCADE, related '+'), annee FK (null, CASCADE, '+')
+  periode Char(40), date Char(40), validePar Char(64)
+
+--------------------------------------------------------------------------------
+5.6 TRACES / TECHNIQUES
+--------------------------------------------------------------------------------
+
+JournalEntry - journal d'audit (eduneum_journal, ordering ['-date'])
+  PK id, date Char(40), action Char(80), cible Char(160)
+  details Text, auteurId Char(64)
+  Append-only (voir section 8)
+
+SmsLog (eduneum_sms)
+  PK id, destinataire Char(30), message Text, date Char(40)
+  statut Char(30), modifiePar Char(64)
+
+Parametres - singleton (eduneum_parametres)
+  id Integer primary_key default 1
+  donnees  JSONField (default dict)
+  sequenceur JSONField (default dict)
+  classmethod charger() -> get_or_create(id=1)
+
+================================================================================
+6. AUTHENTIFICATION (JWT + OTP)
+================================================================================
+
+Implementation : eduneum/jwtauth.py (JWT HS256 maison, sans PyJWT),
+eduneum/views.py (flux), eduneum/middleware.py (lecture des jetons).
+
+--------------------------------------------------------------------------------
+6.1 JETONS
+--------------------------------------------------------------------------------
+
+Access token :
+  - Portee : telephone (sub), role, enseignant_id (ens), typ, iat, exp
+  - TTL : 12 h (JWT_ACCESS_TTL_SECONDS = 43200)
+  - Cookie HttpOnly `eduneum_access`, path /, SameSite=Lax
+  - Egalement lisible en header Authorization: Bearer
+
+Refresh token :
+  - TTL : 7 j (JWT_REFRESH_TTL_SECONDS = 604800)
+  - `jti` = secrets.token_hex(16), trace en base (modele RefreshToken)
+  - Cookie HttpOnly `eduneum_refresh`, path /api/auth/, SameSite=Lax
+  - Rotation a chaque usage : l'ancien jti est rejete, un nouveau est cree
+
+Secret : settings.JWT_SECRET si defini, sinon SECRET_KEY.
+
+--------------------------------------------------------------------------------
+6.2 FLUX DE CONNEXION
+--------------------------------------------------------------------------------
+
+Etape 1 - POST /api/auth/otp/
+  - Verifie telephone + mot de passe (check_password, is_active) -> 401 si KO.
+  - Si OTP non obligatoire (OTP_OBLIGATOIRE=None et SMS non configure) ->
+    connexion immediate : emet la paire de jetons.
+  - Sinon genere un code OTP a 6 chiffres (validite 300 s, tentatives max 5),
+    l'envoie par SMS (eduneum/sms.py), supprime les codes non utilises.
+  - Reponse : {ok, telephone, ttl}.
+
+Etape 2 - POST /api/auth/verify/
+  - Verifie le code : existence, expiration, tentatives < 5 (sinon 429),
+    egalite (sinon incrementation de tentatives, 401).
+  - Marque le code utilise, emet la paire de jetons, pose les cookies.
+  - Reponse : {ok, direct, session, destination, accessToken, refreshToken}.
+
+Renouvellement - POST /api/auth/refresh/
+  - Verifie le refresh (signature, typ, exp, ligne RefreshToken non expiree,
+    compte actif).
+  - Rotation : supprime l'ancien jti, emet une nouvelle paire, re-pose les
+    cookies.
+
+Deconnexion - POST /api/auth/logout/
+  - Revoque le refresh token courant (suppression du jti en base),
+    efface les cookies.
+
+Changement de mot de passe - POST /api/mot-de-passe/
+  - Verifie l'ancien mot de passe, nouveau >= 6 caracteres et different.
+  - Revoque TOUS les refresh tokens du compte.
+
+--------------------------------------------------------------------------------
+6.3 MIDDLEWARE
+--------------------------------------------------------------------------------
+
+eduneum/middleware.py : JWTAuthenticationMiddleware
+  - A chaque requete, lit le jeton (cookie ou Bearer).
+  - Si charge valide et compte actif -> request.user = compte.
+  - Sinon request.user reste l'AnonymousUser.
+  - Aucune session Django utilisee pour l'authentification.
+
+================================================================================
+7. API REST
+================================================================================
+
+Routes definies dans eduneum/urls.py ; vues dans eduneum/views.py.
+Le routing est monte a la racine par config/urls.py
+(/django-admin/ + inclusion eduneum.urls).
+
+--------------------------------------------------------------------------------
+7.1 AUTHENTIFICATION
+--------------------------------------------------------------------------------
+
+POST /api/auth/otp/
+  Etape 1 de connexion : telephone + mot de passe.
+  Genere et envoie le code OTP si la passerelle est activee, sinon connecte.
+  Reponse : {ok, telephone, ttl}
+
+POST /api/auth/resend/
+  Meme vue que otp/ : renvoie un nouveau code OTP.
+
+POST /api/auth/verify/
+  Etape 2 : verification du code a 6 chiffres -> emission des jetons.
+  Reponse : {ok, direct, session, destination, accessToken, refreshToken}
+
+POST /api/auth/refresh/
+  Rotation du refresh token, nouvelle paire de jetons.
+
+POST /api/auth/logout/
+  Revoque le refresh token et efface les cookies.
+
+--------------------------------------------------------------------------------
+7.2 DONNEES (INSTANTANE)
+--------------------------------------------------------------------------------
+
+GET /api/bootstrap/            (require_GET, never_cache)
+  Charge la session + l'instantane complet de la base.
+  Reponse : {ok, session, db: snapshot()}
+  401 si non connecte.
+
+POST /api/store/               (csrf_exempt)
+  Reoit l'instantane complet du front.
+  verifie les droits via droits.verifier_ecriture_instantane() puis
+  snapshot.restore(data) (diff incrémental ou restauration complete).
+  Reponse : {ok, version: 4}
+  Erreurs : 401 / 400 / 403 / 500
+
+POST /api/reset/
+  Remet a zero les donnees metier (snapshot.wipe_business()).
+  Reserve aux roles admin et direction.
+  Conserve les comptes et les parametres.
+
+--------------------------------------------------------------------------------
+7.3 COMPTES ET PROFIL
+--------------------------------------------------------------------------------
+
+GET /api/comptes/
+  Liste des comptes (admin/direction uniquement).
+
+POST /api/comptes/             (csrf_exempt)
+  Cree / met a jour / desactive (actif:false) un compte.
+  Reserve aux roles admin et direction.
+
+POST /api/mot-de-passe/
+  Changement du propre mot de passe de l'utilisateur connecte.
+  Revoque tous ses refresh tokens.
+
+--------------------------------------------------------------------------------
+7.4 ROUTING DES PAGES (CATCH-ALL)
+--------------------------------------------------------------------------------
+
+GET ^(?P<path>.*)$  ->  views.serve_page(request, path)
+
+  - Normalise le chemin (vide ou fin / -> index.html).
+  - Protege contre le path-traversal (le chemin resolu doit rester sous
+    la racine du projet).
+  - Fichiers non-HTML : servis via _serve_asset() avec table TYPES_MIME
+    explicite (js, css, html, svg, png...).
+  - index.html : si connecte -> redirect vers l'accueil du role ;
+    sinon session null injectee.
+  - Pages HTML :
+      non connecte   -> redirect /index.html?suite=<path>
+      role non autorise -> redirect vers l'accueil du role
+      sinon -> injection dans <head> de :
+        window.__EDUNEUM_SERVER__ = true
+        window.__EDUNEUM_SESSION__ = {...}
+  - @ensure_csrf_cookie sur chaque page.
+
+Constantes utiles dans views.py :
+  PAGE_MODULES  page HTML -> module de droits
+  LIRE          module -> roles autorises en lecture
+  ROLES_GESTION_COMPTES = {'admin', 'direction'}
+  ROLES_COMPTE  = les 5 roles
+  accueil_pour(role) : enseignant -> enseignant/tableau-de-bord.html,
+                       sinon admin/tableau-de-bord.html
+
+================================================================================
+8. DROITS ET PERMISSIONS
+================================================================================
+
+Fichier : eduneum/droits.py (miroir serveur de js/core/acces.js).
+Principe : controle par DIFF - le front soumet l'instantane complet, le
+serveur le compare a l'etat reel de la base et n'autorise que les
+changements permis au role de l'utilisateur.
+
+Collections techniques exemptees de condition de role :
+  - journal     : append-only (ajout uniquement, sauf cas ci-dessous)
+  - sequenceur  : compteur d'identifiants, ne peut que croitre
+
+--------------------------------------------------------------------------------
+8.1 MATRICE D'ECRITURE PAR MODULE (MODULES_ECRITURE)
+--------------------------------------------------------------------------------
+
+admin_only :
+  admin_notes                          -> admin
+
+admin + direction :
+  admin_annees, admin_classes, admin_matieres, admin_eleves,
+  admin_personnel, admin_inscriptions, admin_migrations,
+  admin_affectations, admin_bulletins, admin_statistiques,
+  admin_rapports, admin_vie_scolaire, admin_journal, admin_parametres
+
++ surveillant :
+  admin_assiduite                      -> admin, direction, surveillant
+
+Censeur :
+  censeur_assiduite                    -> censeur, admin, direction,
+                                         surveillant
+  censeur_vie_scolaire                 -> censeur, admin, direction
+
+Enseignant :
+  teacher_saisie                       -> enseignant, admin
+    (la direction n'ecrit PAS les notes)
+  teacher_ma_classe                    -> enseignant seul
+    (espace professeur principal)
+
+Refus par defaut : un module non liste est interdit.
+
+--------------------------------------------------------------------------------
+8.2 COLLECTIONS HABILITEES (COLLECTIONS)
+--------------------------------------------------------------------------------
+
+Chaque collection d'instantane est liee a un ou plusieurs modules :
+  notes            <- teacher_saisie, admin_notes
+  appreciations    <- admin_bulletins, teacher_ma_classe
+  sequences        <- admin_annees
+  smsLog           <- admin_parametres
+  parametres       <- admin_parametres
+  sequenceur       <- admin_parametres
+  journal          <- admin_journal
+  (refus par defaut si la collection n'est pas listee)
+
+--------------------------------------------------------------------------------
+8.3 VERIFICATIONS SPECIFIQUES
+--------------------------------------------------------------------------------
+
+Annees cloturees :
+  Une annee avec cloturee=True est en lecture seule pour tous, sauf
+  reactivation explicite par admin/direction (_annees_reactivées).
+
+Notes :
+  - Sequence verrouillee -> ecriture refusee.
+  - Trimestre ferme -> ecriture refusee.
+
+Portee enseignant :
+  - Un enseignant n'ecrit des notes que dans SES affectations
+    (classe x matiere non archivees).
+  - Appreciations : reservees au prof principal de la classe.
+
+Journal d'audit :
+  - Append-only.
+  - Suppression uniquement en prefixe : au plus 150 lignes si >= 450
+    existantes (garde-fou anti-croissance).
+
+Sequenceur :
+  - Le compteur d'identifiants ne peut qu'augmenter.
+
+--------------------------------------------------------------------------------
+8.4 FONCTION PRINCIPALE
+--------------------------------------------------------------------------------
+
+droits.verifier_ecriture_instantane(compte, data)
+  -> None si accepte
+  -> {ok: False, motif: "..."} si refuse
+
+Etapes : 1) role valide + matrice des modules
+         2) journal / sequenceur
+         3) annees cloturees
+         4) sequences / trimestres
+         5) portee enseignant
+
+Fonctions helpers :
+  _canon(v)             forme canonique (12 == 12.0, None == '')
+  _ligne_identique      comparaison d'une ligne
+  _diffs(data, courant) -> {collection: {ajoutes, modifies, supprimes}}
+  _affectations_enseignant(id) -> set (classeId, matiereId)
+  _est_prof_principal(...)
+  _annee_de_classe / _annee_de_sequence / _annee_cloturee
+  _sequence_bloquee / _trimestre_ferme
+
+--------------------------------------------------------------------------------
+8.5 MATRICE DE LECTURE (COTE FRONT)
+--------------------------------------------------------------------------------
+
+js/core/acces.js : matrice DROITS (module -> {lire, ecrire} par role),
+miroir cote client. Garde d'acces centralisee, refus par defaut.
+Exports : anneeConsultee, anneeConsultable, anneeVerrouillee, mesClasses,
+ppDeClasse, peutVoirClasse, peutVoirNotesDe, peutEcrireNotesDe, estPPDe,
+peutVoirEleve, verifierEcriture.
+
+IMPORTANT : le controle client est informatif uniquement ; le serveur
+rejoue toujours les droits (droits.py).
+
+================================================================================
+9. INSTANTANE (SNAPSHOT)
+================================================================================
+
+Fichier : eduneum/snapshot.py (~833 lignes).
+Role : conversion base de donnees <-> instantane JSON (forme identique au
+localStorage d'origine utilisee par le front).
+
+--------------------------------------------------------------------------------
+9.1 CHARGEMENT - snapshot() (DB -> JSON)
+--------------------------------------------------------------------------------
+
+Construit un dictionnaire avec les collections suivantes :
+  annees (avec trimestres imbriques), sequences, sections, classes,
+  matieres, enseignants, eleves, inscriptions, affectations,
+  profsPrincipaux, affectationsCenseurs, coefficients, notes, absences,
+  sanctions, disciplines, migrations, decisions, appreciations,
+  bulletinsValides, journal, smsLog, parametres, sequenceur
+
+Details :
+  - _parametres_complets / _sequenceur_complet : fusion avec
+    PARAMETRES_DEFAUT / SEQUENCEUR_DEFAUT (eduneum/seed.py) pour ne
+    jamais priver le front.
+  - SECTIONS_DEFAUT : sec-fr (Francophone), sec-en (Anglophone).
+
+--------------------------------------------------------------------------------
+9.2 RESTAURATION - restore(data)
+--------------------------------------------------------------------------------
+
+Marquee @transaction.atomic.
+
+Cas 1 - Instantane vide (data sans donnees) :
+  _restore_complet(data) : reconstruction totale.
+  _wipe() d'abord : suppression dans l'ordre inverse des dependances
+  (24 tables).
+
+Cas 2 - Instantane non vide :
+  Restauration incrémentale :
+    _cibles()                description de chaque collection
+                             (cle JSON, modele, pk, champs)
+    _normaliser(data)        trimestres aplatis depuis les annees
+    _etat_collection         1 lecture DB par collection
+    _supprimer               enfants -> parents
+    _inserer_mettre_a_jour   bulk_create / bulk_update par lots de 500
+    _synchroniser_coefficients remplacement en bloc (pas de PK propre)
+  Ecriture finale de Parametres (parametres + sequenceur).
+
+--------------------------------------------------------------------------------
+9.3 REINITIALISATION - wipe_business()
+--------------------------------------------------------------------------------
+
+Supprime toutes les donnees metier (23 tables) en conservant :
+  - Parametres
+  - Les comptes (utilisateurs)
+Utilisee par POST /api/reset/ (bouton « Réinitialiser » de l'interface).
+Etat vide final ; aucune donnee de demo rechargee.
+
+================================================================================
+10. FRONT-END : PAGES, ROUTES, MODULES JS, CSS
+================================================================================
+
+Le front est servi par Django (vue catch-all serve_page) et utilise
+Tailwind CSS via CDN (cdn.tailwindcss.com) + Iconify (code.iconify.design).
+
+--------------------------------------------------------------------------------
+10.1 PAGES HTML PAR ESPACE
+--------------------------------------------------------------------------------
+
+index.html (racine) - Page de connexion
+  Telephone + mot de passe, selecteur de langue (stocke en sessionStorage),
+  redirection vers l'accueil du role apres connexion.
+
+admin/ (18 pages) - Espace administration (admin + direction) :
+  tableau-de-bord.html       Tableau de bord - KPI et vue d'ensemble
+  annee-scolaire.html        Annees scolaires - annees, trimestres,
+                             sequences, cloture
+  classes.html               Classes - CRUD classes, sections, effectifs
+  matieres.html              Matieres - matieres + coefficients par classe
+  eleves.html                Eleves - repertoire (fiches, import, archives)
+  personnel.html             Personnel et enseignants - enseignants +
+                             comptes de connexion
+  inscriptions.html          Inscriptions - eleves par annee/classe
+  migrations.html            Migrations - promotions/redoublements,
+                             decisions
+  affectations.html          Affectations - enseignant x classe x matiere
+  affectations-surveillants.html
+                             Affectations surveillants - censeurs/SG aux
+                             classes
+  notes.html                 Suivi des notes - consultation (lecture seule)
+  bulletins.html             Bulletins - generation/validation,
+                             appreciations, decisions
+  statistiques.html          Statistiques par classe
+  assiduite.html             Suivi d'assiduite interactif
+  rapports.html              Rapports de performance
+  vie-scolaire.html          Vie scolaire / Bureau du censeur - sanctions,
+                             disciplines, absences
+  journal.html               Journal d'audit
+  parametres.html            Parametres - etablissement, baremes, SMS,
+                             sequenceur
+
+censeur/ (9 pages) - Espace censeur :
+  tableau-de-bord.html       Tableau de bord censeur
+  vie-scolaire.html          Discipline / sanctions
+  assiduite.html             Absences / heures d'absence
+  eleves.html                Consultation eleves
+  classes.html               Mes classes
+  notes.html                 Suivi des notes
+  rapports.html              Rapports censeur
+  statistiques.html          Statistiques censeur
+  profil.html                Mon profil
+
+enseignant/ (6 pages) - Espace enseignant :
+  tableau-de-bord.html       Mon tableau de bord (KPI)
+  mes-classes.html           Mes classes assignees
+  saisie-notes.html          Saisie des notes par sequence
+  ma-classe.html             Espace professeur principal
+                             (appreciations)
+  rapports.html              Rapports enseignant
+  profil.html                Mon profil (dont changement de mdp)
+
+--------------------------------------------------------------------------------
+10.2 ROUTES ET MENUS (js/core/routes.js)
+--------------------------------------------------------------------------------
+
+Module EduNeumTheme : theme clair/sombre (localStorage['theme']),
+applique avant le premier rendu.
+
+Table ROUTES : cle de route -> chemin HTML.
+  connexion           -> index.html
+  18 routes admin_*   -> admin/*.html
+  9 routes censeur_*  -> censeur/*.html
+  6 routes teacher_*  -> enseignant/*.html
+  Exemples :
+    admin_affectations_sg -> admin/affectations-surveillants.html
+    teacher_saisie        -> enseignant/saisie-notes.html
+
+MENUS par role :
+  admin        21 entrees (groupe deroulant « Affectations » :
+                             Enseignants / Surveillants)
+  direction    menu admin sans teacher_saisie
+  censeur      9 entrees
+  enseignant   7 entrees (dont admin_bulletins et teacher_ma_classe
+               marques profPrincipalOnly)
+  surveillant  3 entrees : tableau de bord, Absences
+               (= censeur_assiduite), Classes
+
+API EduNeum.routes :
+  resolve(routeKey)          chemin relatif depuis la page courante
+  menuFor(role, opts.profPrincipal)
+                             menu filtre (profPrincipalOnly)
+  currentPath / currentRouteKey / currentDir
+  trouverParRoute            fil d'Ariane
+
+Racine deduite de document.currentScript.src (js/core/routes.js).
+
+--------------------------------------------------------------------------------
+10.3 MODULES JS CORE (js/core/)
+--------------------------------------------------------------------------------
+
+acces.js (18 Ko) - EduNeum.acces
+  Garde d'acces centralisee, refus par defaut. Matrice DROITS
+  module -> {lire, ecrire} par role (miroir de eduneum/droits.js).
+  Appelee par store.js via verifierEcriture().
+  Avertissement : controle client uniquement, a rejouer cote serveur.
+
+actions.js (7 Ko) - EduNeum.actions
+  Actions declaratives : remplace les onclick inline par
+  data-action="fonction@evenement", data-arg1..n, data-event.
+  Delegation d'evenements sur document.
+  API : installer, EVENEMENTS.
+
+auth.js (5 Ko) - EduNeum.auth
+  Session, roles, garde de route. Session =
+  window.__EDUNEUM_SESSION__ injectee par Django (pas de repli
+  localStorage). Deconnexion synchrone via API.
+  Exports : session, definirSession, deconnecter, estConnecte, estAdmin,
+  estEnseignant, estLectureSeule, peutAcceder, estProfPrincipal,
+  exigerAcces, accueilPour, initiales, ROLE_LABEL, SERVER.
+
+calculs.js (12 Ko) - EduNeum.calculs
+  Service de calcul unique : moyennes, ranges, appreciations.
+  Regle : une matiere ABS/non notee n'est jamais comptee 0.
+  Exports : arrondir, valeur, moyenne, moyenneMatiereTrimestre,
+  moyenneMatiereSequence, moyenneMatiereAnnuelle, moyenneGenerale,
+  classer, classerMatiereSequence, classerGeneral, appreciationAuto,
+  decision, validerSaisie, noteVersGCE, GCEVersNote.
+
+i18n.js (23 Ko) - EduNeum.i18n
+  Traduction FR/EN : attributs data-i18n="cle" (+ variantes data-i18n-html,
+  data-i18n-placeholder, data-i18n-title, data-i18n-aria).
+  Langue memorisee en localStorage, valable sur toutes les pages
+  (page de connexion exclue : son propre selecteur en sessionStorage).
+
+layout.js (29 Ko) - EduNeum.layout
+  Layout partage : menu par role, fil d'Ariane, selecteur d'annee scolaire
+  (annee consultee != annee de travail ; annee cloturee reste consultable),
+  bandeau lecture seule, profil.
+  Exports : init, monterMenu, monterMarque, monterProfil, filArianeHTML,
+  anneeChoisie, definirAnnee, bandeauLectureSeuleHTML, rafraichirBandeau,
+  deconnexion.
+  Etats pilotant le CSS : classe eduneum-barre-reduite.
+
+page.js (8 Ko) - EduNeum.page
+  Briques de page reutilisables : KPI, sections, cartes, selecteurs
+  classes/matieres/trimestres/periodes lies a l'annee courante.
+  Exports : esc, ico, titre, contenu, rendre, section, carte, grilleKPI,
+  avecTableau, optionsClasses, optionsMatieres, optionsTrimestres,
+  optionsPeriodes, liste, peutEcrire, bandeauLectureSeule, tracer,
+  confirmerSuppression, classesDeAnneeCourante.
+
+routes.js (11 Ko) - Voir section 10.2 (routage, theme, menus).
+
+store.js (92 Ko) - EduNeum.store
+  Magasin centralise : modele annee scolaire -> classes, inscriptions,
+  affectations, notes, bulletins. Entites permanentes reutilisees entre
+  annees.
+  Persistance serveur : chargement GET /api/bootstrap/, ecriture
+  POST /api/store/. Le localStorage n'est plus utilise.
+  Appelle verifierEcriture() d'acces.js avant toute mutation.
+
+ui.js (40 Ko) - EduNeum.ui
+  Composants d'UI partages : notifications, modales, confirmations,
+  etats vides/chargement/erreur, tableau de donnees reutilisable
+  (recherche + tri + filtres + pagination + export CSV).
+
+listes-eleves.js (32 Ko) - EduNeum.listesEleves
+  Listes d'eleves par classe : impression + PDF, pages A4 strictes
+  (210x297 mm), en-tete officiel (ministeres bilingues, logo), tableau
+  (matricule, etat civil...), pied de page.
+  Exports : choisir, choisirAbsences, imprimer, telechargerPdf,
+  estAnglophone, nombreSequencesExport.
+
+Bibliotheques tierces (vendored) :
+  js/core/html2canvas.min.js
+  js/core/jspdf.umd.min.js   (2.5.2)
+  js/core/qrcode.js
+
+--------------------------------------------------------------------------------
+10.4 CSS
+--------------------------------------------------------------------------------
+
+css/eduneum-core.css (10 Ko) - Socle visuel commun a toutes les pages.
+Sections :
+  1. Socle commun (variables, base)
+  2. Modules : adaptations specifiques (ligne de note - case vide != note 0,
+     pastilles de statut, barres de progression des sequences,
+     journal d'audit)
+  3. Responsive (tableaux deferlants, bandeau/barres d'actions a la ligne,
+     notifications bornees, <768px barre laterale plein ecran, modales
+     compactes, cibles tactiles >= 44px)
+  4. Barre laterale masquee sous 850px (bouton flottant, tiroir
+     coulissant, croix de fermeture)
+  5. Bureau >850px (repli de la barre par le hamburger, etats pilotes par
+     js/core/layout.js - classe eduneum-barre-reduite)
+  6. Impression
+
+Autres fichiers css/ : un fichier par page/module, charge en complement
+du core (eduneum-core.css?v=4 + <page>.css?v=N).
+  Significatifs : bulletins.css (13 Ko), annees-scolaires.css, classes.css,
+  connexion.css, statistiques.css, saisie-des-notes.css, rapports.css,
+  assiduite.css, matieres.css, personnel.css, eleves.css, vie-scolaire.css,
+  tableau-de-bord-censeur.css, tableau-de-bord-enseignant.css,
+  tableau-de-bord-admin.css
+  Quasi vides (reliquats) : affectations, inscriptions, journal,
+  ma-classe, mes-classes, migrations, notes, parametres, profil
+
+Style : Tailwind via CDN + js/tailwind.config.js (darkMode: "class").
+Les fichiers js/*.tailwind.js sont des amorces de configuration par page.
+
+================================================================================
+11. PASSERELLE SMS
+================================================================================
+
+Fichier : eduneum/sms.py (Africa's Talking, urllib uniquement).
+
+Variables d'environnement (jamais de secret dans le depot) :
+  AT_USERNAME   nom d'utilisateur Africa's Talking (obligatoire si SMS)
+  AT_API_KEY    cle API (obligatoire si SMS)
+  AT_SENDER_ID  expediteur alphanumerique (facultatif)
+  AT_SANDBOX    "0" pour la production (defaut : "1" bac a sable)
+  SMS_PAYS      indicatif pays par defaut ("+237" Cameroun)
+
+Comportement :
+  - Envoi des codes OTP uniquement (eduneum/views.py, _creer_otp).
+  - Si la passerelle n'est pas configuree (AT_USERNAME/AT_API_KEY vides),
+    l'OTP est desactive : connexion directe telephone + mot de passe
+    (OTP_OBLIGATOIRE = None).
+  - Si l'envoi echoue, le code est trace dans les logs serveur et
+    JAMAIS renvoye au navigateur.
+  - Chaque envoi est journalise (modele SmsLog).
+
+Reglage OTP_OBLIGATOIRE (config/settings.py) :
+  None   automatique - OTP requis si la passerelle est configuree
+  True   OTP toujours exige (meme sans passerelle : echec de connexion)
+  False  jamais d'OTP (connexion directe)
+
+================================================================================
+12. COMMANDES DE GESTION
+================================================================================
+
+Commandes disponibles (python manage.py <commande>) :
+
+  runserver          Serveur de development
+  migrate            Applique les migrations (eduneum/migrations/)
+  makemigrations     Genere de nouvelles migrations
+  shell              Console Python avec le projet charge
+  createsuperuser    Superuser Django (acces /django-admin/)
+  admin_init         Cree ou reinitialise le compte administrateur
+                     Options : --telephone (defaut 672647904)
+                               --mot-de-passe (defaut admin1234)
+                     Comportement : get_or_create ; si le compte existe
+                     deja, force role='admin', is_active, is_staff,
+                     is_superuser a True et remet le mot de passe.
+
+Seule commande custom : eduneum/management/commands/admin_init.py.
+(Aucun jeu de demonstration n'est charge par une commande seed.)
+
+================================================================================
+13. MISE EN PRODUCTION
+================================================================================
+
+Avant toute mise en production, imperativement :
+
+  1. Changer SECRET_KEY dans config/settings.py
+     (generer une cle aleatoire : python -c
+      "from django.core.management.utils import \
+get_random_secret_key; print(get_random_secret_key())")
+
+  2. Passer DEBUG = False
+
+  3. Restreindre ALLOWED_HOSTS aux domaines reels
+     (supprimer ['*'])
+
+  4. Securiser la base de donnees : mot de passe MySQL fort, user dedie
+     (pas root), modifier DATABASES dans settings.py
+
+  5. Configurer les variables d'environnement SMS pour la production :
+     AT_SANDBOX=0, AT_USERNAME et AT_API_KEY valides
+
+  6. Servir via un serveur WSGI/ASGI de production
+     (gunicorn/uwsgi/uvicorn ou waitress sous Windows) avec config.wsgi
+     ou config.asgi ; derriere un reverse proxy (nginx/Apache) avec HTTPS
+
+  7. Generer les fichiers statiques si necessaire :
+     python manage.py collectstatic
+     (le projet sert principalement les fichiers via la vue catch-all)
+
+  8. Exclure du depot : env/, __pycache__/, *.pyc
+
+  9. Sauvegarder regulierement la base MySQL (mysqldump)
+
+================================================================================
+14. ANNEXES
+================================================================================
+
+--------------------------------------------------------------------------------
+14.1 MATRICE SYNTHESE DES ROLES
+--------------------------------------------------------------------------------
+
+Module                 admin  direction  censeur  surveillant  enseignant
+------------------------------------------------------------------------------
+admin_annees            E         E          -         -           -
+admin_classes           E         E          L         L           L
+admin_matieres          E         E          -         -           -
+admin_eleves            E         E          L         L           L
+admin_personnel         E         E          -         -           -
+admin_inscriptions      E         E          L         L           -
+admin_migrations        E         E          -         -           -
+admin_affectations      E         E          -         -           -
+admin_notes             E         -          L         -           L
+admin_bulletins         E         E          L         -           L*
+admin_statistiques      E         E          L         -           L
+admin_rapports          E         E          L         L           L
+admin_vie_scolaire      E         E          E         -           -
+admin_journal           E         E          -         -           -
+admin_parametres        E         E          -         -           -
+admin_assiduite         E         E          -         E           -
+censeur_assiduite       E         E          E         E           -
+censeur_vie_scolaire    E         E          E         -           -
+teacher_saisie          E         -          -         -           E
+teacher_ma_classe       -         -          -         -           E*
+
+L = lecture, E = ecriture, - = interdit
+* professeur principal uniquement (filtre profPrincipalOnly)
+
+--------------------------------------------------------------------------------
+14.2 FICHIERS CLES (RAPIDE REPONSE)
+--------------------------------------------------------------------------------
+
+Ou changer la base MySQL ....... config/settings.py (DATABASES)
+Ou changer SECRET_KEY .......... config/settings.py (SECRET_KEY)
+Ou regler l'OTP ................ config/settings.py (OTP_*)
+Ou regler le SMS ............... variables d'environnement AT_* / SMS_PAYS
+Ou ajouter un module de droits . eduneum/droits.py + js/core/acces.js
+Ou ajouter une page ............ admin|censeur|enseignant/*.html
+                                + js/core/routes.js (ROUTES, MENUS)
+                                + droits.py si module nouveau
+Ou ajouter un modele ........... eduneum/models.py + migration
+                                + snapshot.py (_cibles, snapshot)
+Ou changer le compte admin ..... python manage.py admin_init
+
+--------------------------------------------------------------------------------
+14.3 GLOSSAIRE
+--------------------------------------------------------------------------------
+
+Instantane (snapshot)   Etat JSON complet de toutes les collections
+                        metier, echange entre front et serveur.
+Sequence                Periode de notation (plusieurs par trimestre) ;
+                        peut etre verrouillee.
+Trimestre               3 periodes par annee scolaire ; peut etre ferme.
+Annee cloturee          Annee en lecture seule pour tous les roles.
+Prof principal (PP)     Enseignant responsable d'une classe (1 par
+                        classe/an, 1 classe par PP/an).
+Diff                    Comparaison instantane soumis vs base, base du
+                        controle des droits (droits.py).
+Sequenceur              Compteur d'identifiants des collections
+                        (parametres.sequenceur).
+GCE                     Bareme international A-E (noteVersGCE /
+                        GCEVersNote dans calculs.js).
+jti                     Identifiant unique d'un refresh token, rejete en
+                        base pour permettre la rotation et la revocation.
+
+--------------------------------------------------------------------------------
+14.4 ENDROITS API (RESUME)
+--------------------------------------------------------------------------------
+
+GET    /api/bootstrap/     Session + instantane complet
+POST   /api/store/         Enregistrement de l'instantane (droits verifies)
+POST   /api/reset/         Reinitialisation des donnees metier
+POST   /api/auth/otp/      Etape 1 connexion (envoi OTP si actif)
+POST   /api/auth/resend/   Renvoi du code OTP
+POST   /api/auth/verify/   Etape 2 connexion (code OTP)
+POST   /api/auth/refresh/  Rotation des jetons
+POST   /api/auth/logout/   Deconnexion (revocation)
+GET    /api/comptes/       Liste des comptes (admin/direction)
+POST   /api/comptes/       Creation / mise a jour d'un compte
+POST   /api/mot-de-passe/  Changement de son mot de passe
+GET    /*                  Pages HTML et assets (catch-all)
+
+================================================================================
+FIN DE LA DOCUMENTATION
+================================================================================

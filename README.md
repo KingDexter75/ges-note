@@ -33,14 +33,15 @@ python3 -m venv env
 source env/bin/activate
 ```
 
-Puis installer les dépendances :
+Puis installer les dépendances depuis `requirements.txt` :
 
 ```bash
-pip install django pymysql
+pip install -r requirements.txt
 ```
 
-> Le projet n'a pas encore de `requirements.txt` ; les seules dépendances sont
-> **Django 6.1.2** et **PyMySQL 1.2.3** (pilote MySQL, activé dans `config/__init__.py`).
+> `requirements.txt` liste **Django 6.1.2**, **PyMySQL 1.2.3** (pilote MySQL,
+> activé dans `config/__init__.py`) et les dépendances transitives
+> (`asgiref`, `sqlparse`, `tzdata`).
 
 ## 3. Créer la base de données
 
@@ -136,3 +137,8 @@ $env:AT_SANDBOX = "1"
 - Le dossier `env/` est l'environnement virtuel : **ne pas le versionner**
   (ajoutez-le au `.gitignore` avec `__pycache__/` et `*.pyc`).
 - Point d'entrée API principal : `GET /api/bootstrap/` (session + données).
+
+## Documentation
+
+La documentation complète du projet (architecture, modèles, API, droits,
+authentification, front-end) se trouve dans **`doc-ges-note.txt`**.
