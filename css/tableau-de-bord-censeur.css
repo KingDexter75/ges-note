@@ -1,0 +1,97 @@
+/* Tableau de bord Censeur - Styles spécifiques */
+.censeur-card {
+  @apply nm-flat p-6 rounded-[32px] space-y-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg;
+}
+
+.censeur-stat-card {
+  @apply p-6 rounded-[32px] transition-all duration-200 hover:-translate-y-0.5 group cursor-default nm-flat;
+}
+
+.censeur-stat-icon {
+  @apply w-12 h-12 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform nm-inset;
+}
+
+.censeur-classe-card {
+  @apply nm-flat p-6 rounded-[32px] space-y-4 border-l-4 border-accent;
+}
+
+.censeur-action-btn {
+  @apply px-4 py-2 nm-soft-convex rounded-xl text-xs font-bold flex items-center gap-2 transition-all hover:nm-inset;
+}
+
+.censeur-section-header {
+  @apply flex justify-between items-center mb-6;
+}
+
+.censeur-table-container {
+  @apply nm-flat p-6 rounded-[32px] overflow-x-auto;
+}
+
+.censeur-alert-card {
+  @apply p-5 rounded-[32px] nm-flat border-l-4 flex items-start gap-3;
+}
+
+.censeur-empty-state {
+  @apply text-center py-12 text-gray-400;
+}
+
+.censeur-progress-ring {
+  @apply w-20 h-20 transform -rotate-90;
+}
+
+.censeur-progress-bg {
+  @apply text-gray-200 dark:text-gray-800;
+}
+
+.censeur-progress-fill {
+  @apply text-accent transition-all duration-1000;
+}
+
+/* Specific styles for absence/discipline tables */
+.censeur-table th {
+  @apply pb-4 px-2 text-xs font-bold text-gray-400 uppercase border-b border-gray-200 dark:border-gray-700;
+}
+
+.censeur-table td {
+  @apply py-4 px-2 text-sm;
+}
+
+.censeur-table tr {
+  @apply hover:bg-white/10 transition-colors border-b border-gray-100 dark:border-gray-800;
+}
+
+.censeur-badge {
+  @apply inline-flex items-center px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider;
+}
+
+.censeur-badge-absent {
+  @apply bg-red-500/10 text-red-500;
+}
+
+.censeur-badge-justified {
+  @apply bg-green-500/10 text-green-500;
+}
+
+.censeur-badge-warning {
+  @apply bg-amber-500/10 text-amber-500;
+}
+
+.censeur-badge-sanction {
+  @apply bg-orange-500/10 text-orange-500;
+}
+
+/* KPI cards */
+.censeur-kpi {
+  @apply p-6 rounded-[32px] transition-all duration-200 hover:-translate-y-0.5 group cursor-default nm-flat;
+}
+
+.censeur-kpi-icon {
+  @apply w-12 h-12 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform nm-inset;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .censeur-grid {
+    @apply grid-cols-1;
+  }
+}

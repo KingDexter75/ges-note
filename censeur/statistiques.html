@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr" class="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Statistiques | Espace Censeur</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+  <link rel="stylesheet" href="../css/eduneum-core.css?v=4">
+  <link rel="stylesheet" href="../css/statistiques.css?v=2">
+  <script src="../js/core/routes.js?v=2"></script>
+  <script src="../js/core/store.js?v=6"></script>
+  <script src="../js/core/calculs.js?v=3"></script>
+  <script src="../js/core/auth.js?v=2"></script>
+  <script src="../js/core/ui.js?v=2"></script>
+  <script src="../js/core/page.js?v=2"></script>
+  <script src="../js/core/acces.js?v=2"></script>
+  <script src="../js/core/layout.js?v=5"></script>
+  <script src="../js/core/i18n.js?v=2"></script>
+</head>
+<body>
+  <div class="min-h-screen flex flex-col md:flex-row" data-sd-id="1">
+    <aside class="w-full md:w-64 flex flex-col p-6 space-y-8 z-50 vt-sidebar">
+      <div class="flex items-center space-x-3 nm-soft-convex p-4 rounded-2xl">
+        <div class="w-10 h-10 bg-accent rounded-xl flex items-center justify-center text-white shadow-lg">
+          <iconify-icon icon="lucide:graduation-cap" width="24"></iconify-icon>
+        </div>
+        <span class="font-bold text-xl tracking-tight display-font">EduNeum.</span>
+      </div>
+    </aside>
+    <main class="flex-1 flex flex-col p-6 md:p-10 space-y-8 overflow-y-auto vt-main-content" data-sd-id="2">
+      <header class="flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="flex flex-col">
+          <h1 class="text-3xl font-extrabold display-font tracking-tight">Statistiques Censeur</h1>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Indicateurs d'assiduité et vie scolaire</p>
+        </div>
+        <div class="flex items-center space-x-4">
+          <div class="nm-inset p-1 rounded-full flex" role="group" aria-label="Langue">
+            <button type="button" id="lang-fr" class="px-4 py-1 text-xs font-bold bg-accent text-white rounded-full shadow-md">FR</button>
+            <button type="button" id="lang-en" class="px-4 py-1 text-xs text-gray-500 font-medium">EN</button>
+          </div>
+          <button id="theme-toggle" class="w-10 h-10 nm-soft-convex rounded-full flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-accent transition-colors">
+            <iconify-icon icon="lucide:sun" class="dark:hidden"></iconify-icon>
+            <iconify-icon icon="lucide:moon" class="hidden dark:block"></iconify-icon>
+          </button>
+        </div>
+      </header>
+
+      <section class="nm-flat p-6 rounded-[32px] grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="censeur-kpi">
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Taux de présence global</p>
+          <h3 id="stat-taux-presence" class="text-3xl font-black text-green-500">—</h3>
+        </div>
+        <div class="censeur-kpi">
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Classes à risque</p>
+          <h3 id="stat-classes-risque" class="text-3xl font-black text-red-500">0</h3>
+        </div>
+        <div class="censeur-kpi">
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Élèves >10h non just.</p>
+          <h3 id="stat-eleves-risque" class="text-3xl font-black text-amber-500">0</h3>
+        </div>
+        <div class="censeur-kpi">
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Sanctions ce trimestre</p>
+          <h3 id="stat-sanctions-trim" class="text-3xl font-black text-orange-500">0</h3>
+        </div>
+      </section>
+
+      <section class="nm-flat p-6 rounded-[32px] flex flex-col">
+        <h2 class="text-xl font-bold display-font mb-6">Évolution des absences</h2>
+        <div id="evolution-chart" class="flex-1 min-h-[300px] flex items-center justify-center">
+          <div class="text-center text-gray-500">
+            <iconify-icon icon="lucide:trending-up" width="48" class="mb-2"></iconify-icon>
+            <p>Graphique d'évolution des absences par séquence</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="nm-flat p-6 rounded-[32px] flex flex-col">
+        <h2 class="text-xl font-bold display-font mb-6">Top 10 élèves à risque</h2>
+        <div id="top-risque" class="overflow-x-auto"></section>
+    </main>
+  </div>
+  <script src="../js/statistiques-censeur.js?v=2"></script>
+</body>
+</html>

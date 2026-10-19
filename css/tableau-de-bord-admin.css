@@ -1,0 +1,16 @@
+/* Tableau de bord administrateur : le socle visuel est dans eduneum-core.css.
+   Seuls les ajustements propres a cette page sont declares ici. */
+
+#contenu > section:first-of-type > div {
+  /* Les cartes KPI restent alignees meme sur les libelles longs. */
+  align-items: stretch;
+}
+
+#contenu table th {
+  white-space: nowrap;
+}
+
+@media print {
+  aside, #eduneum-contexte, #actions, .toast { display: none !important; }
+  main { padding: 0 !important; }
+}

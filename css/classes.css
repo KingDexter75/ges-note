@@ -1,0 +1,92 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
+    :root {
+      --bg: #e0e5ec;
+      --shadow-dark: #babecc;
+      --shadow-light: #ffffff;
+      --accent: #8b5cf6;
+      --danger: #ef4444;
+    }
+    .dark {
+      --bg: #1a202c;
+      --shadow-dark: #0f172a;
+      --shadow-light: #2d3748;
+      --accent: #a78bfa;
+    }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background-color: var(--bg);
+      color: #2d3748;
+      transition: background-color 0.4s ease;
+      margin: 0;
+    }
+    .dark body { color: #e2e8f0; }
+    .display-font { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .nm-flat { box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light); }
+    .nm-inset { box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light); }
+    .nm-soft-convex { box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light); }
+    .nm-button:active { box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light); }
+    .checkbox-nm {
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      background: var(--bg);
+      box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .checkbox-nm:checked::after {
+      content: '\2713';
+      color: var(--accent);
+      font-weight: 800;
+      font-size: 12px;
+    }
+    /* L'overlay doit rester visible et cliquable des son ouverture : ui.js cree
+       la modale avec la seule classe .modal-overlay (il n'ajoute jamais
+       .active). Les anciennes regles opacity:0 / pointer-events:none rendaient
+       la modale invisible et inertes tous ses boutons. */
+    .modal-overlay {
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(4px);
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal-content {
+      transform: scale(0.9);
+      transition: transform 0.3s ease;
+    }
+    .modal-overlay.active .modal-content {
+      transform: scale(1);
+    }
+    select, input {
+      background: transparent;
+      border: none;
+      outline: none;
+    }
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 16px 24px;
+      border-radius: 16px;
+      background: #fff;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      z-index: 1000;
+      transform: translateY(100px);
+      transition: transform 0.3s ease;
+    }
+    .toast.active { transform: translateY(0); }
+    .sort-icon { font-size: 10px; margin-left: 4px; opacity: 0.5; }
+    .sort-active { opacity: 1; color: var(--accent); }
+
+sd-component { display: block; }
+
+.vt-sidebar {
+  view-transition-name: sidebar;
+}
+.vt-main-content {
+  view-transition-name: main-content;
+}

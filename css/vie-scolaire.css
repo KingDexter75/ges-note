@@ -1,0 +1,95 @@
+/* Vie Scolaire Censeur - Styles */
+.vie-scolaire-table {
+  @apply w-full text-sm;
+}
+
+.vie-scolaire-table th {
+  @apply pb-4 px-2 text-left text-xs font-bold text-gray-400 uppercase border-b border-gray-200 dark:border-gray-700;
+}
+
+.vie-scolaire-table td {
+  @apply py-4 px-2;
+}
+
+.vie-scolaire-table tbody tr {
+  @apply hover:bg-white/10 transition-colors border-b border-gray-100 dark:border-gray-800;
+}
+
+.vie-scolaire-table tbody tr:last-child {
+  @apply border-b-0;
+}
+
+.vie-student-cell {
+  @apply flex items-center space-x-3;
+}
+
+.vie-avatar {
+  @apply w-10 h-10 rounded-full nm-inset flex items-center justify-center text-accent font-bold text-xs;
+}
+
+.vie-student-info {
+  @apply flex flex-col;
+}
+
+.vie-student-name {
+  @apply font-semibold text-sm;
+}
+
+.vie-student-matricule {
+  @apply text-xs text-gray-400;
+}
+
+.vie-input-hours {
+  @apply w-20 p-2 rounded-xl input-nm text-center text-sm font-bold;
+}
+
+.vie-input-text {
+  @apply w-full p-2 rounded-xl input-nm text-sm;
+}
+
+.vie-badge {
+  @apply inline-flex items-center px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider;
+}
+
+.vie-badge-absent {
+  @apply bg-red-500/10 text-red-500;
+}
+
+.vie-badge-justified {
+  @apply bg-green-500/10 text-green-500;
+}
+
+.vie-badge-warning {
+  @apply bg-amber-500/10 text-amber-500;
+}
+
+.vie-badge-sanction {
+  @apply bg-orange-500/10 text-orange-500;
+}
+
+.vie-action-btn {
+  @apply px-3 py-1 bg-accent text-white text-xs font-bold rounded-lg hover:brightness-105 transition-all;
+}
+
+.vie-section-header {
+  @apply flex justify-between items-center mb-6;
+}
+
+.vie-alert {
+  @apply p-5 rounded-[32px] nm-flat flex items-start gap-3;
+}
+
+.vie-empty-state {
+  @apply text-center py-12 text-gray-400;
+}
+
+/* Sanction modal specific */
+#sanction-modal .nm-flat {
+  @apply rounded-[40px];
+}
+
+#sanction-modal select,
+#sanction-modal input,
+#sanction-modal textarea {
+  @apply w-full p-3 rounded-xl;
+}

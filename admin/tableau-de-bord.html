@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="fr" class="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tableau de bord | EduNeum Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- darkMode:"class" + couleur accent : sans ce fichier, bg-accent et le
+       mode sombre ne sont pas definis sur cette page. -->
+  <script src="../js/tailwind.config.js?v=2"></script>
+  <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+  <link rel="stylesheet" href="../css/eduneum-core.css?v=4">
+  <link rel="stylesheet" href="../css/tableau-de-bord-admin.css?v=2">
+              <script src="../js/core/routes.js?v=2"></script>
+    <script src="../js/core/store.js?v=6"></script>
+    <script src="../js/core/calculs.js?v=3"></script>
+    <script src="../js/core/auth.js?v=2"></script>
+    <script src="../js/core/ui.js?v=2"></script>
+    <script src="../js/core/page.js?v=2"></script>
+    <script src="../js/core/acces.js?v=2"></script>
+    <script src="../js/core/layout.js?v=5"></script>
+    <script src="../js/core/html2canvas.min.js?v=2"></script>
+    <script src="../js/core/jspdf.umd.min.js?v=2"></script>
+    <script src="../js/core/listes-eleves.js?v=5"></script>
+</head>
+<body>
+  <div class="min-h-screen flex flex-col md:flex-row">
+    <!-- Menu par role : genere par js/core/layout.js a partir de js/core/routes.js -->
+    <aside class="w-full md:w-64 flex flex-col p-6 space-y-8 z-50 vt-sidebar">
+      <div class="flex items-center space-x-3 nm-soft-convex p-4 rounded-2xl">
+        <div class="w-10 h-10 bg-accent rounded-xl flex items-center justify-center text-white shadow-lg">
+          <iconify-icon icon="lucide:graduation-cap" width="24"></iconify-icon>
+        </div>
+        <span class="font-bold text-xl tracking-tight display-font">EduNeum.</span>
+      </div>
+    </aside>
+
+    <main class="flex-1 p-6 lg:p-10 space-y-8 overflow-y-auto vt-main-content">
+      <header class="flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="flex flex-col">
+          <h1 class="text-3xl font-extrabold display-font tracking-tight">Tableau de bord</h1>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Vue d'ensemble de l'établissement</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2" id="actions"></div>
+      </header>
+
+      <div id="contenu" class="space-y-8"></div>
+    </main>
+  </div>
+
+  <script src="../js/tableau-de-bord-admin.js?v=3"></script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+@import url('https://fonts.googleapis.com/css2?family=DM%2BSans:wght@100;200;300;400;500;600;700;800;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus%2BJakarta%2BSans:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+    :root {
+      --bg-color: #e0e5ec;
+      --shadow-light: #ffffff;
+      --shadow-dark: #babecc;
+      --accent: #8b5cf6;
+      --text-main: #2d3748;
+      --text-sub: #718096;
+    }
+
+    .dark {
+      --bg-color: #1a202c;
+      --shadow-light: #2d3748;
+      --shadow-dark: #0f172a;
+      --accent: #a78bfa;
+      --text-main: #f7fafc;
+      --text-sub: #cbd5e0;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      transition: background-color 0.3s ease;
+      margin: 0;
+    }
+
+    .display-font {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .nm-flat {
+      box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
+    }
+    .nm-inset {
+      box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+    }
+    .nm-soft-convex {
+      box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
+    }
+    
+    .input-nm {
+      background: var(--bg-color);
+      border: none;
+      outline: none;
+      box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);
+      transition: all 0.2s ease;
+    }
+    .input-nm:focus {
+      box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 10px var(--shadow-light);
+      border: 1px solid var(--accent);
+    }
+
+    .btn-primary {
+      box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
+      transition: all 0.2s ease;
+    }
+    .btn-primary:active {
+      box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);
+      transform: scale(0.98);
+    }
+
+    .glass {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+sd-component { display: block; }
+
+.vt-sidebar {
+  view-transition-name: sidebar;
+}
+.vt-main-content {
+  view-transition-name: main-content;
+}

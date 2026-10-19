@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="fr" class="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vie Scolaire | Espace Censeur</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+  <link rel="stylesheet" href="../css/eduneum-core.css?v=4">
+  <link rel="stylesheet" href="../css/vie-scolaire.css?v=2">
+  <script src="../js/core/routes.js?v=2"></script>
+  <script src="../js/core/store.js?v=6"></script>
+  <script src="../js/core/calculs.js?v=3"></script>
+  <script src="../js/core/auth.js?v=2"></script>
+  <script src="../js/core/ui.js?v=2"></script>
+  <script src="../js/core/page.js?v=2"></script>
+  <script src="../js/core/acces.js?v=2"></script>
+  <script src="../js/core/layout.js?v=5"></script>
+  <script src="../js/core/i18n.js?v=2"></script>
+</head>
+<body>
+  <div class="min-h-screen flex flex-col md:flex-row" data-sd-id="1">
+    <aside class="w-full md:w-64 flex flex-col p-6 space-y-8 z-50 vt-sidebar">
+      <div class="flex items-center space-x-3 nm-soft-convex p-4 rounded-2xl">
+        <div class="w-10 h-10 bg-accent rounded-xl flex items-center justify-center text-white shadow-lg">
+          <iconify-icon icon="lucide:graduation-cap" width="24"></iconify-icon>
+        </div>
+        <span class="font-bold text-xl tracking-tight display-font">EduNeum.</span>
+      </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col p-6 md:p-10 space-y-8 overflow-y-auto vt-main-content" data-sd-id="2" id="main-content-area">
+      <header class="flex flex-col md:flex-row justify-between items-center gap-4" data-sd-id="3">
+        <div class="flex flex-col" data-sd-id="4">
+          <h1 class="text-3xl font-extrabold display-font tracking-tight" data-i18n="vie.titre" data-sd-id="5">Vie Scolaire</h1>
+          <p class="text-sm text-gray-500 dark:text-gray-400" data-i18n="vie.sousTitre" data-sd-id="6">Gestion des absences et de la discipline</p>
+        </div>
+        <div class="flex items-center space-x-4" data-sd-id="7">
+          <div class="nm-inset p-1 rounded-full flex" role="group" aria-label="Langue" data-sd-id="8">
+            <button type="button" class="px-4 py-1 text-xs font-bold bg-accent text-white rounded-full shadow-md" id="lang-fr" data-sd-id="9">FR</button>
+            <button type="button" class="px-4 py-1 text-xs text-gray-500 font-medium rounded-full" id="lang-en" data-sd-id="10">EN</button>
+          </div>
+          <button type="button" id="theme-toggle" class="w-10 h-10 nm-soft-convex rounded-full flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-accent transition-colors" data-sd-id="11">
+            <iconify-icon icon="lucide:sun" class="dark:hidden"></iconify-icon>
+            <iconify-icon icon="lucide:moon" class="hidden dark:block"></iconify-icon>
+          </button>
+        </div>
+      </header>
+
+      <div id="zone-filtres" class="nm-flat p-6 rounded-[32px] grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
+        <div class="space-y-2">
+          <label class="text-xs font-bold text-gray-400 uppercase tracking-widest" data-i18n="commun.classe">Classe</label>
+          <select id="sel-classe" class="w-full p-4 rounded-2xl input-nm text-sm font-medium focus:ring-2 focus:ring-accent">
+            <option value="" data-i18n="vie.selectionnerClasse">Sélectionner une classe</option>
+          </select>
+        </div>
+        <div class="space-y-2">
+          <label class="text-xs font-bold text-gray-400 uppercase tracking-widest" data-i18n="commun.sequence">Séquence</label>
+          <select id="sel-sequence" class="w-full p-4 rounded-2xl input-nm text-sm font-medium focus:ring-2 focus:ring-accent">
+            <option value="" data-i18n="vie.selectionnerSequence">Sélectionner une séquence</option>
+          </select>
+        </div>
+        <div class="space-y-2">
+          <label class="text-xs font-bold text-gray-400 uppercase tracking-widest">Mode</label>
+          <select id="sel-mode" class="w-full p-4 rounded-2xl input-nm text-sm font-medium focus:ring-2 focus:ring-accent">
+            <option value="absences" data-i18n="vie.absences">Absences</option>
+            <option value="discipline" data-i18n="vie.discipline">Discipline</option>
+          </select>
+        </div>
+        <div class="flex space-x-4">
+          <button id="btn-charger" class="flex-1 py-4 px-6 nm-soft-convex rounded-2xl text-accent font-bold hover:nm-inset transition-all flex items-center justify-center space-x-2">
+            <iconify-icon icon="lucide:search" id="search-icon"></iconify-icon>
+            <span data-i18n="vie.charger">Charger</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="alerte-vie"></div>
+
+      <section id="zone-tableau" class="space-y-6"></section>
+    </main>
+  </div>
+
+  <div id="toast-container" class="fixed bottom-8 right-8 space-y-4 z-50" data-sd-id="87"></div>
+
+  <!-- Modal pour nouvelle sanction -->
+  <div id="sanction-modal" class="fixed inset-0 z-[200] hidden flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm transition-all">
+    <div class="nm-flat bg-white dark:bg-gray-800 w-full max-w-md p-8 rounded-[40px] space-y-6">
+      <div class="flex justify-between items-center">
+        <h3 class="text-xl font-bold display-font" id="sanction-modal-title">Nouvelle Sanction</h3>
+        <button id="close-sanction-modal" class="text-gray-400 hover:text-accent"><iconify-icon icon="lucide:x" width="24"></iconify-icon></button>
+      </div>
+      <div class="space-y-4">
+        <div class="space-y-2">
+          <label class="text-xs font-bold text-gray-400 uppercase">Élève</label>
+          <p id="sanction-eleve-name" class="font-bold text-accent"></p>
+        </div>
+        <div class="space-y-2">
+          <label class="text-xs font-bold text-gray-400 uppercase" data-i18n="vie.typeSanction">Type de sanction</label>
+          <select id="sanction-type" class="w-full p-3 nm-inset rounded-xl text-sm">
+            <option value="avertissement" data-i18n="vie.avertissement">Avertissement</option>
+            <option value="blame" data-i18n="vie.blame">Blâme</option>
+            <option value="exclusion_temporaire" data-i18n="vie.exclusionTemporaire">Exclusion temporaire</option>
+            <option value="exclusion_definitive" data-i18n="vie.exclusionDefinitive">Exclusion définitive</option>
+          </select>
+        </div>
+        <div class="space-y-2">
+          <label class="text-xs font-bold text-gray-400 uppercase" data-i18n="vie.duree">Durée (jours)</label>
+          <input type="number" id="sanction-duree" min="0" max="30" value="0" class="w-full p-3 nm-inset rounded-xl text-sm" placeholder="0 = sans limite">
+        </div>
+        <div class="space-y-2">
+          <label class="text-xs font-bold text-gray-400 uppercase" data-i18n="vie.motif">Motif</label>
+          <textarea id="sanction-motif" rows="3" class="w-full p-3 nm-inset rounded-xl text-sm resize-none" placeholder="Détails de l'incident..."></textarea>
+        </div>
+      </div>
+      <div class="flex gap-4 pt-4">
+        <button id="btn-save-sanction" class="flex-1 py-3 bg-accent text-white font-bold rounded-2xl shadow-lg hover:brightness-105 transition-all" data-i18n="commun.enregistrer">Enregistrer</button>
+        <button id="btn-cancel-sanction" class="flex-1 py-3 nm-soft-convex font-bold rounded-2xl hover:nm-inset transition-all" data-i18n="commun.annuler">Annuler</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/vie-scolaire.js?v=2"></script>
+</body>
+</html>

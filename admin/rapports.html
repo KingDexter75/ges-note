@@ -1,0 +1,372 @@
+<!DOCTYPE html><html lang="fr" class="light"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rapports de Performance | EduNeum</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+  <link rel="stylesheet" href="../css/eduneum-core.css?v=4"><link rel="stylesheet" href="../css/rapports.css?v=2">
+                  <script src="../js/core/actions.js?v=2"></script>
+  <script src="../js/core/routes.js?v=2"></script>
+    <script src="../js/core/store.js?v=6"></script>
+    <script src="../js/core/calculs.js?v=3"></script>
+    <script src="../js/core/auth.js?v=2"></script>
+    <script src="../js/core/ui.js?v=2"></script>
+    <script src="../js/core/page.js?v=2"></script>
+    <script src="../js/core/acces.js?v=2"></script>
+    <script src="../js/core/layout.js?v=5"></script>
+  <!-- i18n apres layout : le menu est genere au DOMContentLoaded, il doit
+       exister deja pour que la traduction s'y applique. -->
+  <script src="../js/core/i18n.js?v=2"></script>
+<script src="../js/rapports.tailwind.js?v=2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/petite-vue@0.4.1/dist/petite-vue.iife.js" defer init></script>
+</head>
+<body>
+  <div class="min-h-screen flex flex-col md:flex-row" data-sd-id="1">
+    
+    <!-- Sidebar Navigation -->
+    <div class="no-print">
+        <!-- Menu par role : genere par js/core/layout.js a partir de js/core/routes.js -->
+        <aside class="w-full md:w-64 flex flex-col p-6 space-y-8 z-50 vt-sidebar">
+          <div class="flex items-center space-x-3 nm-soft-convex p-4 rounded-2xl">
+            <div class="w-10 h-10 bg-accent rounded-xl flex items-center justify-center text-white shadow-lg">
+              <iconify-icon icon="lucide:graduation-cap" width="24"></iconify-icon>
+            </div>
+            <span class="font-bold text-xl tracking-tight display-font">EduNeum.</span>
+          </div>
+        </aside>
+    </div>
+
+    <!-- Main Content -->
+    <main id="main-content" class="flex-1 flex flex-col p-6 md:p-10 space-y-8 overflow-y-auto relative">
+      
+      <!-- Top Header -->
+      <header class="flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="flex flex-col">
+          <h1 class="text-3xl font-extrabold display-font tracking-tight">Rapports de Performance</h1>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Analyses approfondies et statistiques académiques</p>
+        </div>
+
+        <div class="flex items-center space-x-4 no-print">
+          <button id="refresh-data" class="w-10 h-10 nm-soft-convex rounded-full flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-accent transition-all">
+            <iconify-icon icon="lucide:refresh-cw" id="refresh-icon"></iconify-icon>
+          </button>
+          
+          <div class="nm-inset p-1 rounded-full flex" role="group" aria-label="Langue">
+            <button type="button" id="lang-fr" class="px-4 py-1 text-xs font-bold bg-accent text-white rounded-full shadow-md">FR</button>
+            <button type="button" id="lang-en" class="px-4 py-1 text-xs text-gray-500 font-medium">EN</button>
+          </div>
+
+          <button id="theme-toggle" class="w-10 h-10 nm-soft-convex rounded-full flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-accent transition-colors">
+            <iconify-icon icon="lucide:sun" class="dark:hidden"></iconify-icon>
+            <iconify-icon icon="lucide:moon" class="hidden dark:block"></iconify-icon>
+          </button>
+
+          <div id="profile-btn" class="flex items-center space-x-3 nm-flat p-2 pr-4 rounded-2xl cursor-pointer hover:nm-soft-convex transition-all">
+            <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-accent to-purple-400 border-2 border-white dark:border-gray-800"></div>
+            <span class="text-sm font-semibold">Admin User</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Analytics Filters Bar -->
+      <section class="nm-flat p-6 rounded-[32px] flex flex-wrap gap-4 items-center justify-between no-print">
+        <div class="flex flex-wrap gap-4">
+          <div class="relative">
+            <select id="filter-term" class="nm-inset bg-transparent px-4 py-2 rounded-xl text-sm appearance-none outline-none pr-10 focus:ring-1 focus:ring-accent/50">
+              <option value="all">Toute l'année</option>
+              <option value="t1">Trimestre 1</option>
+              <option value="t2">Trimestre 2</option>
+              <option value="t3">Trimestre 3</option>
+            </select>
+            <iconify-icon icon="lucide:chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></iconify-icon>
+          </div>
+          <div class="relative">
+            <select id="filter-class" class="nm-inset bg-transparent px-4 py-2 rounded-xl text-sm appearance-none outline-none pr-10 focus:ring-1 focus:ring-accent/50">
+              <option value="all">Toutes les classes</option>
+              <option value="6a">6ème A</option>
+              <option value="ts1">Terminale S1</option>
+              <option value="4b">4ème B</option>
+            </select>
+            <iconify-icon icon="lucide:chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></iconify-icon>
+          </div>
+          <div class="relative">
+            <select id="filter-subject" class="nm-inset bg-transparent px-4 py-2 rounded-xl text-sm appearance-none outline-none pr-10 focus:ring-1 focus:ring-accent/50">
+              <option value="all">Toutes les matières</option>
+              <option value="math">Mathématiques</option>
+              <option value="french">Français</option>
+            </select>
+            <iconify-icon icon="lucide:chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></iconify-icon>
+          </div>
+          
+          <!-- Date Range -->
+          <div class="flex items-center space-x-2 nm-inset px-4 py-1.5 rounded-xl">
+             <input type="date" id="date-from" class="bg-transparent text-xs border-none outline-none">
+             <span class="text-gray-400 text-xs">à</span>
+             <input type="date" id="date-to" class="bg-transparent text-xs border-none outline-none">
+          </div>
+        </div>
+
+        <div class="flex gap-3">
+          <button id="btn-print" class="nm-soft-convex px-4 py-2 rounded-xl text-sm font-bold flex items-center space-x-2 hover:nm-inset transition-all">
+            <iconify-icon icon="lucide:printer" class="text-accent"></iconify-icon>
+            <span>Imprimer</span>
+          </button>
+          <button id="btn-export-pdf" class="nm-soft-convex px-4 py-2 rounded-xl text-sm font-bold flex items-center space-x-2 hover:nm-inset transition-all">
+            <iconify-icon icon="lucide:file-down" id="pdf-icon" class="text-accent"></iconify-icon>
+            <span id="pdf-text">Exporter PDF</span>
+          </button>
+          <button id="btn-export-excel" class="nm-soft-convex px-4 py-2 rounded-xl text-sm font-bold flex items-center space-x-2 hover:nm-inset transition-all">
+            <iconify-icon icon="lucide:file-spreadsheet" id="excel-icon" class="text-accent"></iconify-icon>
+            <span id="excel-text">Excel</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Summary Metrics -->
+      <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="cursor-pointer hover-scale" id="card-avg">
+            <!-- component: StatsCard (9f998806-543a-496a-97f5-7ba8b652cb15) -->
+<div v-scope="{ ...{&quot;value&quot;:&quot;13.8/20&quot;,&quot;trendText&quot;:&quot;+0.4 pts vs T2&quot;,&quot;trendPositive&quot;:true,&quot;showTrend&quot;:true}, $emit() {} }">
+<div class="p-6 rounded-[32px] transition-all duration-200 hover:-translate-y-0.5 group cursor-default nm-flat">
+  <div class="flex justify-between items-start">
+    <div>
+      <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Élèves Inscrits</p>
+      <h3 class="text-2xl font-black mt-1 display-font">{{ value }}</h3>
+    </div>
+    <div class="w-10 h-10 rounded-xl flex items-center justify-center text-accent group-hover:scale-110 transition-transform nm-inset">
+      <iconify-icon icon="lucide:users-round" width="20"></iconify-icon>
+    </div>
+  </div>
+  <div v-if="showTrend" class="mt-4 flex items-center text-xs font-medium px-2 py-1 rounded-full w-fit" :class="trendPositive ? 'text-green-500 bg-green-50 dark:bg-green-900/20' : 'text-red-500 bg-red-50 dark:bg-red-900/20'">
+    <iconify-icon :icon="trendPositive ? 'lucide:arrow-up-right' : 'lucide:alert-circle'" class="mr-1"></iconify-icon>
+    {{ trendText }}
+  </div>
+</div>
+</div>
+<!-- /component: StatsCard (9f998806-543a-496a-97f5-7ba8b652cb15) -->
+        </div>
+        <div class="cursor-pointer hover-scale" id="card-attendance">
+            <!-- component: StatsCard (9f998806-543a-496a-97f5-7ba8b652cb15) -->
+<div v-scope="{ ...{&quot;value&quot;:&quot;94.2%&quot;,&quot;trendText&quot;:&quot;-1.2% vs T2&quot;,&quot;trendPositive&quot;:false,&quot;showTrend&quot;:true}, $emit() {} }">
+<div class="p-6 rounded-[32px] transition-all duration-200 hover:-translate-y-0.5 group cursor-default nm-flat">
+  <div class="flex justify-between items-start">
+    <div>
+      <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Élèves Inscrits</p>
+      <h3 class="text-2xl font-black mt-1 display-font">{{ value }}</h3>
+    </div>
+    <div class="w-10 h-10 rounded-xl flex items-center justify-center text-accent group-hover:scale-110 transition-transform nm-inset">
+      <iconify-icon icon="lucide:users-round" width="20"></iconify-icon>
+    </div>
+  </div>
+  <div v-if="showTrend" class="mt-4 flex items-center text-xs font-medium px-2 py-1 rounded-full w-fit" :class="trendPositive ? 'text-green-500 bg-green-50 dark:bg-green-900/20' : 'text-red-500 bg-red-50 dark:bg-red-900/20'">
+    <iconify-icon :icon="trendPositive ? 'lucide:arrow-up-right' : 'lucide:alert-circle'" class="mr-1"></iconify-icon>
+    {{ trendText }}
+  </div>
+</div>
+</div>
+<!-- /component: StatsCard (9f998806-543a-496a-97f5-7ba8b652cb15) -->
+        </div>
+        <div class="cursor-pointer hover-scale" id="card-top">
+            <!-- component: StatsCard (9f998806-543a-496a-97f5-7ba8b652cb15) -->
+<div v-scope="{ ...{&quot;value&quot;:&quot;18.5/20&quot;,&quot;trendText&quot;:&quot;Record annuel&quot;,&quot;trendPositive&quot;:true,&quot;showTrend&quot;:true}, $emit() {} }">
+<div class="p-6 rounded-[32px] transition-all duration-200 hover:-translate-y-0.5 group cursor-default nm-flat">
+  <div class="flex justify-between items-start">
+    <div>
+      <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Élèves Inscrits</p>
+      <h3 class="text-2xl font-black mt-1 display-font">{{ value }}</h3>
+    </div>
+    <div class="w-10 h-10 rounded-xl flex items-center justify-center text-accent group-hover:scale-110 transition-transform nm-inset">
+      <iconify-icon icon="lucide:users-round" width="20"></iconify-icon>
+    </div>
+  </div>
+  <div v-if="showTrend" class="mt-4 flex items-center text-xs font-medium px-2 py-1 rounded-full w-fit" :class="trendPositive ? 'text-green-500 bg-green-50 dark:bg-green-900/20' : 'text-red-500 bg-red-50 dark:bg-red-900/20'">
+    <iconify-icon :icon="trendPositive ? 'lucide:arrow-up-right' : 'lucide:alert-circle'" class="mr-1"></iconify-icon>
+    {{ trendText }}
+  </div>
+</div>
+</div>
+<!-- /component: StatsCard (9f998806-543a-496a-97f5-7ba8b652cb15) -->
+        </div>
+        <div class="cursor-pointer hover-scale" id="card-incidents">
+            <!-- component: StatsCard (9f998806-543a-496a-97f5-7ba8b652cb15) -->
+<div v-scope="{ ...{&quot;value&quot;:&quot;12&quot;,&quot;trendText&quot;:&quot;-5 incidents&quot;,&quot;trendPositive&quot;:true,&quot;showTrend&quot;:true}, $emit() {} }">
+<div class="p-6 rounded-[32px] transition-all duration-200 hover:-translate-y-0.5 group cursor-default nm-flat">
+  <div class="flex justify-between items-start">
+    <div>
+      <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Élèves Inscrits</p>
+      <h3 class="text-2xl font-black mt-1 display-font">{{ value }}</h3>
+    </div>
+    <div class="w-10 h-10 rounded-xl flex items-center justify-center text-accent group-hover:scale-110 transition-transform nm-inset">
+      <iconify-icon icon="lucide:users-round" width="20"></iconify-icon>
+    </div>
+  </div>
+  <div v-if="showTrend" class="mt-4 flex items-center text-xs font-medium px-2 py-1 rounded-full w-fit" :class="trendPositive ? 'text-green-500 bg-green-50 dark:bg-green-900/20' : 'text-red-500 bg-red-50 dark:bg-red-900/20'">
+    <iconify-icon :icon="trendPositive ? 'lucide:arrow-up-right' : 'lucide:alert-circle'" class="mr-1"></iconify-icon>
+    {{ trendText }}
+  </div>
+</div>
+</div>
+<!-- /component: StatsCard (9f998806-543a-496a-97f5-7ba8b652cb15) -->
+        </div>
+      </section>
+
+      <!-- Charts Section -->
+      <section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Note Trends Chart -->
+        <div class="nm-flat p-8 rounded-[40px] flex flex-col" id="note-chart-container">
+          <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-bold display-font">Évolution des Notes</h3>
+            <div class="flex space-x-2">
+              <button class="flex items-center space-x-1 group" data-action="toggleSeries@click" data-arg1="current">
+                <span id="legend-current" class="w-3 h-3 rounded-full bg-accent"></span>
+                <span class="text-xs text-gray-400 group-hover:text-accent">Cette année</span>
+              </button>
+              <button class="flex items-center space-x-1 group" data-action="toggleSeries@click" data-arg1="past">
+                <span id="legend-past" class="w-3 h-3 rounded-full bg-gray-300"></span>
+                <span class="text-xs text-gray-400 group-hover:text-gray-600">Année passée</span>
+              </button>
+            </div>
+          </div>
+          <div class="flex-1 min-h-[300px] flex items-end justify-between px-4 pb-2 relative group">
+            <!-- Interactive Chart Area -->
+            <svg id="main-svg-chart" viewBox="0 0 400 200" class="w-full h-full text-accent">
+              <path id="chart-path-main" class="chart-path" d="M0 180 Q 50 160 100 170 T 200 100 T 300 120 T 400 50" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
+              <path id="chart-path-past" class="chart-path" d="M0 190 Q 50 175 100 185 T 200 140 T 300 150 T 400 100" fill="none" stroke="#babecc" stroke-width="2" stroke-dasharray="4"></path>
+              
+              <!-- Hover Points -->
+              <g id="chart-points">
+                  <circle cx="0" cy="180" r="6" fill="currentColor" class="cursor-pointer hover:r-8 transition-all" data-action="showTooltip@mouseover;hideTooltip@mouseout" data-arg1="n:0" data-arg2="n:10.5" data-event></circle>
+                  <circle cx="100" cy="170" r="6" fill="currentColor" class="cursor-pointer hover:r-8 transition-all" data-action="showTooltip@mouseover;hideTooltip@mouseout" data-arg1="n:100" data-arg2="n:11.2" data-event></circle>
+                  <circle cx="200" cy="100" r="6" fill="currentColor" class="cursor-pointer hover:r-8 transition-all" data-action="showTooltip@mouseover;hideTooltip@mouseout" data-arg1="n:200" data-arg2="n:14.8" data-event></circle>
+                  <circle cx="300" cy="120" r="6" fill="currentColor" class="cursor-pointer hover:r-8 transition-all" data-action="showTooltip@mouseover;hideTooltip@mouseout" data-arg1="n:300" data-arg2="n:13.5" data-event></circle>
+                  <circle cx="400" cy="50" r="6" fill="currentColor" class="cursor-pointer hover:r-8 transition-all" data-action="showTooltip@mouseover;hideTooltip@mouseout" data-arg1="n:400" data-arg2="n:17.2" data-event></circle>
+              </g>
+            </svg>
+            <div id="chart-tooltip" class="absolute hidden bg-gray-900 text-white text-[10px] px-2 py-1 rounded shadow-lg pointer-events-none z-50"></div>
+          </div>
+          <div class="flex justify-between text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-4">
+            <span>Oct</span><span>Nov</span><span>Déc</span><span>Jan</span><span>Fév</span><span>Mar</span>
+          </div>
+        </div>
+
+        <!-- Attendance Analysis Chart -->
+        <div class="nm-flat p-8 rounded-[40px] flex flex-col">
+          <h3 class="text-xl font-bold display-font mb-6">Assiduité par Section</h3>
+          <div class="flex-1 flex flex-col sm:flex-row items-center justify-around gap-6">
+             <!-- Donut Chart Mockup -->
+             <div class="relative w-48 h-48 group cursor-pointer" data-action="drillDownAttendance@click">
+                <svg viewBox="0 0 36 36" class="w-full h-full transform -rotate-90">
+                  <path class="text-gray-200 dark:text-gray-800" stroke-dasharray="100, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="4"></path>
+                  <path id="attendance-donut" class="text-accent transition-all duration-1000" stroke-dasharray="85, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                  <span id="attendance-val" class="text-3xl font-black display-font">94%</span>
+                  <span class="text-[10px] text-gray-400 font-bold uppercase">Présence</span>
+                </div>
+             </div>
+             <div class="space-y-4 w-full sm:w-auto">
+                <div class="flex items-center space-x-3 nm-soft-convex p-3 rounded-2xl hover:nm-inset transition-all cursor-pointer">
+                  <div class="w-3 h-3 rounded-full bg-accent"></div>
+                  <div>
+                    <p class="text-xs font-bold">Secondaire</p>
+                    <p class="text-[10px] text-gray-400">96.5% assiduité</p>
+                  </div>
+                </div>
+                <div class="flex items-center space-x-3 nm-soft-convex p-3 rounded-2xl hover:nm-inset transition-all cursor-pointer">
+                  <div class="w-3 h-3 rounded-full bg-purple-300"></div>
+                  <div>
+                    <p class="text-xs font-bold">Lycée</p>
+                    <p class="text-[10px] text-gray-400">92.1% assiduité</p>
+                  </div>
+                </div>
+                <div class="flex items-center space-x-3 nm-soft-convex p-3 rounded-2xl hover:nm-inset transition-all cursor-pointer">
+                  <div class="w-3 h-3 rounded-full bg-red-400"></div>
+                  <div>
+                    <p class="text-xs font-bold">Retards</p>
+                    <p class="text-[10px] text-gray-400">12% total</p>
+                  </div>
+                </div>
+             </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Detailed Performance Table -->
+      <section class="nm-flat p-8 rounded-[40px] flex flex-col space-y-6">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <h3 class="text-xl font-bold display-font">Détails par Classe</h3>
+              <div class="flex items-center space-x-2 w-full sm:w-auto">
+                  <div class="relative flex-1 sm:w-64">
+                      <iconify-icon icon="lucide:search" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></iconify-icon>
+                      <input type="text" id="table-search" placeholder="Rechercher une classe..." class="w-full nm-inset bg-transparent pl-10 pr-4 py-2 rounded-xl text-sm outline-none focus:ring-1 focus:ring-accent">
+                  </div>
+                  <button id="btn-share" class="p-2 nm-soft-convex rounded-xl text-gray-500 hover:text-accent transition-all">
+                      <iconify-icon icon="lucide:share-2"></iconify-icon>
+                  </button>
+              </div>
+          </div>
+          
+          <div class="overflow-x-auto">
+              <!-- component: DataTable (ffeebd59-eabc-4fc7-870d-2313f079020c) -->
+<div v-scope="{ ...{&quot;viewAllHref&quot;:&quot;./notes.html&quot;,&quot;rows&quot;:[{&quot;name&quot;:&quot;6ème A&quot;,&quot;subject&quot;:&quot;Global&quot;,&quot;score&quot;:&quot;14.5/20&quot;,&quot;status&quot;:&quot;PUBLIÉ&quot;},{&quot;name&quot;:&quot;Terminale S1&quot;,&quot;subject&quot;:&quot;Global&quot;,&quot;score&quot;:&quot;12.8/20&quot;,&quot;status&quot;:&quot;PUBLIÉ&quot;},{&quot;name&quot;:&quot;4ème B&quot;,&quot;subject&quot;:&quot;Maths&quot;,&quot;score&quot;:&quot;11.2/20&quot;,&quot;status&quot;:&quot;EN ATTENTE&quot;},{&quot;name&quot;:&quot;3ème C&quot;,&quot;subject&quot;:&quot;Français&quot;,&quot;score&quot;:&quot;15.4/20&quot;,&quot;status&quot;:&quot;PUBLIÉ&quot;}]}, $emit() {} }">
+<div class="nm-flat p-8 rounded-[40px] overflow-hidden">
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-xl font-bold display-font">Dernières Notes Saisies</h2>
+    <a :href="viewAllHref" class="text-accent text-sm font-semibold hover:underline">Voir tout</a>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="w-full text-left">
+      <thead>
+        <tr class="text-xs font-bold text-gray-400 uppercase border-b border-gray-200 dark:border-gray-700">
+          <th class="pb-4 px-2">Élève</th>
+          <th class="pb-4 px-2">Matière</th>
+          <th class="pb-4 px-2">Note</th>
+          <th class="pb-4 px-2 text-right">Statut</th>
+        </tr>
+      </thead>
+      <tbody class="text-sm">
+        <tr v-for="(row, index) in rows" :key="index" class="hover:bg-white/10 transition-colors" :class="{ 'border-b border-gray-100 dark:border-gray-800': index !== rows.length - 1 }">
+          <td class="py-4 px-2 font-medium">{{ row.name }}</td>
+          <td class="py-4 px-2">{{ row.subject }}</td>
+          <td class="py-4 px-2">{{ row.score }}</td>
+          <td class="py-4 px-2 text-right">
+            <span class="px-2 py-1 rounded-lg text-[10px] font-bold" :class="row.status === 'PUBLIÉ' ? 'bg-green-100 dark:bg-green-900/30 text-green-600' : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600'">
+              {{ row.status }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</div>
+<!-- /component: DataTable (ffeebd59-eabc-4fc7-870d-2313f079020c) -->
+          </div>
+      </section>
+
+    </main>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed bottom-6 right-6 flex flex-col space-y-3 z-[100]"></div>
+
+    <!-- Drill Down Modal -->
+    <div id="drilldown-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden items-center justify-center z-[150] p-4 no-print">
+        <div class="nm-flat bg-[#e0e5ec] dark:bg-[#1a202c] w-full max-w-2xl rounded-[40px] p-8 max-h-[90vh] overflow-y-auto relative">
+            <button data-action="closeModal@click" class="absolute top-6 right-6 p-2 nm-soft-convex rounded-full text-gray-400 hover:text-red-500 transition-all">
+                <iconify-icon icon="lucide:x" width="24"></iconify-icon>
+            </button>
+            <h2 id="modal-title" class="text-2xl font-black display-font mb-6">Détails du Rapport</h2>
+            <div id="modal-content" class="space-y-4">
+                <!-- Dynamic Content -->
+            </div>
+            <div class="mt-8 flex justify-end space-x-4">
+                <button data-action="closeModal@click" class="px-6 py-2 nm-soft-convex rounded-xl font-bold">Fermer</button>
+                <button id="modal-action-btn" class="px-6 py-2 bg-accent text-white rounded-xl font-bold shadow-lg">Action</button>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <script src="../js/rapports.js?v=2"></script>
+
+</body></html>

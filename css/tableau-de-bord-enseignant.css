@@ -1,0 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');:root{--bg:#e0e5ec;--shadow-dark:#babecc;--shadow-light:#ffffff;--accent:#8b5cf6;--accent-soft:rgba(139, 92, 246, 0.1)}.dark{--bg:#1a202c;--shadow-dark:#0f172a;--shadow-light:#2d3748;--accent:#a78bfa}body{font-family:'DM Sans',sans-serif;background-color:var(--bg);color:#2d3748;transition:background-color 0.4s ease;margin:0}.dark body{color:#e2e8f0}.display-font{font-family:'Plus Jakarta Sans',sans-serif}.nm-flat{box-shadow:6px 6px 12px var(--shadow-dark),-6px -6px 12px var(--shadow-light)}.nm-inset{box-shadow:inset 4px 4px 8px var(--shadow-dark),inset -4px -4px 8px var(--shadow-light)}.nm-soft-convex{box-shadow:5px 5px 10px var(--shadow-dark),-5px -5px 10px var(--shadow-light)}.nm-button:active{box-shadow:inset 2px 2px 5px var(--shadow-dark),inset -2px -2px 5px var(--shadow-light)}input,select,textarea{background:var(--bg);outline:none;transition:all 0.2s ease}.modal-backdrop{background:rgba(0,0,0,0.5);backdrop-filter:blur(4px)}.nm-modal{background:var(--bg);box-shadow:10px 10px 20px var(--shadow-dark),-10px -10px 20px var(--shadow-light)}.hidden-modal{display:none}::view-transition-old(main-content){animation:fade-out 0.3s ease-in-out}::view-transition-new(main-content){animation:fade-in 0.3s ease-in-out}@keyframes fade-out{from{opacity:1}to{opacity:0}}@keyframes fade-in{from{opacity:0}to{opacity:1}}
+
+sd-component { display: block; }
+
+.vt-sidebar {
+  view-transition-name: sidebar;
+}
+.vt-main-content {
+  view-transition-name: main-content;
+}

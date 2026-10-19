@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr" class="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Espace Enseignant | EduNeum Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- darkMode:"class" + couleur accent : sans ce fichier, bg-accent et le
+       mode sombre ne sont pas definis sur cette page. -->
+  <script src="../js/tailwind.config.js?v=2"></script>
+  <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+  <link rel="stylesheet" href="../css/eduneum-core.css?v=4">
+  <link rel="stylesheet" href="../css/tableau-de-bord-enseignant.css?v=2">
+  <script src="../js/core/routes.js?v=2"></script>
+  <script src="../js/core/store.js?v=6"></script>
+  <script src="../js/core/calculs.js?v=3"></script>
+  <script src="../js/core/auth.js?v=2"></script>
+  <script src="../js/core/ui.js?v=2"></script>
+  <script src="../js/core/page.js?v=2"></script>
+  <script src="../js/core/acces.js?v=2"></script>
+  <script src="../js/core/layout.js?v=5"></script>
+  <script src="../js/core/html2canvas.min.js?v=2"></script>
+  <script src="../js/core/jspdf.umd.min.js?v=2"></script>
+  <script src="../js/core/listes-eleves.js?v=5"></script>
+  <!-- i18n apres layout : le menu est genere au DOMContentLoaded, il doit
+       exister deja pour que la traduction s'y applique. -->
+  <script src="../js/core/i18n.js?v=2"></script>
+</head>
+<body>
+  <!-- Le tableau de bord est desormais rendu par js/tableau-de-bord-enseignant.js
+       a partir du store, comme les autres pages enseignantes. La maquette
+       d'origine contenait du contenu factice qui a ete retire :
+         - une NavigationSidebar Petite-Vue dont les liens pointaient tous
+           vers ../admin/* (refuses par la matrice d'acces) ;
+         - « Bonjour, Prof. Martin » et une session « 2023-2024 » figees ;
+         - le bouton « Appel » et sa modale d'assiduite fictive ;
+         - trois classes (Terminale S1, 6eme B, 4eme C) et cinq eleves
+           (Alice, Benoit, Clara, David, Paul) qui n'existent pas au store ;
+         - un compteur de notifications « 3 », un « dernier cours » de 08:00,
+           un « conseil de classe » du 20 octobre en salle 204 ;
+         - deux boutons sans cible : « Voir l'emploi du temps » et
+           « Voir l'historique complet » (aucun module ne les traite) ;
+         - une « saisie rapide de note » sans classe ni sequence, qui
+           contredisait la regle de la sequence validee par l'administration ;
+         - une « absence immediate » doublant l'assiduite, supprimee comme
+           le bouton d'appel demande.
+       Le menu, le theme et la pastille de profil sont fournis par layout.js. -->
+  <div class="min-h-screen flex flex-col md:flex-row">
+    <aside class="w-full md:w-64 flex flex-col p-6 space-y-8 z-50 vt-sidebar">
+      <div class="flex items-center space-x-3 nm-soft-convex p-4 rounded-2xl">
+        <div class="w-10 h-10 bg-accent rounded-xl flex items-center justify-center text-white shadow-lg">
+          <iconify-icon icon="lucide:graduation-cap" width="24"></iconify-icon>
+        </div>
+        <span class="font-bold text-xl tracking-tight display-font">EduNeum.</span>
+      </div>
+    </aside>
+
+    <main class="flex-1 p-6 lg:p-10 space-y-8 overflow-y-auto vt-main-content">
+      <header class="flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="flex flex-col">
+          <h1 class="text-3xl font-extrabold display-font tracking-tight" data-i18n="tdb.titre">Mon tableau de bord</h1>
+          <p class="text-sm text-gray-500 dark:text-gray-400" id="tdb-contexte" data-i18n="tdb.sousTitre">Vue d'ensemble de mes classes</p>
+        </div>
+        <div class="flex items-center space-x-4">
+          <div class="nm-inset p-1 rounded-full flex" role="group" aria-label="Langue">
+            <button type="button" id="lang-fr" class="px-4 py-1 text-xs font-bold bg-accent text-white rounded-full shadow-md">FR</button>
+            <button type="button" id="lang-en" class="px-4 py-1 text-xs text-gray-500 font-medium rounded-full">EN</button>
+          </div>
+          <div id="actions" class="flex flex-wrap items-center gap-2"></div>
+        </div>
+      </header>
+
+      <div id="contenu" class="space-y-8"></div>
+    </main>
+  </div>
+
+  <script src="../js/tableau-de-bord-enseignant.js?v=4"></script>
+</body>
+</html>

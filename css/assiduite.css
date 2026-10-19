@@ -1,0 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@100;200;300;400;500;600;700;800;900&display=swap');@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@100;200;300;400;500;600;700;800;900&display=swap');:root{--bg-color:#e0e5ec;--shadow-light:#ffffff;--shadow-dark:#babecc;--accent:#8b5cf6;--text-main:#2d3748;--text-sub:#718096}.dark{--bg-color:#1a202c;--shadow-light:#2d3748;--shadow-dark:#0f172a;--accent:#a78bfa;--text-main:#f7fafc;--text-sub:#cbd5e0}body{font-family:'DM Sans',sans-serif;background-color:var(--bg-color);color:var(--text-main);transition:background-color 0.3s ease;margin:0}.display-font{font-family:'Plus Jakarta Sans',sans-serif}.nm-flat{box-shadow:6px 6px 12px var(--shadow-dark),-6px -6px 12px var(--shadow-light)}.nm-inset{box-shadow:inset 4px 4px 8px var(--shadow-dark),inset -4px -4px 8px var(--shadow-light)}.nm-soft-convex{box-shadow:5px 5px 10px var(--shadow-dark),-5px -5px 10px var(--shadow-light)}.nm-button:active{box-shadow:inset 2px 2px 5px var(--shadow-dark),inset -2px -2px 5px var(--shadow-light)}input,select,textarea{background-color:var(--bg-color);outline:none;border:none}.status-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px}.status-present{background-color:#10b981}.status-absent{background-color:#ef4444}.status-justified{background-color:#f59e0b}.fade-enter{opacity:0;transform:translateY(10px)}.fade-enter-active{opacity:1;transform:translateY(0);transition:all 0.3s ease}
+
+sd-component { display: block; }
+
+.vt-sidebar {
+  view-transition-name: sidebar;
+}
+.pct-w-0 {
+  width: 0%;
+}

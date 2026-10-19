@@ -1,0 +1,538 @@
+<!DOCTYPE html><html lang="fr" class="light"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vie Scolaire | Censeur Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+  <link rel="stylesheet" href="../css/eduneum-core.css?v=4"><link rel="stylesheet" href="../css/vie-scolaire.css?v=2">
+                  <script src="../js/core/actions.js?v=2"></script>
+  <script src="../js/core/routes.js?v=2"></script>
+    <script src="../js/core/store.js?v=6"></script>
+    <script src="../js/core/calculs.js?v=3"></script>
+    <script src="../js/core/auth.js?v=2"></script>
+    <script src="../js/core/ui.js?v=2"></script>
+    <script src="../js/core/page.js?v=2"></script>
+    <script src="../js/core/acces.js?v=2"></script>
+    <script src="../js/core/layout.js?v=5"></script>
+  <!-- i18n apres layout : le menu est genere au DOMContentLoaded, il doit
+       exister deja pour que la traduction s'y applique. -->
+  <script src="../js/core/i18n.js?v=2"></script>
+<script src="../js/vie-scolaire.tailwind.js?v=2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/petite-vue@0.4.1/dist/petite-vue.iife.js" defer init></script>
+</head>
+<body>
+  <div class="min-h-screen flex flex-col md:flex-row" data-sd-id="1">
+    
+    <!-- Sidebar Navigation -->
+    <!-- Menu par role : genere par js/core/layout.js a partir de js/core/routes.js -->
+    <aside class="w-full md:w-64 flex flex-col p-6 space-y-8 z-50 vt-sidebar">
+      <div class="flex items-center space-x-3 nm-soft-convex p-4 rounded-2xl">
+        <div class="w-10 h-10 bg-accent rounded-xl flex items-center justify-center text-white shadow-lg">
+          <iconify-icon icon="lucide:graduation-cap" width="24"></iconify-icon>
+        </div>
+        <span class="font-bold text-xl tracking-tight display-font">EduNeum.</span>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-6 lg:p-10 space-y-8 overflow-y-auto vt-main-content" data-sd-id="2">
+      
+      <!-- Header -->
+      <header class="flex flex-col md:flex-row justify-between items-center gap-4" data-sd-id="3">
+        <div class="flex flex-col" data-sd-id="4">
+          <div class="flex items-center space-x-2" data-sd-id="5">
+            <span class="px-3 py-1 bg-red-500/10 text-red-500 text-[10px] font-black rounded-full nm-inset" data-sd-id="6">LIVE DISCIPLINE</span>
+            <h1 class="text-3xl font-extrabold display-font tracking-tight" data-sd-id="7">Bureau du Censeur</h1>
+          </div>
+          <p class="text-sm text-gray-500 dark:text-gray-400" data-sd-id="8">Gestion de la vie scolaire et du comportement • <span id="current-date">12 Oct 2023</span></p>
+        </div>
+
+        <div class="flex items-center space-x-4" data-sd-id="9">
+          <div class="nm-inset p-1 rounded-full flex" data-sd-id="10" role="group" aria-label="Langue">
+            <button type="button" id="lang-fr" class="px-4 py-1 text-xs font-bold bg-accent text-white rounded-full shadow-md" data-sd-id="11">FR</button>
+            <button type="button" id="lang-en" class="px-4 py-1 text-xs text-gray-500 font-medium" data-sd-id="12">EN</button>
+          </div>
+          <button id="theme-toggle" class="w-10 h-10 nm-soft-convex rounded-full flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-accent transition-colors" data-sd-id="13">
+            <iconify-icon icon="lucide:sun" class="dark:hidden"></iconify-icon>
+            <iconify-icon icon="lucide:moon" class="hidden dark:block"></iconify-icon>
+          </button>
+          <div class="flex items-center space-x-3 nm-flat p-2 pr-4 rounded-2xl cursor-pointer hover:nm-soft-convex transition-all" data-sd-id="14">
+            <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-red-500 to-accent border-2 border-white dark:border-gray-800" data-sd-id="15"></div>
+            <span class="text-sm font-semibold" data-sd-id="16">Censeur E.</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- High Alert Stats -->
+      <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" data-sd-id="17">
+        <div data-action="filterByStat@click" data-arg1="all" class="cursor-pointer hover:scale-[1.02] transition-transform">
+           <!-- component: StatsCard (9f998806-543a-496a-97f5-7ba8b652cb15) -->
+<div v-scope="{ ...{&quot;value&quot;:&quot;1,248&quot;,&quot;trendText&quot;:&quot;+12% vs mois dernier&quot;,&quot;trendPositive&quot;:true,&quot;showTrend&quot;:true}, $emit() {} }">
+<div class="p-6 rounded-[32px] transition-all duration-200 hover:-translate-y-0.5 group cursor-default nm-flat">
+  <div class="flex justify-between items-start">
+    <div>
+      <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Élèves Inscrits</p>
+      <h3 class="text-2xl font-black mt-1 display-font">{{ value }}</h3>
+    </div>
+    <div class="w-10 h-10 rounded-xl flex items-center justify-center text-accent group-hover:scale-110 transition-transform nm-inset">
+      <iconify-icon icon="lucide:users-round" width="20"></iconify-icon>
+    </div>
+  </div>
+  <div v-if="showTrend" class="mt-4 flex items-center text-xs font-medium px-2 py-1 rounded-full w-fit" :class="trendPositive ? 'text-green-500 bg-green-50 dark:bg-green-900/20' : 'text-red-500 bg-red-50 dark:bg-red-900/20'">
+    <iconify-icon :icon="trendPositive ? 'lucide:arrow-up-right' : 'lucide:alert-circle'" class="mr-1"></iconify-icon>
+    {{ trendText }}
+  </div>
+</div>
+</div>
+<!-- /component: StatsCard (9f998806-543a-496a-97f5-7ba8b652cb15) -->
+        </div>
+        <div data-action="filterByStat@click" data-arg1="absent" class="cursor-pointer hover:scale-[1.02] transition-transform">
+           <!-- component: StatsCard (9f998806-543a-496a-97f5-7ba8b652cb15) -->
+<div v-scope="{ ...{&quot;value&quot;:&quot;1,248&quot;,&quot;trendText&quot;:&quot;+12% vs mois dernier&quot;,&quot;trendPositive&quot;:true,&quot;showTrend&quot;:true}, $emit() {} }">
+<div class="p-6 rounded-[32px] transition-all duration-200 hover:-translate-y-0.5 group cursor-default nm-flat">
+  <div class="flex justify-between items-start">
+    <div>
+      <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Élèves Inscrits</p>
+      <h3 class="text-2xl font-black mt-1 display-font">{{ value }}</h3>
+    </div>
+    <div class="w-10 h-10 rounded-xl flex items-center justify-center text-accent group-hover:scale-110 transition-transform nm-inset">
+      <iconify-icon icon="lucide:users-round" width="20"></iconify-icon>
+    </div>
+  </div>
+  <div v-if="showTrend" class="mt-4 flex items-center text-xs font-medium px-2 py-1 rounded-full w-fit" :class="trendPositive ? 'text-green-500 bg-green-50 dark:bg-green-900/20' : 'text-red-500 bg-red-50 dark:bg-red-900/20'">
+    <iconify-icon :icon="trendPositive ? 'lucide:arrow-up-right' : 'lucide:alert-circle'" class="mr-1"></iconify-icon>
+    {{ trendText }}
+  </div>
+</div>
+</div>
+<!-- /component: StatsCard (9f998806-543a-496a-97f5-7ba8b652cb15) -->
+        </div>
+        <div data-action="filterByStat@click" data-arg1="risk" class="cursor-pointer hover:scale-[1.02] transition-transform">
+           <!-- component: StatsCard (9f998806-543a-496a-97f5-7ba8b652cb15) -->
+<div v-scope="{ ...{&quot;value&quot;:&quot;1,248&quot;,&quot;trendText&quot;:&quot;+12% vs mois dernier&quot;,&quot;trendPositive&quot;:true,&quot;showTrend&quot;:true}, $emit() {} }">
+<div class="p-6 rounded-[32px] transition-all duration-200 hover:-translate-y-0.5 group cursor-default nm-flat">
+  <div class="flex justify-between items-start">
+    <div>
+      <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Élèves Inscrits</p>
+      <h3 class="text-2xl font-black mt-1 display-font">{{ value }}</h3>
+    </div>
+    <div class="w-10 h-10 rounded-xl flex items-center justify-center text-accent group-hover:scale-110 transition-transform nm-inset">
+      <iconify-icon icon="lucide:users-round" width="20"></iconify-icon>
+    </div>
+  </div>
+  <div v-if="showTrend" class="mt-4 flex items-center text-xs font-medium px-2 py-1 rounded-full w-fit" :class="trendPositive ? 'text-green-500 bg-green-50 dark:bg-green-900/20' : 'text-red-500 bg-red-50 dark:bg-red-900/20'">
+    <iconify-icon :icon="trendPositive ? 'lucide:arrow-up-right' : 'lucide:alert-circle'" class="mr-1"></iconify-icon>
+    {{ trendText }}
+  </div>
+</div>
+</div>
+<!-- /component: StatsCard (9f998806-543a-496a-97f5-7ba8b652cb15) -->
+        </div>
+        <div data-action="filterByStat@click" data-arg1="sanctions" class="cursor-pointer hover:scale-[1.02] transition-transform">
+           <!-- component: StatsCard (9f998806-543a-496a-97f5-7ba8b652cb15) -->
+<div v-scope="{ ...{&quot;value&quot;:&quot;1,248&quot;,&quot;trendText&quot;:&quot;+12% vs mois dernier&quot;,&quot;trendPositive&quot;:true,&quot;showTrend&quot;:true}, $emit() {} }">
+<div class="p-6 rounded-[32px] transition-all duration-200 hover:-translate-y-0.5 group cursor-default nm-flat">
+  <div class="flex justify-between items-start">
+    <div>
+      <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Élèves Inscrits</p>
+      <h3 class="text-2xl font-black mt-1 display-font">{{ value }}</h3>
+    </div>
+    <div class="w-10 h-10 rounded-xl flex items-center justify-center text-accent group-hover:scale-110 transition-transform nm-inset">
+      <iconify-icon icon="lucide:users-round" width="20"></iconify-icon>
+    </div>
+  </div>
+  <div v-if="showTrend" class="mt-4 flex items-center text-xs font-medium px-2 py-1 rounded-full w-fit" :class="trendPositive ? 'text-green-500 bg-green-50 dark:bg-green-900/20' : 'text-red-500 bg-red-50 dark:bg-red-900/20'">
+    <iconify-icon :icon="trendPositive ? 'lucide:arrow-up-right' : 'lucide:alert-circle'" class="mr-1"></iconify-icon>
+    {{ trendText }}
+  </div>
+</div>
+</div>
+<!-- /component: StatsCard (9f998806-543a-496a-97f5-7ba8b652cb15) -->
+        </div>
+      </section>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10" data-sd-id="18">
+        <!-- Incident Log & Logs -->
+        <div class="lg:col-span-8 space-y-10" data-sd-id="19">
+          
+          <!-- Main Incident Log -->
+          <section class="nm-flat p-8 rounded-[40px] overflow-hidden" data-sd-id="20">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4" data-sd-id="21">
+              <div data-sd-id="22">
+                <h2 class="text-xl font-bold display-font" data-sd-id="23">Journal des Incidents</h2>
+                <p class="text-xs text-gray-400 mt-1" data-sd-id="24">Derniers signalements de la vie scolaire</p>
+              </div>
+              <div class="flex flex-wrap items-center gap-3">
+                  <button data-action="showToast@click" data-arg1="Exporting CSV..." data-arg2="info" class="px-4 py-2 nm-soft-convex rounded-xl text-xs font-bold text-gray-500 hover:text-accent transition-colors">
+                      <iconify-icon icon="lucide:download"></iconify-icon> Export
+                  </button>
+                  <button data-action="openIncidentModal@click" class="px-6 py-2 bg-accent text-white rounded-xl text-xs font-bold shadow-lg hover:brightness-110 active:scale-95 transition-all flex items-center space-x-2" data-sd-id="25">
+                    <iconify-icon icon="lucide:plus"></iconify-icon>
+                    <span data-sd-id="26">Nouveau Signalement</span>
+                  </button>
+              </div>
+            </div>
+
+            <!-- Filters & Search -->
+            <div class="flex flex-wrap items-center gap-4 mb-6 p-4 nm-inset rounded-2xl">
+                <div class="flex-1 min-w-[200px] relative">
+                    <iconify-icon icon="lucide:search" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></iconify-icon>
+                    <input type="text" id="search-incidents" placeholder="Rechercher élève ou incident..." class="w-full pl-9 pr-4 py-2 bg-transparent border-none outline-none text-sm" data-action="filterTable@input">
+                </div>
+                <select id="filter-status" class="bg-transparent border-none outline-none text-sm font-medium nm-soft-convex px-3 py-2 rounded-xl" data-action="filterTable@change">
+                    <option value="all">Tous les statuts</option>
+                    <option value="ouvert">Ouvert</option>
+                    <option value="escaladé">Escaladé</option>
+                    <option value="résolu">Résolu</option>
+                </select>
+                <select id="filter-severity" class="bg-transparent border-none outline-none text-sm font-medium nm-soft-convex px-3 py-2 rounded-xl" data-action="filterTable@change">
+                    <option value="all">Toutes gravités</option>
+                    <option value="high">Haute</option>
+                    <option value="medium">Moyenne</option>
+                    <option value="low">Basse</option>
+                </select>
+            </div>
+            
+            <!-- Bulk Actions (Hidden by default) -->
+            <div id="bulk-actions" class="hidden mb-4 p-3 bg-accent/10 border border-accent/20 rounded-xl flex justify-between items-center">
+                <span class="text-xs font-bold text-accent"><span id="selected-count">0</span> sélectionnés</span>
+                <div class="flex gap-2">
+                    <button data-action="bulkResolve@click" class="text-xs px-3 py-1 bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:text-green-500 font-medium">Marquer Résolu</button>
+                    <button data-action="bulkDelete@click" class="text-xs px-3 py-1 bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:text-red-500 font-medium">Supprimer</button>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto" data-sd-id="27">
+              <table class="w-full text-left" id="incidents-table" data-sd-id="28">
+                <thead data-sd-id="29">
+                  <tr class="text-[10px] font-bold text-gray-400 uppercase border-b border-gray-200 dark:border-gray-700" data-sd-id="30">
+                    <th class="pb-4 px-2 w-10">
+                        <input type="checkbox" id="select-all" class="rounded text-accent focus:ring-accent" data-action="toggleSelectAll@change" data-event>
+                    </th>
+                    <th class="pb-4 px-2" data-sd-id="31">Élève &amp; Classe</th>
+                    <th class="pb-4 px-2" data-sd-id="32">Nature de l'incident</th>
+                    <th class="pb-4 px-2" data-sd-id="33">Statut</th>
+                    <th class="pb-4 px-2" data-sd-id="34">Gravité</th>
+                    <th class="pb-4 px-2 text-right" data-sd-id="35">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="text-sm" id="incidents-tbody" data-sd-id="36">
+                  <tr class="border-b border-gray-100 dark:border-gray-800 hover:bg-white/10 transition-colors incident-row" data-status="ouvert" data-severity="high" data-student="moussa n." data-sd-id="37">
+                    <td class="py-5 px-2">
+                        <input type="checkbox" class="row-checkbox rounded text-accent focus:ring-accent" data-action="updateBulkActions@change">
+                    </td>
+                    <td class="py-5 px-2 cursor-pointer" data-action="viewIncidentDetails@click" data-arg1="n:1" data-sd-id="38">
+                      <p class="font-bold" data-sd-id="39">Moussa N.</p>
+                      <p class="text-[10px] text-gray-400" data-sd-id="40">Terminale C1</p>
+                    </td>
+                    <td class="py-5 px-2 font-medium cursor-pointer" data-action="viewIncidentDetails@click" data-arg1="n:1" data-sd-id="41">Retard répété (&gt;15min)</td>
+                    <td class="py-5 px-2" data-sd-id="42">
+                      <span class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 rounded-lg text-[10px] font-bold" data-sd-id="43">OUVERT</span>
+                    </td>
+                    <td class="py-5 px-2" data-sd-id="44">
+                      <div class="flex space-x-1" data-sd-id="45">
+                         <span class="w-2 h-2 rounded-full bg-red-500" data-sd-id="46"></span>
+                         <span class="w-2 h-2 rounded-full bg-gray-200" data-sd-id="47"></span>
+                         <span class="w-2 h-2 rounded-full bg-gray-200" data-sd-id="48"></span>
+                      </div>
+                    </td>
+                    <td class="py-5 px-2 text-right flex justify-end space-x-2" data-sd-id="49">
+                      <button data-action="resolveIncident@click" data-arg1="n:1" class="p-2 nm-soft-convex rounded-xl hover:text-green-500 transition-colors" title="Marquer Résolu">
+                        <iconify-icon icon="lucide:check" width="16"></iconify-icon>
+                      </button>
+                      <button data-action="deleteIncident@click" data-arg1="n:1" class="p-2 nm-soft-convex rounded-xl hover:text-red-500 transition-colors" title="Supprimer">
+                        <iconify-icon icon="lucide:trash-2" width="16"></iconify-icon>
+                      </button>
+                    </td>
+                  </tr>
+                  <tr class="border-b border-gray-100 dark:border-gray-800 hover:bg-white/10 transition-colors incident-row" data-status="escaladé" data-severity="high" data-student="sarah b." data-sd-id="51">
+                    <td class="py-5 px-2">
+                        <input type="checkbox" class="row-checkbox rounded text-accent focus:ring-accent" data-action="updateBulkActions@change">
+                    </td>
+                    <td class="py-5 px-2 cursor-pointer" data-action="viewIncidentDetails@click" data-arg1="n:2" data-sd-id="52">
+                      <p class="font-bold" data-sd-id="53">Sarah B.</p>
+                      <p class="text-[10px] text-gray-400" data-sd-id="54">3ème A</p>
+                    </td>
+                    <td class="py-5 px-2 font-medium cursor-pointer" data-action="viewIncidentDetails@click" data-arg1="n:2" data-sd-id="55">Incident vestimentaire</td>
+                    <td class="py-5 px-2" data-sd-id="56">
+                      <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 rounded-lg text-[10px] font-bold" data-sd-id="57">ESCALADÉ</span>
+                    </td>
+                    <td class="py-5 px-2" data-sd-id="58">
+                      <div class="flex space-x-1" data-sd-id="59">
+                         <span class="w-2 h-2 rounded-full bg-red-500" data-sd-id="60"></span>
+                         <span class="w-2 h-2 rounded-full bg-red-500" data-sd-id="61"></span>
+                         <span class="w-2 h-2 rounded-full bg-gray-200" data-sd-id="62"></span>
+                      </div>
+                    </td>
+                    <td class="py-5 px-2 text-right flex justify-end space-x-2" data-sd-id="63">
+                      <button data-action="resolveIncident@click" data-arg1="n:2" class="p-2 nm-soft-convex rounded-xl hover:text-green-500 transition-colors" title="Marquer Résolu">
+                        <iconify-icon icon="lucide:check" width="16"></iconify-icon>
+                      </button>
+                      <button data-action="deleteIncident@click" data-arg1="n:2" class="p-2 nm-soft-convex rounded-xl hover:text-red-500 transition-colors" title="Supprimer">
+                        <iconify-icon icon="lucide:trash-2" width="16"></iconify-icon>
+                      </button>
+                    </td>
+                  </tr>
+                  <tr class="hover:bg-white/10 transition-colors incident-row" data-status="résolu" data-severity="low" data-student="kevin t." data-sd-id="65">
+                    <td class="py-5 px-2">
+                        <input type="checkbox" class="row-checkbox rounded text-accent focus:ring-accent" data-action="updateBulkActions@change">
+                    </td>
+                    <td class="py-5 px-2 cursor-pointer" data-action="viewIncidentDetails@click" data-arg1="n:3" data-sd-id="66">
+                      <p class="font-bold" data-sd-id="67">Kevin T.</p>
+                      <p class="text-[10px] text-gray-400" data-sd-id="68">6ème B</p>
+                    </td>
+                    <td class="py-5 px-2 font-medium cursor-pointer" data-action="viewIncidentDetails@click" data-arg1="n:3" data-sd-id="69">Absence de tenue EPS</td>
+                    <td class="py-5 px-2" data-sd-id="70">
+                      <span class="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-600 rounded-lg text-[10px] font-bold" data-sd-id="71">RÉSOLU</span>
+                    </td>
+                    <td class="py-5 px-2" data-sd-id="72">
+                      <div class="flex space-x-1" data-sd-id="73">
+                         <span class="w-2 h-2 rounded-full bg-red-500" data-sd-id="74"></span>
+                         <span class="w-2 h-2 rounded-full bg-gray-200" data-sd-id="75"></span>
+                         <span class="w-2 h-2 rounded-full bg-gray-200" data-sd-id="76"></span>
+                      </div>
+                    </td>
+                    <td class="py-5 px-2 text-right flex justify-end space-x-2" data-sd-id="77">
+                      <button data-action="deleteIncident@click" data-arg1="n:3" class="p-2 nm-soft-convex rounded-xl hover:text-red-500 transition-colors" title="Supprimer">
+                        <iconify-icon icon="lucide:trash-2" width="16"></iconify-icon>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <!-- Empty State (Hidden by default) -->
+              <div id="empty-state" class="hidden py-10 text-center">
+                  <iconify-icon icon="lucide:inbox" class="text-4xl text-gray-300 mb-2"></iconify-icon>
+                  <p class="text-sm text-gray-500 font-medium">Aucun incident trouvé.</p>
+              </div>
+            </div>
+          </section>
+
+          <!-- Risk Groups (Nested Grid) -->
+          <section class="grid grid-cols-1 md:grid-cols-2 gap-8" data-sd-id="79">
+            <div class="nm-flat p-8 rounded-[40px] space-y-6" data-sd-id="80">
+              <h3 class="text-lg font-bold display-font flex items-center space-x-2" data-sd-id="81">
+                <iconify-icon icon="lucide:trending-down" class="text-red-500"></iconify-icon>
+                <span data-sd-id="82">Absentéisme par Classe</span>
+              </h3>
+              <div class="space-y-4" data-sd-id="83">
+                <div class="space-y-2 cursor-pointer group" data-action="showToast@click" data-arg1="Ouverture détails 2nde C" data-arg2="info" data-sd-id="84">
+                  <div class="flex justify-between text-[10px] font-bold uppercase group-hover:text-accent transition-colors" data-sd-id="85">
+                    <span data-sd-id="86">2nde C</span>
+                    <span class="text-red-500" data-sd-id="87">22%</span>
+                  </div>
+                  <div class="w-full h-2 nm-inset rounded-full overflow-hidden" data-sd-id="88">
+                    <div class="h-full bg-red-500 w-[22%]" data-sd-id="89"></div>
+                  </div>
+                </div>
+                <div class="space-y-2 cursor-pointer group" data-action="showToast@click" data-arg1="Ouverture détails Terminale S1" data-arg2="info" data-sd-id="90">
+                  <div class="flex justify-between text-[10px] font-bold uppercase group-hover:text-accent transition-colors" data-sd-id="91">
+                    <span data-sd-id="92">Terminale S1</span>
+                    <span class="text-orange-500" data-sd-id="93">14%</span>
+                  </div>
+                  <div class="w-full h-2 nm-inset rounded-full overflow-hidden" data-sd-id="94">
+                    <div class="h-full bg-orange-500 w-[14%]" data-sd-id="95"></div>
+                  </div>
+                </div>
+                <div class="space-y-2 cursor-pointer group" data-action="showToast@click" data-arg1="Ouverture détails 3ème B" data-arg2="info" data-sd-id="96">
+                  <div class="flex justify-between text-[10px] font-bold uppercase group-hover:text-accent transition-colors" data-sd-id="97">
+                    <span data-sd-id="98">3ème B</span>
+                    <span class="text-green-500" data-sd-id="99">2%</span>
+                  </div>
+                  <div class="w-full h-2 nm-inset rounded-full overflow-hidden" data-sd-id="100">
+                    <div class="h-full bg-green-500 w-[2%]" data-sd-id="101"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="nm-flat p-8 rounded-[40px] space-y-6" data-sd-id="102">
+              <h3 class="text-lg font-bold display-font flex items-center space-x-2" data-sd-id="103">
+                <iconify-icon icon="lucide:gavel" class="text-accent"></iconify-icon>
+                <span data-sd-id="104">Punitions en attente</span>
+              </h3>
+              <div class="space-y-4" data-sd-id="105">
+                <div data-action="showToast@click" data-arg1="Affichage Heures de colle" data-arg2="info" class="flex items-center justify-between p-3 nm-soft-convex rounded-2xl cursor-pointer hover:nm-inset transition-all" data-sd-id="106">
+                  <div class="flex items-center space-x-3" data-sd-id="107">
+                    <div class="w-8 h-8 nm-inset rounded-lg flex items-center justify-center text-accent" data-sd-id="108">
+                      <iconify-icon icon="lucide:clock"></iconify-icon>
+                    </div>
+                    <span class="text-xs font-bold" data-sd-id="109">Heures de colle</span>
+                  </div>
+                  <span class="text-xs font-black" data-sd-id="110">08</span>
+                </div>
+                <div data-action="showToast@click" data-arg1="Affichage Exclusions" data-arg2="info" class="flex items-center justify-between p-3 nm-soft-convex rounded-2xl cursor-pointer hover:nm-inset transition-all" data-sd-id="111">
+                  <div class="flex items-center space-x-3" data-sd-id="112">
+                    <div class="w-8 h-8 nm-inset rounded-lg flex items-center justify-center text-red-500" data-sd-id="113">
+                      <iconify-icon icon="lucide:user-minus"></iconify-icon>
+                    </div>
+                    <span class="text-xs font-bold" data-sd-id="114">Exclusions temporaires</span>
+                  </div>
+                  <span class="text-xs font-black" data-sd-id="115">02</span>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- Side Panel: Assistants & Alerts -->
+        <div class="lg:col-span-4 space-y-10" data-sd-id="116">
+          
+          <!-- Personnel Directory / Quick Contact -->
+          <section class="nm-flat p-8 rounded-[40px] space-y-6" data-sd-id="117">
+            <h2 class="text-lg font-bold display-font" data-sd-id="118">Équipe Vie Scolaire</h2>
+            <div class="space-y-4" data-sd-id="119">
+              <div class="flex items-center justify-between group" data-sd-id="120">
+                <div class="flex items-center space-x-3 cursor-pointer" data-action="showToast@click" data-arg1="Profil de Sarah" data-arg2="info" data-sd-id="121">
+                   <div class="w-10 h-10 nm-inset rounded-xl flex items-center justify-center overflow-hidden" data-sd-id="122">
+                     <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah" class="w-full h-full object-cover" data-sd-id="123">
+                   </div>
+                   <div data-sd-id="124">
+                     <p class="text-xs font-bold group-hover:text-accent transition-colors" data-sd-id="125">Sarah Mengue</p>
+                     <p class="text-[9px] text-gray-400 uppercase" data-sd-id="126">Censeur Adjoint</p>
+                   </div>
+                </div>
+                <button data-action="showToast@click" data-arg1="Appel en cours..." data-arg2="success" class="w-8 h-8 nm-soft-convex rounded-lg flex items-center justify-center text-accent hover:nm-inset transition-all" data-sd-id="127">
+                  <iconify-icon icon="lucide:phone"></iconify-icon>
+                </button>
+              </div>
+              <div class="flex items-center justify-between group" data-sd-id="128">
+                <div class="flex items-center space-x-3 cursor-pointer" data-action="showToast@click" data-arg1="Profil de Jean" data-arg2="info" data-sd-id="129">
+                   <div class="w-10 h-10 nm-inset rounded-xl flex items-center justify-center overflow-hidden" data-sd-id="130">
+                     <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=John" class="w-full h-full object-cover" data-sd-id="131">
+                   </div>
+                   <div data-sd-id="132">
+                     <p class="text-xs font-bold group-hover:text-accent transition-colors" data-sd-id="133">Jean Ndongo</p>
+                     <p class="text-[9px] text-gray-400 uppercase" data-sd-id="134">Surveillant Général</p>
+                   </div>
+                </div>
+                <button data-action="showToast@click" data-arg1="Ouverture messagerie..." data-arg2="success" class="w-8 h-8 nm-soft-convex rounded-lg flex items-center justify-center text-accent hover:nm-inset transition-all" data-sd-id="135">
+                  <iconify-icon icon="lucide:message-square"></iconify-icon>
+                </button>
+              </div>
+            </div>
+            <button data-action="showToast@click" data-arg1="Appel d'urgence lancé" data-arg2="error" class="w-full py-3 nm-soft-convex rounded-xl text-xs font-bold text-gray-500 hover:text-red-500 hover:nm-inset transition-all" data-sd-id="136">Appeler l'équipe de garde</button>
+          </section>
+
+          <!-- Daily Trend Warning -->
+          <section id="alert-card" class="nm-flat p-8 rounded-[40px] bg-red-500/5 border border-red-500/10 space-y-6 relative" data-sd-id="137">
+            <button data-action="dismissAlert@click" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 p-1">
+                <iconify-icon icon="lucide:x"></iconify-icon>
+            </button>
+            <div class="flex items-center space-x-3" data-sd-id="138">
+              <div class="w-10 h-10 bg-red-500 rounded-2xl flex items-center justify-center text-white shadow-lg" data-sd-id="139">
+                <iconify-icon icon="lucide:flame" width="24"></iconify-icon>
+              </div>
+              <h3 class="text-sm font-black display-font uppercase tracking-tighter" data-sd-id="140">Pic de Tensions</h3>
+            </div>
+            <p class="text-xs text-gray-500 leading-relaxed" data-sd-id="141">
+              Attention : le nombre d'incidents mineurs a augmenté de <b>40%</b> entre 10h et 12h. Présence recommandée dans le hall principal pendant la récréation.
+            </p>
+            <div class="nm-inset p-4 rounded-2xl cursor-pointer hover:bg-white/5 transition-colors" data-action="showToast@click" data-arg1="Redirection Carte" data-arg2="info" data-sd-id="142">
+               <p class="text-[10px] font-bold text-gray-400 uppercase mb-2" data-sd-id="143">Focus Zone</p>
+               <div class="flex items-center space-x-2 text-xs font-bold text-red-500" data-sd-id="144">
+                  <iconify-icon icon="lucide:map-pin"></iconify-icon>
+                  <span data-sd-id="145">Bloc C (Classes de 3ème)</span>
+               </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Create/Edit Incident Modal -->
+  <div id="incident-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+      <div class="bg-[var(--bg)] w-full max-w-2xl rounded-[40px] nm-flat p-8 modal-animate max-h-[90vh] overflow-y-auto">
+          <div class="flex justify-between items-center mb-6">
+              <h2 id="modal-title" class="text-2xl font-bold display-font">Nouveau Signalement</h2>
+              <button data-action="closeIncidentModal@click" class="p-2 nm-soft-convex rounded-xl hover:text-red-500 transition-colors">
+                  <iconify-icon icon="lucide:x" width="20"></iconify-icon>
+              </button>
+          </div>
+          
+          <form id="incident-form" class="space-y-6" data-action="handleIncidentSubmit@submit" data-event>
+              <!-- Student Select -->
+              <div class="space-y-2">
+                  <label class="text-xs font-bold text-gray-500 uppercase">Élève Concerné *</label>
+                  <div class="nm-inset rounded-2xl px-4 py-3 flex items-center">
+                      <iconify-icon icon="lucide:search" class="text-gray-400 mr-2"></iconify-icon>
+                      <input type="text" required placeholder="Rechercher nom ou matricule..." class="w-full bg-transparent border-none outline-none text-sm">
+                  </div>
+              </div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <!-- Type -->
+                  <div class="space-y-2">
+                      <label class="text-xs font-bold text-gray-500 uppercase">Type d'incident *</label>
+                      <div class="nm-inset rounded-2xl px-4 py-3">
+                          <select required class="w-full bg-transparent border-none outline-none text-sm text-gray-700 dark:text-gray-200">
+                              <option value="">Sélectionner...</option>
+                              <option value="retard">Retard</option>
+                              <option value="absence">Absence Injustifiée</option>
+                              <option value="tenue">Tenue non conforme</option>
+                              <option value="violence">Violence/Bagarre</option>
+                              <option value="vol">Vol</option>
+                              <option value="autre">Autre</option>
+                          </select>
+                      </div>
+                  </div>
+                  <!-- Date -->
+                  <div class="space-y-2">
+                      <label class="text-xs font-bold text-gray-500 uppercase">Date &amp; Heure *</label>
+                      <div class="nm-inset rounded-2xl px-4 py-3 flex items-center">
+                          <iconify-icon icon="lucide:calendar" class="text-gray-400 mr-2"></iconify-icon>
+                          <input type="datetime-local" required class="w-full bg-transparent border-none outline-none text-sm text-gray-700 dark:text-gray-200 color-scheme-auto">
+                      </div>
+                  </div>
+              </div>
+
+              <!-- Severity -->
+              <div class="space-y-2">
+                  <label class="text-xs font-bold text-gray-500 uppercase">Gravité *</label>
+                  <div class="flex flex-wrap gap-4">
+                      <label class="flex items-center space-x-2 cursor-pointer p-2 nm-soft-convex rounded-xl hover:nm-inset">
+                          <input type="radio" name="severity" value="low" required class="text-accent">
+                          <span class="text-sm">Mineure</span>
+                      </label>
+                      <label class="flex items-center space-x-2 cursor-pointer p-2 nm-soft-convex rounded-xl hover:nm-inset">
+                          <input type="radio" name="severity" value="medium">
+                          <span class="text-sm">Moyenne</span>
+                      </label>
+                      <label class="flex items-center space-x-2 cursor-pointer p-2 nm-soft-convex rounded-xl hover:nm-inset">
+                          <input type="radio" name="severity" value="high">
+                          <span class="text-sm font-bold text-red-500">Grave</span>
+                      </label>
+                  </div>
+              </div>
+
+              <!-- Description -->
+              <div class="space-y-2">
+                  <label class="text-xs font-bold text-gray-500 uppercase">Description détaillée</label>
+                  <div class="nm-inset rounded-2xl p-4">
+                      <textarea rows="4" placeholder="Décrivez les faits..." class="w-full bg-transparent border-none outline-none text-sm resize-none"></textarea>
+                  </div>
+              </div>
+
+              <!-- Actions -->
+              <div class="flex justify-end space-x-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <button type="button" data-action="closeIncidentModal@click" class="px-6 py-3 nm-soft-convex rounded-xl text-sm font-bold text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
+                      Annuler
+                  </button>
+                  <button type="submit" class="px-8 py-3 bg-accent text-white rounded-xl text-sm font-bold shadow-lg hover:brightness-110 active:scale-95 transition-all flex items-center space-x-2">
+                      <iconify-icon icon="lucide:save"></iconify-icon>
+                      <span>Enregistrer</span>
+                  </button>
+              </div>
+          </form>
+      </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-3 pointer-events-none">
+      <!-- Toasts injected here -->
+  </div>
+
+  <script src="../js/vie-scolaire.js?v=2"></script>
+
+</body></html>

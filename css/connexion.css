@@ -1,0 +1,94 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
+
+    :root {
+      --bg: #e0e5ec;
+      --shadow-dark: #babecc;
+      --shadow-light: #ffffff;
+      --accent: #8b5cf6;
+      --error: #ef4444;
+      --success: #22c55e;
+    }
+
+    .dark {
+      --bg: #1a202c;
+      --shadow-dark: #0f172a;
+      --shadow-light: #2d3748;
+      --accent: #a78bfa;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background-color: var(--bg);
+      color: #2d3748;
+      transition: background-color 0.4s ease, color 0.4s ease;
+      margin: 0;
+    }
+
+    .dark body {
+      color: #e2e8f0;
+    }
+
+    .display-font {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .nm-flat {
+      box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
+    }
+
+    .nm-inset {
+      box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+    }
+
+    .nm-soft-convex {
+      box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
+    }
+
+    .nm-button:active {
+      box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);
+    }
+
+    .role-card input:checked + label {
+      box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+      color: var(--accent);
+    }
+
+    .fade-step {
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .hidden-step {
+      display: none;
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    .shake {
+      animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+    }
+
+    @keyframes shake {
+      10%, 90% { transform: translate3d(-1px, 0, 0); }
+      20%, 80% { transform: translate3d(2px, 0, 0); }
+      30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+      40%, 60% { transform: translate3d(4px, 0, 0); }
+    }
+
+    .otp-input:focus {
+      box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light), 0 0 0 2px var(--accent);
+    }
+
+    .loader {
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid var(--accent);
+      border-radius: 50%;
+      width: 16px;
+      height: 16px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }

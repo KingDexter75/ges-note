@@ -1,0 +1,131 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
+
+    :root {
+      --bg: #e0e5ec;
+      --shadow-dark: #babecc;
+      --shadow-light: #ffffff;
+      --accent: #8b5cf6;
+      --text: #2d3748;
+      --text-sub: #718096;
+    }
+
+    .dark {
+      --bg: #1a202c;
+      --shadow-dark: #0f172a;
+      --shadow-light: #2d3748;
+      --accent: #a78bfa;
+      --text: #f7fafc;
+      --text-sub: #cbd5e0;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      transition: all 0.4s ease;
+      margin: 0;
+    }
+
+    .display-font {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .nm-flat {
+      box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
+    }
+
+    .nm-inset {
+      box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+    }
+
+    .nm-soft-convex {
+      box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
+    }
+
+    .nm-button:active {
+      box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);
+    }
+
+    .modal-overlay {
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(4px);
+    }
+
+    .glass {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    input, select, textarea {
+      background: var(--bg);
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    input:focus, select:focus {
+      box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);
+    }
+
+    /* Pas de @view-transition { navigation: auto } : l'opt-in de transition
+       entre documents est refuse hors meme origine, donc la regle leveait
+       une exception dans la console sans jamais produire d'animation.
+       Les view-transition-name ci-dessous restent inertes et sans effet
+       genant. */
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+      animation-duration: 0.4s;
+      animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .wizard-step {
+      display: none;
+    }
+
+    .wizard-step.active {
+      display: block;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .toast {
+      animation: slideIn 0.3s ease-out forwards;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .calendar-day.holiday {
+      background-color: rgba(239, 68, 68, 0.1);
+      border: 1px dashed #ef4444;
+    }
+
+    .calendar-day.exam {
+      background-color: rgba(139, 92, 246, 0.1);
+      border: 1px solid #8b5cf6;
+    }
+
+sd-component { display: block; }
+
+.vt-sidebar {
+  view-transition-name: sidebar;
+}
+.vt-main-content {
+  view-transition-name: main-content;
+}

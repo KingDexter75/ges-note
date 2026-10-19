@@ -1,0 +1,278 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
+
+/* Socle visuel commun aux modules EduNeum : identique aux 14 pages d'origine. */
+:root {
+  --bg: #e0e5ec;
+  --shadow-dark: #babecc;
+  --shadow-light: #ffffff;
+  --accent: #8b5cf6;
+  --danger: #ef4444;
+}
+.dark {
+  --bg: #1a202c;
+  --shadow-dark: #0f172a;
+  --shadow-light: #2d3748;
+  --accent: #a78bfa;
+}
+body {
+  font-family: 'DM Sans', sans-serif;
+  background-color: var(--bg);
+  color: #2d3748;
+  transition: background-color 0.4s ease;
+  margin: 0;
+}
+.dark body { color: #e2e8f0; }
+.display-font { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+.nm-flat { box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light); }
+.nm-inset { box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light); }
+.nm-soft-convex { box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light); }
+.nm-button:active { box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light); }
+
+select, input, textarea {
+  background: transparent;
+  border: none;
+  outline: none;
+}
+
+.checkbox-nm {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  background: var(--bg);
+  box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.checkbox-nm:checked::after {
+  content: '\2713';
+  color: var(--accent);
+  font-weight: 800;
+  font-size: 12px;
+}
+
+.modal-overlay { background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(4px); }
+.modal-content { transition: transform 0.3s ease; }
+
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+.dark .toast { background: #1f2937; }
+
+.vt-sidebar { view-transition-name: sidebar; }
+.vt-main-content { view-transition-name: main-content; }
+
+/* --- Modules : adaptations specifiques aux pages EduNeum --- */
+
+/* Ligne de note : la case vide se distingue de la note 0. */
+.note-cell {
+  width: 92px;
+  text-align: center;
+  font-weight: 800;
+  color: var(--accent);
+  padding: 8px 4px;
+  border-radius: 12px;
+  box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+}
+.note-cell.absence { color: #ef4444; }
+.note-cell:disabled { opacity: 0.45; }
+
+/* Pastilles de statut */
+.pastille {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);
+}
+.pastille.accent { color: var(--accent); }
+.pastille.vert { color: #10b981; }
+.pastille.rouge { color: #ef4444; }
+.pastille.ambre { color: #f59e0b; }
+.pastille.gris { color: #9ca3af; }
+
+/* Barres de progression des sequences */
+.seq-jauge { height: 6px; border-radius: 999px; overflow: hidden; box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light); }
+.seq-jauge > span { display: block; height: 100%; background: var(--accent); border-radius: 999px; }
+
+/* Journal d'audit */
+.journal-ligne { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+.journal-ligne:last-child { border-bottom: 0; }
+
+/* ------------------------------------------------------------------ */
+/* Responsive : le socle s'adapte du telephone au grand ecran.          */
+/* ------------------------------------------------------------------ */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; overflow-x: hidden; }
+body { overflow-x: hidden; }
+img, picture, video, canvas, svg { max-width: 100%; }
+
+/* Les tableaux larges defilent dans leur conteneur au lieu de pousser la
+   page entiere : aucune vue ne doit deborder horizontalement. */
+.table-scroll { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.table-scroll > table { min-width: 100%; }
+
+/* Le bandeau de contexte et les barres d'actions passent a la ligne. */
+#eduneum-contexte { max-width: 100%; }
+#actions { flex-wrap: wrap; }
+
+/* Notifications : jamais plus larges que l'ecran. */
+#eduneum-toasts { max-width: calc(100vw - 3rem); }
+#eduneum-toasts .toast { max-width: 100%; overflow-wrap: anywhere; }
+
+/* La colonne de contenu doit pouvoir retrecir sans deborder. */
+main { min-width: 0; }
+
+/* En dessous de 768px la barre laterale occupe toute la largeur : on
+   reduit les marges pour rendre le contenu visible sans defiler. */
+@media (max-width: 767px) {
+  aside { padding: 1.25rem; }
+  main { padding: 1.25rem; }
+  .display-font, h1 { overflow-wrap: anywhere; }
+}
+
+/* Telephones : le bandeau de contexte (fil d'Ariane + annee + profil) se
+   replie proprement, et les gros titres restent lisibles sans deborder. */
+@media (max-width: 640px) {
+  main { padding: 1rem; padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px)); }
+  h1 { font-size: 1.5rem !important; line-height: 1.25; }
+  #eduneum-contexte { gap: 0.5rem; }
+  #eduneum-contexte > nav[aria-label] { width: 100%; flex-wrap: wrap; }
+  #eduneum-contexte > .ml-auto { margin-left: 0 !important; width: 100%; justify-content: space-between; }
+  /* Modales : un peu plus compactes sur petit ecran. */
+  .modal-content { padding: 1.25rem !important; border-radius: 1.5rem; }
+  /* Cibles tactiles : au moins 44px de haut sur les boutons d'action. */
+  #actions button, #actions a { min-height: 2.5rem; }
+}
+
+/* Tres petits ecrans : on garde l'avatar mais on masque le nom du profil. */
+@media (max-width: 480px) {
+  #eduneum-profil .text-left { display: none; }
+}
+
+/* Impression : plus aucun conteneur defilant, le tableau tient sur la page. */
+@media print {
+  .table-scroll { overflow: visible !important; }
+}
+
+/* ------------------------------------------------------------------ */
+/* Barre laterale : masquee sous 850px, revelee par un bouton flottant. */
+/* ------------------------------------------------------------------ */
+#eduneum-menu-btn {
+  display: none;
+  position: fixed;
+  top: calc(0.875rem + env(safe-area-inset-top, 0px));
+  left: calc(0.875rem + env(safe-area-inset-left, 0px));
+  z-index: 80;
+  width: 2.9rem;
+  height: 2.9rem;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  color: var(--accent);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Croix de fermeture du tiroir : uniquement sur petit ecran. */
+#eduneum-menu-close { display: none; }
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+@media (max-width: 850px) {
+  /* Le bouton d'ouverture et la croix de fermeture sont visibles. */
+  #eduneum-menu-btn { display: flex; }
+  #eduneum-menu-close { display: flex; }
+  /* Dans le tiroir mobile, c'est la croix qui ferme : le repli/depliage
+     de bureau (hamburger de l'en-tete) n'a pas de sens ici. */
+  #eduneum-barre-toggle { display: none; }
+
+  /* L'aside sort du flux : il coulisse depuis la gauche par-dessus la page.
+     Le tiroir doit etre OPAQUE et AU-DESSUS de l'overlay : sans fond, le
+     contenu de la page restait visible au travers et le voile (z-index 55)
+     recouvrait le menu (z-index 50 pose par la classe Tailwind z-50), ce qui
+     le rendait illisible. `!important` est necessaire pour battre `.z-50`. */
+  aside {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 17rem !important;
+    max-width: 86vw;
+    height: 100vh;
+    height: 100dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: var(--bg) !important;
+    box-shadow: 8px 0 30px rgba(15, 23, 42, 0.18) !important;
+    transform: translateX(-100%);
+    transition: transform 0.28s ease;
+    z-index: 70 !important;
+    padding-top: calc(1.5rem + env(safe-area-inset-top, 0px));
+    padding-left: calc(1.5rem + env(safe-area-inset-left, 0px));
+    padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+  }
+  body.eduneum-sidebar-ouverte { overflow: hidden; }
+  body.eduneum-sidebar-ouverte aside { transform: translateX(0); }
+
+  body.eduneum-sidebar-ouverte .sidebar-overlay { opacity: 1; visibility: visible; }
+
+  /* Le bouton laisse la place a la croix du tiroir. */
+  body.eduneum-sidebar-ouverte #eduneum-menu-btn { display: none; }
+
+  /* On libere le haut du contenu pour ne pas recouvrir le fil d'Ariane. */
+  main { padding-top: 4.5rem !important; }
+}
+
+/* ------------------------------------------------------------------ */
+/* Bureau (> 850px) : le hamburger de l'en-tete replie la barre laterale. */
+/* La barre coulisse hors de l'ecran (marge negative) et le contenu      */
+/* s'elargit ; le bouton reste epingle en haut a gauche pour la rouvrir.  */
+/* Etats pilotes par js/core/layout.js (classe eduneum-barre-reduite).    */
+/* ------------------------------------------------------------------ */
+@media (min-width: 851px) {
+  aside { transition: margin-left 0.28s ease; }
+
+  /* La barre (md:w-64 = 16rem) sort de l'ecran : le contenu prend sa place. */
+  body.eduneum-barre-reduite aside { margin-left: -16rem; }
+
+  /* Le bouton, enfant de la barre, se detache pour rester accessible :
+     sans lui, une barre masquee ne pourrait plus etre rouverte. */
+  body.eduneum-barre-reduite #eduneum-barre-toggle {
+    position: fixed;
+    top: calc(0.875rem + env(safe-area-inset-top, 0px));
+    left: calc(0.875rem + env(safe-area-inset-left, 0px));
+    z-index: 80;
+    width: 2.9rem;
+    height: 2.9rem;
+    background: var(--bg);
+    color: var(--accent);
+  }
+
+  /* On libere le haut du contenu pour ne pas recouvrir le fil d'Ariane. */
+  body.eduneum-barre-reduite main { padding-top: 4.5rem; }
+}

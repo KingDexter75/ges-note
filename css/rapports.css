@@ -1,0 +1,87 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@100;200;300;400;500;600;700;800;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+    :root {
+      --bg-color: #e0e5ec;
+      --shadow-light: #ffffff;
+      --shadow-dark: #babecc;
+      --accent: #8b5cf6;
+      --text-main: #2d3748;
+      --text-sub: #718096;
+    }
+
+    .dark {
+      --bg-color: #1a202c;
+      --shadow-light: #2d3748;
+      --shadow-dark: #0f172a;
+      --accent: #a78bfa;
+      --text-main: #f7fafc;
+      --text-sub: #cbd5e0;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      transition: background-color 0.3s ease;
+      margin: 0;
+      overflow-x: hidden;
+    }
+
+    .display-font {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .nm-flat {
+      box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
+    }
+    .nm-inset {
+      box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+    }
+    .nm-soft-convex {
+      box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
+    }
+    .nm-button:active {
+      box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);
+    }
+
+    .hover-scale {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .hover-scale:hover {
+      transform: translateY(-2px);
+      box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
+    }
+
+    .loading-spinner {
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .toast-enter {
+      animation: slideIn 0.3s ease forwards;
+    }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .chart-path {
+      transition: d 0.5s ease, stroke 0.3s ease;
+    }
+    
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white !important; color: black !important; }
+      .nm-flat, .nm-inset, .nm-soft-convex { box-shadow: none !important; border: 1px solid #eee !important; }
+      main { padding: 0 !important; margin: 0 !important; width: 100% !important; }
+    }
+
+sd-component { display: block; }
+
+.vt-sidebar {
+  view-transition-name: sidebar;
+}
