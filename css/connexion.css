@@ -16,6 +16,20 @@
       --accent: #a78bfa;
     }
 
+    /* Palettes DaisyUI (meme mechanisme que css/eduneum-core.css). */
+    html[data-theme="aqua"] {
+      --bg: #a6e3e9;
+      --shadow-dark: #7bb6c0;
+      --shadow-light: #d0f5f8;
+      --accent: #0e7490;
+    }
+    html[data-theme="synthwave"] {
+      --bg: #2a2139;
+      --shadow-dark: #1a1425;
+      --shadow-light: #3f3350;
+      --accent: #ff7edb;
+    }
+
     body {
       font-family: 'DM Sans', sans-serif;
       background-color: var(--bg);

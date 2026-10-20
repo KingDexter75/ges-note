@@ -10,6 +10,17 @@
   function auth() { return core().auth; }
   function ui() { return core().ui; }
 
+  /* Traduction tolerate : retourne `defaut` ( le libelle francais du
+     menu) quand la cle est absente ou que i18n.js n'est pas charge.
+     i18n.js est charge APRES layout.js : au moment des rendus
+     (DOMContentLoaded), le dictionnaire existe deja. */
+  function trad(cle, defaut) {
+    var E = core();
+    if (!E || !E.i18n || !E.i18n.t) return defaut;
+    var v = E.i18n.t(cle);
+    return v === cle ? defaut : v;
+  }
+
   /* ------------------------------------------------------------------ */
   /* Selecteur d'annee scolaire : la donnee pilotante de toute l'app.     */
   /* ------------------------------------------------------------------ */
@@ -57,10 +68,14 @@
     var R = routes();
     var key = R.currentRouteKey();
     var s = session();
-    var items = [{ label: s && s.role === 'enseignant' ? 'Espace enseignant' : 'Administration', href: null }];
+    var items = [{
+      label: s && s.role === 'enseignant'
+        ? trad('chrome.espaceEnseignant', 'Espace enseignant')
+        : trad('chrome.administration', 'Administration'), href: null
+    }];
     if (key) {
       var item = R.trouverParRoute(R.menuFor(s ? s.role : 'admin'), key);
-      items.push({ label: item ? item.label : key, href: null });
+      items.push({ label: item ? trad('libelle.' + item.label, item.label) : key, href: null });
     }
     return items.map(function (it, i) {
       var last = i === items.length - 1;
@@ -80,7 +95,7 @@
       ' class="flex items-center space-x-3 p-3 rounded-xl transition-all ' +
       (actif ? 'nm-inset text-accent font-medium' : 'text-gray-500 hover:text-accent hover:nm-flat') + '">' +
       '<iconify-icon icon="lucide:' + item.icon + '" width="20"></iconify-icon>' +
-      '<span>' + item.label + '</span></a>';
+      '<span>' + trad('libelle.' + item.label, item.label) + '</span></a>';
   }
 
   /* Un groupe déroulant (ex. Affectations > Enseignants / Surveillants) :
@@ -95,7 +110,7 @@
       ' class="w-full flex items-center space-x-3 p-3 rounded-xl transition-all text-left ' +
       (ouvert ? 'nm-inset text-accent font-medium' : 'text-gray-500 hover:text-accent hover:nm-flat') + '">' +
       '<iconify-icon icon="lucide:' + item.icon + '" width="20"></iconify-icon>' +
-      '<span>' + item.label + '</span>' +
+      '<span>' + trad('libelle.' + item.label, item.label) + '</span>' +
       '<iconify-icon icon="lucide:chevron-down" width="16" class="ml-auto transition-transform duration-200 groupe-chevron"' +
       (ouvert ? ' style="transform: rotate(180deg);"' : '') + '></iconify-icon>' +
       '</button>' +
@@ -232,8 +247,16 @@
     var an = anneeChoisie();
     var options = store().all('annees').map(function (a) {
       return '<option value="' + a.id + '"' + (an && a.id === an.id ? ' selected' : '') + '>' +
-        a.libelle + (a.active ? ' (active)' : '') + '</option>';
+        a.libelle + (a.active ? ' ' + trad('chrome.anneeActive', '(active)') : '') + '</option>';
     }).join('');
+    /* Selecteur FR/EN : injecte seulement si la page n'a pas deja ses
+       propres boutons statiques (certains en-tetes de page). */
+    var langueHTML = document.getElementById('lang-fr') ? '' :
+      '<div class="nm-inset p-1 rounded-full flex items-center gap-1" role="group" aria-label="' +
+      trad('chrome.langue', 'Langue') + '">' +
+      '<button type="button" id="lang-fr" class="px-3 py-1 text-xs font-bold rounded-full transition-all">FR</button>' +
+      '<button type="button" id="lang-en" class="px-3 py-1 text-xs font-bold rounded-full transition-all">EN</button>' +
+      '</div>';
     return '<div class="flex flex-wrap items-center gap-3" id="eduneum-contexte">' +
       '<nav class="flex items-center gap-1 text-xs" aria-label="Fil d\'Ariane">' + filArianeHTML() + '</nav>' +
       bandeauLectureSeuleHTML() +
@@ -242,17 +265,18 @@
       '<iconify-icon icon="lucide:calendar-range" width="16" class="text-accent"></iconify-icon>' +
       '<select id="eduneum-annee" class="bg-transparent border-none outline-none text-xs font-bold text-gray-600 dark:text-gray-300">' + options + '</select>' +
       '</label>' +
+      langueHTML +
       '<button type="button" id="eduneum-profil" class="flex items-center gap-3 nm-flat rounded-2xl px-3 py-2 hover:nm-soft-convex transition-all">' +
       '<span class="w-8 h-8 rounded-full bg-gradient-to-tr from-accent to-purple-400 text-white flex items-center justify-center text-xs font-black">' +
       auth().initiales(s) + '</span>' +
       '<span class="text-left leading-tight"><span class="block text-xs font-bold">' + s.prenom + ' ' + s.nom + '</span>' +
-      '<span class="block text-[10px] uppercase tracking-wider text-gray-400">' + auth().ROLE_LABEL[s.role] + '</span></span>' +
+      '<span class="block text-[10px] uppercase tracking-wider text-gray-400">' + trad('role.' + s.role, auth().ROLE_LABEL[s.role]) + '</span></span>' +
       '<iconify-icon icon="lucide:chevron-down" width="14" class="text-gray-400"></iconify-icon>' +
       '</button>' +
-      '<button type="button" id="eduneum-deconnexion" title="Se déconnecter" aria-label="Se déconnecter" ' +
+      '<button type="button" id="eduneum-deconnexion" title="' + trad('chrome.seDeconnecter', 'Se déconnecter') + '" aria-label="' + trad('chrome.seDeconnecter', 'Se déconnecter') + '" ' +
       'class="flex items-center gap-2 nm-flat rounded-2xl px-3 py-2 text-gray-500 dark:text-gray-400 hover:text-red-500 hover:nm-soft-convex transition-colors">' +
       '<iconify-icon icon="lucide:log-out" width="18"></iconify-icon>' +
-      '<span class="hidden sm:inline text-xs font-bold">Déconnexion</span></button>' +
+      '<span class="hidden sm:inline text-xs font-bold">' + trad('chrome.deconnexion', 'Déconnexion') + '</span></button>' +
       '</div></div>';
   }
 
@@ -280,6 +304,23 @@
     return true;
   }
 
+  /* Reconstruit le bandeau en place apres un changement de langue :
+     fil d'Ariane, roles, options d'annee et le theme dropdown sont
+     regeneres dans la nouvelle langue, puis rebranches. */
+  function remonterProfil() {
+    var ctx = document.getElementById('eduneum-contexte');
+    if (!ctx || !ctx.parentElement) return false;
+    var parent = ctx.parentElement;
+    /* On vide AVANT d'evaluer profilHTML() : sans cela, getElementById
+       retrouve les anciens boutons #lang-fr et decide a tort de ne pas
+       reinjecter le selecteur de langue. */
+    parent.innerHTML = '';
+    parent.innerHTML = profilHTML();
+    brancherProfil();
+    monterTheme();
+    return true;
+  }
+
   function brancherProfil() {
     var sel = document.getElementById('eduneum-annee');
     if (sel) {
@@ -298,20 +339,20 @@
       var affectations = s.enseignantId
         ? store().affectationsDeEnseignant(s.enseignantId, an ? an.id : null).length : 0;
       ui().modal({
-        titre: 'Mon profil',
+        titre: trad('chrome.profil', 'Mon profil'),
         contenu:
           '<div class="space-y-2 text-sm">' +
           '<p><b>' + s.prenom + ' ' + s.nom + '</b></p>' +
-          '<p class="text-gray-500">Rôle : ' + auth().ROLE_LABEL[s.role] + '</p>' +
-          '<p class="text-gray-500">Courriel : ' + s.email + '</p>' +
-          '<p class="text-gray-500">Année scolaire courante : ' + (an ? an.libelle : '—') + '</p>' +
-          (s.enseignantId ? '<p class="text-gray-500">Affectations : ' + affectations + '</p>' : '') +
-          (auth().estProfPrincipal() ? '<p class="text-accent font-bold">Professeur principal</p>' : '') +
+          '<p class="text-gray-500">' + trad('chrome.role', 'Rôle') + ' : ' + trad('role.' + s.role, auth().ROLE_LABEL[s.role]) + '</p>' +
+          '<p class="text-gray-500">' + trad('chrome.courriel', 'Courriel') + ' : ' + s.email + '</p>' +
+          '<p class="text-gray-500">' + trad('chrome.anneeCourante', 'Année scolaire courante') + ' : ' + (an ? an.libelle : '—') + '</p>' +
+          (s.enseignantId ? '<p class="text-gray-500">' + trad('chrome.affectations', 'Affectations') + ' : ' + affectations + '</p>' : '') +
+          (auth().estProfPrincipal() ? '<p class="text-accent font-bold">' + trad('chrome.profPrincipal', 'Professeur principal') + '</p>' : '') +
           '</div>',
         actions: [
-          { label: 'Changer le mot de passe', classe: 'nm-soft-convex', ferme: false, onClick: ouvrirChangementMotDePasse },
-          { label: 'Verrouiller la session', classe: 'nm-soft-convex', onClick: deconnexion },
-          { label: 'Fermer', classe: 'bg-accent text-white' }
+          { label: trad('chrome.motDePasse', 'Changer le mot de passe'), classe: 'nm-soft-convex', ferme: false, onClick: ouvrirChangementMotDePasse },
+          { label: trad('chrome.verrouiller', 'Verrouiller la session'), classe: 'nm-soft-convex', onClick: deconnexion },
+          { label: trad('commun.fermer', 'Fermer'), classe: 'bg-accent text-white' }
         ]
       });
     });
@@ -561,29 +602,96 @@
     return true;
   }
 
-  /* Bascule de theme : on ne cree le bouton que si la page n'en a pas.
-     Une seule source de verite (EduNeumTheme), qui applique et persiste. */
-  function basculerTheme() {
-    if (global.EduNeumTheme) global.EduNeumTheme.basculer();
-    else document.documentElement.classList.toggle('dark');
+  /* ------------------------------------------------------------------ */
+  /* Theme : dropdown 4 themes (light / dark / aqua / synthwave)          */
+  /* Une seule source de verite (EduNeumTheme), qui applique et persiste. */
+  /* On remplace par outerHTML le bouton statique des pages qui en ont un */
+  /* pour que TOUS les menus aient le meme rendu et le meme branchement.  */
+  /* ------------------------------------------------------------------ */
+  var THEMES_UI = [
+    { id: 'light', icone: 'lucide:sun', cle: 'chrome.theme.clair', defaut: 'Clair' },
+    { id: 'dark', icone: 'lucide:moon', cle: 'chrome.theme.sombre', defaut: 'Sombre' },
+    { id: 'aqua', icone: 'lucide:droplets', cle: 'chrome.theme.aqua', defaut: 'Aqua' },
+    { id: 'synthwave', icone: 'lucide:sparkles', cle: 'chrome.theme.synthwave', defaut: 'Synthwave' }
+  ];
+  var themeDocBranche = false;
+
+  function themeDropdownHTML() {
+    var T = global.EduNeumTheme;
+    var actuel = T ? T.courant() : 'light';
+    var courantUI = THEMES_UI[0];
+    THEMES_UI.forEach(function (t) { if (t.id === actuel) courantUI = t; });
+    var items = THEMES_UI.map(function (t) {
+      var actif = t.id === actuel;
+      return '<button type="button" data-theme-choix="' + t.id + '" role="menuitem"' +
+        ' class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all ' +
+        (actif ? 'nm-inset text-accent' : 'text-gray-500 hover:text-accent hover:nm-flat') + '">' +
+        '<iconify-icon icon="' + t.icone + '" width="16"></iconify-icon>' +
+        '<span>' + trad(t.cle, t.defaut) + '</span>' +
+        (actif ? '<iconify-icon icon="lucide:check" width="14" class="ml-auto"></iconify-icon>' : '') +
+        '</button>';
+    }).join('');
+    return '<div class="relative" id="theme-selecteur">' +
+      '<button type="button" id="theme-toggle" aria-haspopup="menu" aria-expanded="false"' +
+      ' title="' + trad('chrome.theme', 'Thème') + '" aria-label="' + trad('chrome.theme', 'Thème') + '"' +
+      ' class="w-10 h-10 nm-soft-convex rounded-full flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-accent transition-colors">' +
+      '<iconify-icon icon="' + courantUI.icone + '" width="20"></iconify-icon></button>' +
+      '<div id="theme-menu" class="hidden absolute right-0 mt-2 w-44 nm-flat rounded-2xl p-2 space-y-1 z-50" style="background: var(--bg)">' +
+      '<p class="px-3 pt-1 pb-2 text-[10px] font-bold uppercase tracking-widest text-gray-400">' +
+      trad('chrome.theme', 'Thème') + '</p>' + items + '</div></div>';
+  }
+
+  function fermerThemeMenu() {
+    var menu = document.getElementById('theme-menu');
+    var btn = document.getElementById('theme-toggle');
+    if (menu) menu.classList.add('hidden');
+    if (btn) btn.setAttribute('aria-expanded', 'false');
   }
 
   function monterTheme() {
-    var existant = document.getElementById('theme-toggle');
+    var html = themeDropdownHTML();
+    /* On remplace le conteneur entier (#theme-selecteur) quand il existe ;
+       sinon le bouton statique de la page (sans conteneur). Remplacer le
+       bouton par le conteneur complet creerait des imbrications. */
+    var existant = document.getElementById('theme-selecteur') ||
+      document.getElementById('theme-toggle');
     if (existant) {
-      if (!existant.dataset.eduneum) {
-        existant.dataset.eduneum = '1';
-        existant.addEventListener('click', basculerTheme);
-      }
-      return;
+      existant.outerHTML = html;
+    } else {
+      var ancre = document.getElementById('eduneum-contexte');
+      if (!ancre) return;
+      ancre.insertAdjacentHTML('beforeend', html);
     }
-    var ancre = document.getElementById('eduneum-contexte');
-    if (!ancre) return;
-    ancre.insertAdjacentHTML('beforeend',
-      '<button id="theme-toggle" class="w-10 h-10 nm-soft-convex rounded-full flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-accent transition-colors">' +
-      '<iconify-icon icon="lucide:sun" class="dark:hidden" width="20"></iconify-icon>' +
-      '<iconify-icon icon="lucide:moon" class="hidden dark:block" width="20"></iconify-icon></button>');
-    monterTheme();
+    brancherTheme();
+  }
+
+  function brancherTheme() {
+    var btn = document.getElementById('theme-toggle');
+    var menu = document.getElementById('theme-menu');
+    if (!btn || !menu || btn.dataset.eduneum) return;
+    btn.dataset.eduneum = '1';
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var ouvert = !menu.classList.contains('hidden');
+      menu.classList.toggle('hidden', ouvert);
+      btn.setAttribute('aria-expanded', ouvert ? 'false' : 'true');
+    });
+    menu.addEventListener('click', function (e) {
+      var n = e.target;
+      var b = n && n.closest ? n.closest('[data-theme-choix]') : null;
+      if (!b) return;
+      var choix = b.getAttribute('data-theme-choix');
+      if (global.EduNeumTheme) global.EduNeumTheme.choisir(choix);
+      fermerThemeMenu();
+      monterTheme(); /* re-rendu : icone + item actif a jour */
+      var lab = choix;
+      THEMES_UI.forEach(function (t) { if (t.id === choix) lab = trad(t.cle, t.defaut); });
+      ui().toast(trad('chrome.themeChangee', 'Thème appliqué : ') + lab, 'success');
+    });
+    if (!themeDocBranche) {
+      themeDocBranche = true;
+      document.addEventListener('click', function () { fermerThemeMenu(); });
+    }
   }
 
   /* ------------------------------------------------------------------ */
@@ -617,6 +725,7 @@
   global.EduNeum = global.EduNeum || {};
   global.EduNeum.layout = {
     init: init, monterMenu: monterMenu, monterMarque: monterMarque, monterProfil: monterProfil,
+    remonterProfil: remonterProfil, monterTheme: monterTheme,
     filArianeHTML: filArianeHTML, anneeChoisie: anneeChoisie, definirAnnee: definirAnnee,
     bandeauLectureSeuleHTML: bandeauLectureSeuleHTML, rafraichirBandeau: rafraichirBandeau,
     deconnexion: deconnexion

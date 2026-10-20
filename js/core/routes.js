@@ -4,43 +4,60 @@
   'use strict';
 
   /* ------------------------------------------------------------------ */
-  /* Theme (clair / sombre) : source unique pour tout le site.            */
+  /* Theme (clair / sombre / aqua / synthwave) : source unique du site.   */
   /* routes.js est charge dans le <head> de toutes les pages, donc        */
   /* l'application se fait AVANT le premier rendu : aucun flash.          */
   /* La cle localStorage « theme » est la cle historique deja utilisee     */
   /* par les pages existantes, on la conserve pour ne rien casser.         */
+  /* Le theme se pilote via l'attribut data-theme sur <html> (mecanisme    */
+  /* DaisyUI) + la classe .dark (compatibilite des utilitaires dark: de    */
+  /* Tailwind) : dark et synthwave gardent la classe .dark active.         */
   /* ------------------------------------------------------------------ */
   var EduNeumTheme = (function () {
     var CLE = 'theme';
+    var THEMES = ['light', 'dark', 'aqua', 'synthwave'];
+    var SOMBRES = { dark: true, synthwave: true };
 
     function lire() {
       var v = null;
       try { v = localStorage.getItem(CLE); } catch (e) { }
-      return v === 'dark' ? 'dark' : 'light';
+      return THEMES.indexOf(v) >= 0 ? v : 'light';
     }
 
     function courant() {
-      return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+      var t = document.documentElement.getAttribute('data-theme');
+      return THEMES.indexOf(t) >= 0 ? t : 'light';
     }
 
     function appliquer(mode) {
-      mode = mode === 'dark' ? 'dark' : 'light';
+      if (THEMES.indexOf(mode) < 0) mode = 'light';
       var html = document.documentElement;
-      html.classList.toggle('dark', mode === 'dark');
-      html.classList.toggle('light', mode === 'light');
+      var sombre = !!SOMBRES[mode];
+      html.setAttribute('data-theme', mode);
+      html.classList.toggle('dark', sombre);
+      html.classList.toggle('light', !sombre);
       return mode;
     }
 
-    function basculer() {
-      var mode = courant() === 'dark' ? 'light' : 'dark';
+    function choisir(mode) {
       appliquer(mode);
       try { localStorage.setItem(CLE, mode); } catch (e) { }
       return mode;
     }
 
+    /* Bascule historique light <-> dark : conservee pour les anciens
+       boutons #theme-toggle. Le dropdown 4 themes appelle choisir(). */
+    function basculer() {
+      return choisir(courant() === 'light' ? 'dark' : 'light');
+    }
+
     appliquer(lire());
 
-    return { CLE: CLE, lire: lire, courant: courant, appliquer: appliquer, basculer: basculer };
+    return {
+      CLE: CLE, THEMES: THEMES, SOMBRES: SOMBRES,
+      lire: lire, courant: courant, appliquer: appliquer,
+      choisir: choisir, basculer: basculer
+    };
   })();
   global.EduNeumTheme = EduNeumTheme;
 

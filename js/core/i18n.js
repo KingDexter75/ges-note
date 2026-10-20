@@ -30,10 +30,24 @@
       'chrome.lectureSeule': 'Consultation seule',
       'chrome.espaceEnseignant': 'Espace enseignant',
       'chrome.administration': 'Administration',
+      'chrome.theme.aqua': 'Thème aqua',
+      'chrome.theme.synthwave': 'Thème synthwave',
+      'chrome.themeChangee': 'Thème appliqué : ',
+      'chrome.anneeActive': '(active)',
+      'chrome.seDeconnecter': 'Se déconnecter',
+      'chrome.role': 'Rôle',
+      'chrome.courriel': 'Courriel',
+      'chrome.anneeCourante': 'Année scolaire courante',
+      'chrome.affectations': 'Affectations',
+      'chrome.profPrincipal': 'Professeur principal',
+      'chrome.motDePasse': 'Changer le mot de passe',
+      'chrome.verrouiller': 'Verrouiller la session',
 
       /* ---rôles--- */
       'role.admin': 'Administrateur',
+      'role.direction': 'Direction',
       'role.censeur': 'Censeur',
+      'role.surveillant': 'Surveillant général',
       'role.enseignant': 'Enseignant',
 
       /* ---menu (par route)--- */
@@ -60,6 +74,45 @@
       'route.admin_vie_scolaire': 'Vie scolaire',
       'route.admin_journal': 'Journal d’audit',
       'route.admin_parametres': 'Paramètres',
+      'route.admin_affectations_sg': 'Surveillants',
+      'route.teacher_saisie_couplee': 'Saisie couplée',
+      'route.censeur_dashboard': 'Tableau de bord',
+      'route.censeur_vie_scolaire': 'Vie scolaire',
+      'route.censeur_assiduite': 'Assiduité',
+      'route.censeur_eleves': 'Élèves',
+      'route.censeur_classes': 'Classes',
+      'route.censeur_notes': 'Notes (suivi)',
+      'route.censeur_rapports': 'Rapports',
+      'route.censeur_statistiques': 'Statistiques',
+      'route.censeur_profil': 'Profil',
+
+      /* ---libellés de menu (clé = libellé FR du menu)--- */
+      'libelle.Tableau de bord': 'Tableau de bord',
+      'libelle.Année scolaire': 'Année scolaire',
+      'libelle.Classes': 'Classes',
+      'libelle.Matières': 'Matières',
+      'libelle.Élèves': 'Élèves',
+      'libelle.Personnel et enseignants': 'Personnel et enseignants',
+      'libelle.Inscriptions': 'Inscriptions',
+      'libelle.Migrations': 'Migrations',
+      'libelle.Affectations': 'Affectations',
+      'libelle.Enseignants': 'Enseignants',
+      'libelle.Surveillants': 'Surveillants',
+      'libelle.Saisie des notes': 'Saisie des notes',
+      'libelle.Saisie simple': 'Saisie simple',
+      'libelle.Saisie couplée': 'Saisie couplée',
+      'libelle.Notes (suivi)': 'Notes (suivi)',
+      'libelle.Bulletins': 'Bulletins',
+      'libelle.Statistiques': 'Statistiques',
+      'libelle.Rapports': 'Rapports',
+      'libelle.Journal d\'audit': 'Journal d\'audit',
+      'libelle.Paramètres': 'Paramètres',
+      'libelle.Vie scolaire': 'Vie scolaire',
+      'libelle.Assiduité': 'Assiduité',
+      'libelle.Profil': 'Profil',
+      'libelle.Mes classes': 'Mes classes',
+      'libelle.Ma classe': 'Ma classe',
+      'libelle.Absences': 'Absences',
 
       /* ---vocabulaire commun--- */
       'commun.classe': 'Classe',
@@ -231,9 +284,23 @@
       'chrome.lectureSeule': 'Read-only',
       'chrome.espaceEnseignant': 'Teacher area',
       'chrome.administration': 'Administration',
+      'chrome.theme.aqua': 'Aqua theme',
+      'chrome.theme.synthwave': 'Synthwave theme',
+      'chrome.themeChangee': 'Theme applied: ',
+      'chrome.anneeActive': '(active)',
+      'chrome.seDeconnecter': 'Sign out',
+      'chrome.role': 'Role',
+      'chrome.courriel': 'Email',
+      'chrome.anneeCourante': 'Current school year',
+      'chrome.affectations': 'Assignments',
+      'chrome.profPrincipal': 'Head teacher',
+      'chrome.motDePasse': 'Change password',
+      'chrome.verrouiller': 'Lock session',
 
       'role.admin': 'Administrator',
+      'role.direction': 'Leadership',
       'role.censeur': 'Censor',
+      'role.surveillant': 'Chief supervisor',
       'role.enseignant': 'Teacher',
 
       'route.teacher_dashboard': 'Dashboard',
@@ -259,6 +326,45 @@
       'route.admin_vie_scolaire': 'Student life',
       'route.admin_journal': 'Audit log',
       'route.admin_parametres': 'Settings',
+      'route.admin_affectations_sg': 'Supervisors',
+      'route.teacher_saisie_couplee': 'Combined entry',
+      'route.censeur_dashboard': 'Dashboard',
+      'route.censeur_vie_scolaire': 'Student life',
+      'route.censeur_assiduite': 'Attendance',
+      'route.censeur_eleves': 'Students',
+      'route.censeur_classes': 'Classes',
+      'route.censeur_notes': 'Grades (tracking)',
+      'route.censeur_rapports': 'Reports',
+      'route.censeur_statistiques': 'Statistics',
+      'route.censeur_profil': 'Profile',
+
+      /* ---menu labels (key = the French label used in routes.MENUS)--- */
+      'libelle.Tableau de bord': 'Dashboard',
+      'libelle.Année scolaire': 'School year',
+      'libelle.Classes': 'Classes',
+      'libelle.Matières': 'Subjects',
+      'libelle.Élèves': 'Students',
+      'libelle.Personnel et enseignants': 'Staff and teachers',
+      'libelle.Inscriptions': 'Enrolments',
+      'libelle.Migrations': 'Migrations',
+      'libelle.Affectations': 'Assignments',
+      'libelle.Enseignants': 'Teachers',
+      'libelle.Surveillants': 'Supervisors',
+      'libelle.Saisie des notes': 'Grade entry',
+      'libelle.Saisie simple': 'Simple entry',
+      'libelle.Saisie couplée': 'Combined entry',
+      'libelle.Notes (suivi)': 'Grades (tracking)',
+      'libelle.Bulletins': 'Report cards',
+      'libelle.Statistiques': 'Statistics',
+      'libelle.Rapports': 'Reports',
+      'libelle.Journal d\'audit': 'Audit log',
+      'libelle.Paramètres': 'Settings',
+      'libelle.Vie scolaire': 'Student life',
+      'libelle.Assiduité': 'Attendance',
+      'libelle.Profil': 'Profile',
+      'libelle.Mes classes': 'My classes',
+      'libelle.Ma classe': 'My class',
+      'libelle.Absences': 'Absences',
 
       'commun.classe': 'Class',
       'commun.classes': 'Classes',
@@ -502,7 +608,21 @@
     }
   }
 
-  var branche = false;
+  /* Branche les boutons FR/EN : au chargement, puis apres chaque
+     reconstruction du bandeau de profil (les boutons injectes sont
+     neufs, le marqueur dataset evite tout double branchement). */
+  function brancherSelecteur() {
+    ['fr', 'en'].forEach(function (lang) {
+      var b = document.getElementById('lang-' + lang);
+      if (!b || b.dataset.eduneumLang) return;
+      b.dataset.eduneumLang = '1';
+      b.addEventListener('click', function () {
+        if (lire() === lang) return;
+        definir(lang);
+      });
+    });
+  }
+
   function definir(lang) {
     ecrire(lang);
     appliquer();
@@ -511,7 +631,9 @@
        le changement de langue s'applique aussi a ces elements laves. */
     if (E && E.layout && typeof E.layout.monterMenu === 'function') {
       E.layout.monterMenu();
-      if (typeof E.layout.rafraichirBandeau === 'function') E.layout.rafraichirBandeau();
+      if (typeof E.layout.remonterProfil === 'function') E.layout.remonterProfil();
+      else if (typeof E.layout.rafraichirBandeau === 'function') E.layout.rafraichirBandeau();
+      brancherSelecteur();
       appliquer();
     }
     if (E && E.ui && E.ui.toast) E.ui.toast(t('msg.langueChangee'), 'info');
@@ -526,6 +648,23 @@
     } catch (e) { /* CustomEvent absent : ces pages resteront dans l'ancienne langue. */ }
   }
 
+  /* Titre de page : traduit le <h1> UNIQUEMENT si son texte est
+     strictement egal a la valeur FR de route.* — la traduction ne peut
+     donc jamais modifier l'affichage francais. Les titres personnalises
+     (« Suivi d'Assiduité », « Bureau du Censeur »…) sont laisses tels
+     quels. Les <h1> contenant des elements (icones…) sont ignores. */
+  function marquerTitres() {
+    var E = global.EduNeum;
+    if (!E || !E.routes || !E.routes.currentRouteKey) return;
+    var key = E.routes.currentRouteKey();
+    if (!key) return;
+    var h1 = document.querySelector('main h1') || document.querySelector('h1');
+    if (!h1 || h1.children.length) return;
+    var texte = (h1.textContent || '').trim();
+    var fr = DICTIONNAIRES.fr['route.' + key];
+    if (fr !== undefined && fr === texte) h1.setAttribute('data-i18n', 'route.' + key);
+  }
+
   function init() {
     /* La connexion a son propre selecteur : on ne le branche pas deux fois. */
     var E = global.EduNeum;
@@ -533,17 +672,8 @@
       && E.routes.currentRouteKey() === 'connexion';
     if (surConnexion) return;
 
-    if (!branche) {
-      branche = true;
-      ['fr', 'en'].forEach(function (lang) {
-        var b = document.getElementById('lang-' + lang);
-        if (!b) return;
-        b.addEventListener('click', function () {
-          if (lire() === lang) return;
-          definir(lang);
-        });
-      });
-    }
+    brancherSelecteur();
+    marquerTitres();
     /* Applique au chargement. Les modules qui construisent leur contenu
        apres coup appellent eux-memes t() ou appliquer() : on n'ecoute
        pas le clic global, cela retraduirait tout le DOM en boucle. */

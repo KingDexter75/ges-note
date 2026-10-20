@@ -2,10 +2,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Connexion Académique | EduNeum Pro</title>
-  <script>try{if(localStorage.getItem('theme')==='dark')document.documentElement.classList.add('dark');}catch(e){}</script>
+  <script>try{var t=localStorage.getItem('theme');if(['light','dark','aqua','synthwave'].indexOf(t)<0)t='light';document.documentElement.setAttribute('data-theme',t);document.documentElement.classList.toggle('dark',t==='dark'||t==='synthwave');document.documentElement.classList.toggle('light',!(t==='dark'||t==='synthwave'));}catch(e){}</script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
-  <link rel="stylesheet" href="css/connexion.css?v=2">
+  <link rel="stylesheet" href="css/connexion.css?v=3">
   <script src="js/connexion.tailwind.js?v=2"></script>
 </head>
 <body>
@@ -17,10 +17,26 @@
         <button id="lang-fr" class="px-4 py-1 text-xs font-bold bg-accent text-white rounded-full shadow-md transition-all">FR</button>
         <button id="lang-en" class="px-4 py-1 text-xs text-gray-500 font-medium hover:text-accent transition-all">EN</button>
       </div>
-      <button id="theme-toggle" class="w-10 h-10 nm-soft-convex rounded-full flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-accent transition-colors">
-        <iconify-icon icon="lucide:sun" class="dark:hidden" width="20"></iconify-icon>
-        <iconify-icon icon="lucide:moon" class="hidden dark:block" width="20"></iconify-icon>
-      </button>
+      <div class="relative" id="theme-selecteur">
+        <button type="button" id="theme-toggle" aria-haspopup="menu" aria-expanded="false" title="Thème" aria-label="Thème" class="w-10 h-10 nm-soft-convex rounded-full flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-accent transition-colors">
+          <iconify-icon id="theme-icon" icon="lucide:sun" width="20"></iconify-icon>
+        </button>
+        <div id="theme-menu" class="hidden absolute right-0 mt-2 w-44 nm-flat rounded-2xl p-2 space-y-1 z-50" style="background: var(--bg)">
+          <p class="px-3 pt-1 pb-2 text-[10px] font-bold uppercase tracking-widest text-gray-400" id="txt-theme-title">Thème</p>
+          <button type="button" data-theme-choix="light" class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all">
+            <iconify-icon icon="lucide:sun" width="16"></iconify-icon><span id="txt-theme-light">Clair</span>
+          </button>
+          <button type="button" data-theme-choix="dark" class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all">
+            <iconify-icon icon="lucide:moon" width="16"></iconify-icon><span id="txt-theme-dark">Sombre</span>
+          </button>
+          <button type="button" data-theme-choix="aqua" class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all">
+            <iconify-icon icon="lucide:droplets" width="16"></iconify-icon><span id="txt-theme-aqua">Aqua</span>
+          </button>
+          <button type="button" data-theme-choix="synthwave" class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all">
+            <iconify-icon icon="lucide:sparkles" width="16"></iconify-icon><span id="txt-theme-synthwave">Synthwave</span>
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Main Login Container -->
@@ -170,7 +186,7 @@
 
   <!-- Forgot Password Recovery Modal -->
   <div id="forgot-modal" class="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm flex items-center justify-center hidden p-4">
-    <div class="nm-flat bg-[#e0e5ec] dark:bg-[#1a202c] w-full max-w-sm rounded-[30px] p-6 text-center space-y-6">
+    <div class="nm-flat w-full max-w-sm rounded-[30px] p-6 text-center space-y-6" style="background: var(--bg)">
       <div class="inline-flex items-center justify-center w-12 h-12 text-accent bg-accent/10 rounded-xl nm-inset">
         <iconify-icon icon="lucide:key-round" width="24"></iconify-icon>
       </div>
@@ -188,8 +204,8 @@
     </div>
   </div>
 
-  <script src="js/core/routes.js?v=3"></script>
+  <script src="js/core/routes.js?v=4"></script>
   <script src="js/core/store.js?v=9"></script>
   <script src="js/core/auth.js?v=2"></script>
-  <script src="js/connexion.js?v=2"></script>
+  <script src="js/connexion.js?v=3"></script>
 </body></html>

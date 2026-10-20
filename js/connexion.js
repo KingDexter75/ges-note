@@ -1,9 +1,15 @@
 /* EduNeum - Page de connexion : le routage et la session sont geres par le coeur
    (js/core). Aucun lien externe : la destination depend du role choisi. */
 
+    const ETATS_THEMES = ['light', 'dark', 'aqua', 'synthwave'];
+    const ICONES_THEMES = { light: 'lucide:sun', dark: 'lucide:moon', aqua: 'lucide:droplets', synthwave: 'lucide:sparkles' };
+
     const state = {
       lang: sessionStorage.getItem('lang') || 'fr',
-      theme: localStorage.getItem('theme') || 'light',
+      theme: (function () {
+        var v = localStorage.getItem('theme');
+        return ETATS_THEMES.indexOf(v) >= 0 ? v : 'light';
+      })(),
       step: 1,
       phone: '',
       password: '',
@@ -38,7 +44,12 @@
         forgotSub: "Saisissez votre téléphone pour réinitialiser.",
         roleAdmin: "Admin",
         roleTeacher: "Prof",
-        roleCensor: "Censeur"
+        roleCensor: "Censeur",
+        themeTitle: "Thème",
+        themeLight: "Clair",
+        themeDark: "Sombre",
+        themeAqua: "Aqua",
+        themeSynthwave: "Synthwave"
       },
       en: {
         title: "Academic Portal",
@@ -65,7 +76,12 @@
         forgotSub: "Enter your phone to reset.",
         roleAdmin: "Admin",
         roleTeacher: "Teacher",
-        roleCensor: "Censor"
+        roleCensor: "Censor",
+        themeTitle: "Theme",
+        themeLight: "Light",
+        themeDark: "Dark",
+        themeAqua: "Aqua",
+        themeSynthwave: "Synthwave"
       }
     };
 
@@ -85,9 +101,33 @@
     }
 
     function applyTheme() {
-      if (state.theme === 'dark') document.documentElement.classList.add('dark');
-      else document.documentElement.classList.remove('dark');
+      const root = document.documentElement;
+      const sombre = state.theme === 'dark' || state.theme === 'synthwave';
+      root.setAttribute('data-theme', state.theme);
+      root.classList.toggle('dark', sombre);
+      root.classList.toggle('light', !sombre);
       localStorage.setItem('theme', state.theme);
+      /* Dropdown : icone du bouton + item actif (coche). */
+      const icon = document.getElementById('theme-icon');
+      if (icon) icon.setAttribute('icon', ICONES_THEMES[state.theme] || 'lucide:sun');
+      document.querySelectorAll('#theme-menu [data-theme-choix]').forEach((b) => {
+        const actif = b.getAttribute('data-theme-choix') === state.theme;
+        b.classList.toggle('nm-inset', actif);
+        b.classList.toggle('text-accent', actif);
+        b.classList.toggle('text-gray-500', !actif);
+        b.classList.toggle('hover:text-accent', !actif);
+        let check = b.querySelector('[data-theme-check]');
+        if (actif && !check) {
+          check = document.createElement('iconify-icon');
+          check.setAttribute('icon', 'lucide:check');
+          check.setAttribute('width', '14');
+          check.setAttribute('data-theme-check', '1');
+          check.className = 'ml-auto';
+          b.appendChild(check);
+        } else if (!actif && check) {
+          check.remove();
+        }
+      });
     }
 
     function updateTranslations() {
@@ -110,6 +150,11 @@
       document.getElementById('txt-role-admin').innerText = t.roleAdmin;
       document.getElementById('txt-role-teacher').innerText = t.roleTeacher;
       document.getElementById('txt-role-censor').innerText = t.roleCensor;
+      document.getElementById('txt-theme-title').innerText = t.themeTitle;
+      document.getElementById('txt-theme-light').innerText = t.themeLight;
+      document.getElementById('txt-theme-dark').innerText = t.themeDark;
+      document.getElementById('txt-theme-aqua').innerText = t.themeAqua;
+      document.getElementById('txt-theme-synthwave').innerText = t.themeSynthwave;
       
       const langFrBtn = document.getElementById('lang-fr');
       const langEnBtn = document.getElementById('lang-en');
@@ -130,10 +175,26 @@
       e.target.value = !x[2] ? x[1] : x[1] + ' ' + x[2] + (x[3] ? ' ' + x[3] : '') + (x[4] ? ' ' + x[4] : '') + (x[5] ? ' ' + x[5] : '');
     });
 
-    // Theme Toggle
-    document.getElementById('theme-toggle').addEventListener('click', () => {
-      state.theme = state.theme === 'light' ? 'dark' : 'light';
-      applyTheme();
+    // Theme Dropdown (4 themes)
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    const themeMenuEl = document.getElementById('theme-menu');
+    themeToggleBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const ouvert = !themeMenuEl.classList.contains('hidden');
+      themeMenuEl.classList.toggle('hidden', ouvert);
+      themeToggleBtn.setAttribute('aria-expanded', ouvert ? 'false' : 'true');
+    });
+    themeMenuEl.querySelectorAll('[data-theme-choix]').forEach((b) => {
+      b.addEventListener('click', () => {
+        state.theme = b.getAttribute('data-theme-choix');
+        applyTheme();
+        themeMenuEl.classList.add('hidden');
+        themeToggleBtn.setAttribute('aria-expanded', 'false');
+      });
+    });
+    document.addEventListener('click', () => {
+      themeMenuEl.classList.add('hidden');
+      themeToggleBtn.setAttribute('aria-expanded', 'false');
     });
 
     // Lang Toggle
