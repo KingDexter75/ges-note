@@ -20,13 +20,17 @@
   var trimestre = S.trimestresDe(an.id).filter(function (t) { return t.ouvert; })[0] || null;
   var sequences = S.sequencesDe(an.id);
 
-  /* Regroupement par classe : une carte par classe, une ligne par matiere. */
+  /* Regroupement par classe : une carte par classe, une ligne par matiere.
+     Les classes sont presentees dans l'ordre officiel (niveau, puis
+     alphabetique), comme partout ailleurs. */
   var parClasse = {};
   mesAffectations.forEach(function (a) {
     if (!parClasse[a.classeId]) parClasse[a.classeId] = [];
     parClasse[a.classeId].push(a);
   });
-  var idsClasses = Object.keys(parClasse);
+  var idsClasses = Object.keys(parClasse).sort(function (x, y) {
+    return S.comparerClasses(S.classeParId(x), S.classeParId(y));
+  });
   var cartes = idsClasses.map(function (cid) {
     var c = S.classeParId(cid);
     var eleves = S.elevesDeClasse(cid, an.id);

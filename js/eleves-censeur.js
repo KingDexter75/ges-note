@@ -69,8 +69,8 @@
       return '<tr class="border-b border-gray-100 dark:border-gray-800">' +
         '<td class="py-3 px-4"><div class="flex items-center gap-3">' +
         '<div class="w-10 h-10 rounded-full nm-inset flex items-center justify-center text-accent font-bold text-xs">' +
-        P.esc((e.prenom.charAt(0) + e.nom.charAt(0)).toUpperCase()) + '</div>' +
-        '<div><p class="font-semibold text-sm">' + P.esc(e.prenom + ' ' + e.nom) + '</p>' +
+        P.esc((e.nom.charAt(0) + e.prenom.charAt(0)).toUpperCase()) + '</div>' +
+        '<div><p class="font-semibold text-sm">' + P.esc(e.nom + ' ' + e.prenom) + '</p>' +
         '<p class="text-xs text-gray-400">' + P.esc(e.matricule) + '</p></div></div></td>' +
         '<td class="py-3 px-4 text-center"><span class="font-bold">' + totalAbs + 'h</span></td>' +
         '<td class="py-3 px-4"><span class="text-xs text-gray-500">' + P.esc(S.classeParId(etat.classeId).nom) + '</span></td>' +

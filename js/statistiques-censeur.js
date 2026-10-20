@@ -66,8 +66,8 @@
       return '<tr class="border-b border-gray-100 dark:border-gray-800">' +
         '<td class="py-3 px-4 text-center font-bold">' + (i + 1) + '</td>' +
         '<td class="py-3 px-4"><div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full nm-inset flex items-center justify-center text-xs font-bold text-accent">' +
-        P.esc((r.eleve.prenom.charAt(0) + r.eleve.nom.charAt(0)).toUpperCase()) + '</div>' +
-        '<div><p class="font-semibold text-xs">' + P.esc(r.eleve.prenom + ' ' + r.eleve.nom) + '</p>' +
+        P.esc((r.eleve.nom.charAt(0) + r.eleve.prenom.charAt(0)).toUpperCase()) + '</div>' +
+        '<div><p class="font-semibold text-xs">' + P.esc(r.eleve.nom + ' ' + r.eleve.prenom) + '</p>' +
         '<p class="text-[10px] text-gray-400">' + P.esc(r.eleve.matricule) + '</p></div></div></td>' +
         '<td class="py-3 px-4">' + P.esc(r.classe.nom) + '</td>' +
         '<td class="py-3 px-4 text-center text-red-500 font-bold">' + r.nj + 'h</td>' +

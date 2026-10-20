@@ -32,7 +32,7 @@
       lignes: inscrits.map(function (i) {
         var e = S.eleveParId(i.eleveId), c = S.classeParId(i.classeId);
         return {
-          eleve: e ? e.prenom + ' ' + e.nom : '—', matricule: e ? e.matricule : '—',
+          eleve: e ? e.nom + ' ' + e.prenom : '—', matricule: e ? e.matricule : '—',
           classe: c ? c.nom : '—', date: i.dateInscription, id: i.id, eleveId: i.eleveId
         };
       }),
@@ -86,7 +86,7 @@
       fClasse = UI.champ({ label: 'Classe', type: 'select', options: classes.map(function (c) { return { valeur: c.id, libelle: c.nom }; }), requis: true });
       fEleve = UI.champ({
         label: 'Élève non inscrit', type: 'select', requis: true,
-        options: [{ valeur: '', libelle: 'Sélectionner…' }].concat(disponibles.map(function (e) { return { valeur: e.id, libelle: e.prenom + ' ' + e.nom + ' (' + e.matricule + ')' }; }))
+        options: [{ valeur: '', libelle: 'Sélectionner…' }].concat(disponibles.map(function (e) { return { valeur: e.id, libelle: e.nom + ' ' + e.prenom + ' (' + e.matricule + ')' }; }))
       });
       var form = document.getElementById('form-inscription');
       form.appendChild(fClasse.element);
@@ -109,7 +109,7 @@
 
   function retirer(l) {
     var el = S.eleveParId(l.eleveId);
-    P.confirmerSuppression('l\'inscription de ' + (el ? el.prenom + ' ' + el.nom : 'cet élève'), function () {
+    P.confirmerSuppression('l\'inscription de ' + (el ? el.nom + ' ' + el.prenom : 'cet élève'), function () {
       var r = S.desinscrireEleve(l.id);
       if (!r.ok) { UI.toast(r.motif, 'error'); return false; }
       UI.toast('Inscription retirée.', 'info');

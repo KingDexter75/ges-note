@@ -185,8 +185,8 @@
       html += '<tr class="border-b border-gray-200 dark:border-gray-800 hover:bg-white/40 dark:hover:bg-white/5 transition-colors">' +
         '<td class="py-3 px-2"><div class="flex items-center gap-3">' +
         '<div class="w-9 h-9 rounded-full nm-inset flex items-center justify-center text-xs font-bold text-accent">' +
-        P.esc((e.prenom.charAt(0) + e.nom.charAt(0)).toUpperCase()) + '</div>' +
-        '<div><p class="font-semibold text-sm text-gray-800 dark:text-gray-100">' + P.esc(e.prenom + ' ' + e.nom) + '</p>' +
+        P.esc((e.nom.charAt(0) + e.prenom.charAt(0)).toUpperCase()) + '</div>' +
+        '<div><p class="font-semibold text-sm text-gray-800 dark:text-gray-100">' + P.esc(e.nom + ' ' + e.prenom) + '</p>' +
         '<p class="text-xs text-gray-500 dark:text-gray-400">' + P.esc(e.matricule) + '</p></div></div></td>' +
         '<td class="py-3 px-2 text-center"><input type="number" min="0" step="1" id="h-' + e.id + '" value="' + h + '"' + dis +
         ' class="w-24 p-2 nm-inset rounded-xl text-center text-sm font-bold"></td>' +
@@ -253,8 +253,8 @@
       html += '<tr class="border-b border-gray-200 dark:border-gray-800 hover:bg-white/40 dark:hover:bg-white/5 transition-colors">' +
         '<td class="py-3 px-2"><div class="flex items-center gap-3">' +
         '<div class="w-9 h-9 rounded-full nm-inset flex items-center justify-center text-xs font-bold text-accent">' +
-        P.esc((e.prenom.charAt(0) + e.nom.charAt(0)).toUpperCase()) + '</div>' +
-        '<div><p class="font-semibold text-sm text-gray-800 dark:text-gray-100">' + P.esc(e.prenom + ' ' + e.nom) + '</p>' +
+        P.esc((e.nom.charAt(0) + e.prenom.charAt(0)).toUpperCase()) + '</div>' +
+        '<div><p class="font-semibold text-sm text-gray-800 dark:text-gray-100">' + P.esc(e.nom + ' ' + e.prenom) + '</p>' +
         '<p class="text-xs text-gray-500 dark:text-gray-400">' + P.esc(e.matricule) + '</p></div></div></td>' +
         '<td class="py-3 px-2 text-center font-bold text-base">' + h + '</td>' +
         '<td class="py-3 px-2 text-center font-bold text-base text-green-600 dark:text-green-400">' + j + '</td>' +
@@ -308,7 +308,7 @@
     UI.modal({
       titre: 'Justifier une absence',
       contenu: '<p class="text-sm text-gray-600 dark:text-gray-300"><b>' +
-        P.esc(e.prenom + ' ' + e.nom) + '</b> — ' + total + 'h d\'absence, dont ' +
+        P.esc(e.nom + ' ' + e.prenom) + '</b> — ' + total + 'h d\'absence, dont ' +
         dejaJust + 'h justifiées (' + reste + 'h restantes).</p>' +
         '<div class="space-y-3" id="form-justif"></div>',
       actions: [

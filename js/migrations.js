@@ -20,7 +20,7 @@
       lignes: migrations.map(function (m) {
         var e = S.eleveParId(m.eleveId);
         return {
-          eleve: e ? e.prenom + ' ' + e.nom : '—',
+          eleve: e ? e.nom + ' ' + e.prenom : '—',
           de: S.classeParId(m.deClasseId) ? S.classeParId(m.deClasseId).nom : '—',
           vers: S.classeParId(m.versClasseId) ? S.classeParId(m.versClasseId).nom : '—',
           auteur: m.auteurId ? (S.enseignantParId(m.auteurId) || {}).nom || '—' : '—',
@@ -96,7 +96,7 @@
     return [{ valeur: '', libelle: 'Sélectionner…' }].concat(inscrits.map(function (i) {
       var e = S.eleveParId(i.eleveId);
       if (!e) return null;
-      var libelle = e.prenom + ' ' + e.nom + ' · ' + e.matricule;
+      var libelle = e.nom + ' ' + e.prenom + ' · ' + e.matricule;
       if (q && libelle.toLowerCase().indexOf(q) === -1) return null;
       return { valeur: i.eleveId, libelle: libelle };
     }).filter(Boolean));
@@ -135,7 +135,7 @@
     var cible = S.classeParId(vers);
     UI.confirmer({
       titre: 'Confirmer le transfert',
-      message: 'Transférer <b>' + P.esc(e.prenom + ' ' + e.nom) + '</b> de <b>' + P.esc(depart.nom) +
+      message: 'Transférer <b>' + P.esc(e.nom + ' ' + e.prenom) + '</b> de <b>' + P.esc(depart.nom) +
         '</b> vers <b>' + P.esc(cible.nom) + '</b> ?<br><br>Les notes déjà saisies dans la classe d\'origine restent rattachées à celle-ci.'
     }).then(function (ok) {
       if (!ok) return;

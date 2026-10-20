@@ -113,8 +113,8 @@
     if (e && e.photo) {
       return '<div class="bul-photo"><img src="' + P.esc(e.photo) + '" alt="Photo de l\'élève"></div>';
     }
-    var ini = ((e && e.prenom ? e.prenom : ' ') + ' ' + (e && e.nom ? e.nom : '')).trim();
-    var lettres = (ini.charAt(0) + (e && e.nom ? e.nom.trim().charAt(0) : '')).toUpperCase();
+    var ini = ((e && e.nom ? e.nom : ' ') + ' ' + (e && e.prenom ? e.prenom : '')).trim();
+    var lettres = (ini.charAt(0) + (e && e.prenom ? e.prenom.trim().charAt(0) : '')).toUpperCase();
     return '<div class="bul-photo bul-photo-vide"><span>' + P.esc(lettres) + '</span></div>';
   }
 

@@ -63,7 +63,7 @@
           valeurTri: function (l) { return l.nom + ' ' + l.prenom; },
           rendu: function (l) {
             return '<div class="flex items-center gap-3">' + avatar(l) +
-              '<div><p class="font-bold">' + P.esc(l.prenom + ' ' + l.nom) + '</p>' +
+              '<div><p class="font-bold">' + P.esc(l.nom + ' ' + l.prenom) + '</p>' +
               '<p class="text-xs text-gray-400">' + P.esc(l.matricule || 'sans matricule') + '</p></div></div>';
           }
         },
@@ -146,7 +146,7 @@
         contenu: '<div class="nm-flat p-6 rounded-[32px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">' +
           archives.map(function (e) {
             return '<div class="nm-inset rounded-2xl p-4 flex items-center gap-3">' + avatar(e) +
-              '<div><p class="font-bold text-sm">' + P.esc(e.prenom + ' ' + e.nom) + '</p>' +
+              '<div><p class="font-bold text-sm">' + P.esc(e.nom + ' ' + e.prenom) + '</p>' +
               '<p class="text-xs text-gray-400">' + P.esc(e.matricule || 'sans matricule') + '</p></div></div>';
           }).join('') + '</div>'
       }) : ''
@@ -170,8 +170,8 @@
     if (e.photo) {
       return '<img src="' + P.esc(e.photo) + '" alt="" class="w-9 h-9 rounded-full object-cover nm-inset">';
     }
-    var initiales = ((e.prenom || ' ') + ' ' + (e.nom || '')).trim().charAt(0) +
-      (e.nom || '').trim().charAt(0);
+    var initiales = ((e.nom || ' ') + ' ' + (e.prenom || '')).trim().charAt(0) +
+      (e.prenom || '').trim().charAt(0);
     return '<span class="w-9 h-9 rounded-full bg-gradient-to-tr from-accent to-purple-400 text-white flex items-center ' +
       'justify-center text-[10px] font-black shrink-0">' + P.esc(initiales.toUpperCase()) + '</span>';
   }
@@ -299,7 +299,7 @@
   function archiver(e) {
     UI.confirmer({
       titre: 'Archiver la fiche élève',
-      message: 'Archiver <b>' + P.esc(e.prenom + ' ' + e.nom) + '</b> ?<br><br>' +
+        message: 'Archiver <b>' + P.esc(e.nom + ' ' + e.prenom) + '</b> ?<br><br>' +
         'Sa fiche n\'est jamais effacée : ses notes et son historique restent consultables. ' +
         'L\'élève ne sera plus proposé aux inscriptions.'
     }).then(function (ok) {

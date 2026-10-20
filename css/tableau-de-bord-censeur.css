@@ -1,97 +1,168 @@
-/* Tableau de bord Censeur - Styles spécifiques */
+/* Tableau de bord Censeur - Styles specifiques.
+   IMPORTANT : ce fichier est charge par un simple <link>. La directive
+   @apply de Tailwind n'y est PAS valide (elle n'existe que dans un
+   <style type="text/tailwindcss"> ou dans une compilation PostCSS) : le
+   navigateur rejetait la declaration entiere et ces classes n'avaient
+   aucun effet (tableaux sans padding, cartes non arrondies...).
+   On ecrit donc ici du CSS litteral, equivalent pour equivalent. */
+
 .censeur-card {
-  @apply nm-flat p-6 rounded-[32px] space-y-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg;
+  padding: 1.5rem;
+  border-radius: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  transition: all 0.2s ease;
+}
+.censeur-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
 }
 
-.censeur-stat-card {
-  @apply p-6 rounded-[32px] transition-all duration-200 hover:-translate-y-0.5 group cursor-default nm-flat;
+.censeur-stat-card,
+.censeur-kpi {
+  padding: 1.5rem;
+  border-radius: 2rem;
+  cursor: default;
+  transition: all 0.2s ease;
+  box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
 }
+.censeur-stat-card:hover,
+.censeur-kpi:hover { transform: translateY(-2px); }
 
-.censeur-stat-icon {
-  @apply w-12 h-12 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform nm-inset;
+.censeur-stat-icon,
+.censeur-kpi-icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+  box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
 }
+.group:hover .censeur-stat-icon,
+.group:hover .censeur-kpi-icon { transform: scale(1.1); }
 
 .censeur-classe-card {
-  @apply nm-flat p-6 rounded-[32px] space-y-4 border-l-4 border-accent;
+  padding: 1.5rem;
+  border-radius: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  border-left: 4px solid var(--accent);
+  box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
 }
 
 .censeur-action-btn {
-  @apply px-4 py-2 nm-soft-convex rounded-xl text-xs font-bold flex items-center gap-2 transition-all hover:nm-inset;
+  padding: 0.5rem 1rem;
+  border-radius: 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: box-shadow 0.2s ease;
+  box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
+}
+.censeur-action-btn:hover {
+  box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
 }
 
 .censeur-section-header {
-  @apply flex justify-between items-center mb-6;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
 }
 
 .censeur-table-container {
-  @apply nm-flat p-6 rounded-[32px] overflow-x-auto;
+  padding: 1.5rem;
+  border-radius: 2rem;
+  overflow-x: auto;
+  box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
 }
 
 .censeur-alert-card {
-  @apply p-5 rounded-[32px] nm-flat border-l-4 flex items-start gap-3;
+  padding: 1.25rem;
+  border-radius: 2rem;
+  border-left: 4px solid;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
 }
 
 .censeur-empty-state {
-  @apply text-center py-12 text-gray-400;
+  text-align: center;
+  padding: 3rem 0;
+  color: #9ca3af;
 }
 
 .censeur-progress-ring {
-  @apply w-20 h-20 transform -rotate-90;
+  width: 5rem;
+  height: 5rem;
+  transform: rotate(-90deg);
 }
 
-.censeur-progress-bg {
-  @apply text-gray-200 dark:text-gray-800;
-}
+.censeur-progress-bg { color: #e5e7eb; }
+.dark .censeur-progress-bg { color: #1f2937; }
 
 .censeur-progress-fill {
-  @apply text-accent transition-all duration-1000;
+  color: var(--accent);
+  transition: all 1s ease;
 }
 
-/* Specific styles for absence/discipline tables */
+/* Tableaux d'assiduite / discipline : les lignes respirent (elles ne
+   collent ni a la bordure haute ni a la bordure basse de la cellule). */
 .censeur-table th {
-  @apply pb-4 px-2 text-xs font-bold text-gray-400 uppercase border-b border-gray-200 dark:border-gray-700;
+  padding: 0.75rem 0.75rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #9ca3af;
+  text-transform: uppercase;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+  white-space: nowrap;
 }
+.dark .censeur-table th { border-bottom-color: #374151; }
 
 .censeur-table td {
-  @apply py-4 px-2 text-sm;
+  padding: 0.9rem 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  vertical-align: middle;
 }
 
 .censeur-table tr {
-  @apply hover:bg-white/10 transition-colors border-b border-gray-100 dark:border-gray-800;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  border-bottom: 1px solid #f3f4f6;
 }
+.dark .censeur-table tr { border-bottom-color: #1f2937; }
+.censeur-table tr:hover { background-color: rgba(255, 255, 255, 0.1); }
+.dark .censeur-table tr:hover { background-color: rgba(255, 255, 255, 0.04); }
 
-.censeur-badge {
-  @apply inline-flex items-center px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider;
-}
-
-.censeur-badge-absent {
-  @apply bg-red-500/10 text-red-500;
-}
-
-.censeur-badge-justified {
-  @apply bg-green-500/10 text-green-500;
-}
-
-.censeur-badge-warning {
-  @apply bg-amber-500/10 text-amber-500;
-}
-
+.censeur-badge,
+.censeur-badge-absent,
+.censeur-badge-justified,
+.censeur-badge-warning,
 .censeur-badge-sanction {
-  @apply bg-orange-500/10 text-orange-500;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.5rem;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-/* KPI cards */
-.censeur-kpi {
-  @apply p-6 rounded-[32px] transition-all duration-200 hover:-translate-y-0.5 group cursor-default nm-flat;
-}
-
-.censeur-kpi-icon {
-  @apply w-12 h-12 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform nm-inset;
-}
+.censeur-badge-absent { background-color: rgba(239, 68, 68, 0.1); color: #ef4444; }
+.censeur-badge-justified { background-color: rgba(16, 185, 129, 0.1); color: #10b981; }
+.censeur-badge-warning { background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+.censeur-badge-sanction { background-color: rgba(249, 115, 22, 0.1); color: #f97316; }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-  .censeur-grid {
-    @apply grid-cols-1;
-  }
+  .censeur-grid { grid-template-columns: 1fr; }
 }

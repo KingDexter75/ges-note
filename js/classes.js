@@ -33,8 +33,10 @@
 
   function refresh() {
     var toutes = S.all('classes').filter(function (c) { return c.anneeId === an.id; });
-    var actives = toutes.filter(function (c) { return !c.archive; });
-    var archivees = toutes.filter(function (c) { return c.archive; });
+    /* Meme ordre que partout ailleurs : par niveau (Sixieme -> Terminale,
+       Form 1 -> Upper Sixth), puis alphabetique a niveau egal. */
+    var actives = toutes.filter(function (c) { return !c.archive; }).sort(S.comparerClasses);
+    var archivees = toutes.filter(function (c) { return c.archive; }).sort(S.comparerClasses);
     var totalEleves = S.all('inscriptions').filter(function (i) { return i.anneeId === an.id && !i.archive; }).length;
     var sansPP = actives.filter(function (c) { return !S.ppDeClasse(c.id); }).length;
 

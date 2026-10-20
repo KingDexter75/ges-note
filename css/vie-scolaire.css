@@ -1,95 +1,137 @@
-/* Vie Scolaire Censeur - Styles */
-.vie-scolaire-table {
-  @apply w-full text-sm;
-}
+/* Vie Scolaire (Censeur / administration) - Styles.
+   IMPORTANT : charge par un simple <link>, donc @apply n'y est pas valide :
+   toutes les regles precedentes etaient ignorees par le navigateur. CSS
+   litteral ci-dessous, avec un padding de cellule volontairement genereux
+   pour que les lignes ne collent pas aux bordures du tableau. */
+
+.vie-scolaire-table { width: 100%; font-size: 0.875rem; line-height: 1.25rem; }
 
 .vie-scolaire-table th {
-  @apply pb-4 px-2 text-left text-xs font-bold text-gray-400 uppercase border-b border-gray-200 dark:border-gray-700;
+  padding: 0.75rem 0.75rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #9ca3af;
+  text-align: left;
+  text-transform: uppercase;
+  border-bottom: 1px solid #e5e7eb;
+  white-space: nowrap;
 }
+.dark .vie-scolaire-table th { border-bottom-color: #374151; }
 
 .vie-scolaire-table td {
-  @apply py-4 px-2;
+  padding: 0.9rem 0.75rem;
+  vertical-align: middle;
 }
 
 .vie-scolaire-table tbody tr {
-  @apply hover:bg-white/10 transition-colors border-b border-gray-100 dark:border-gray-800;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  border-bottom: 1px solid #f3f4f6;
 }
+.dark .vie-scolaire-table tbody tr { border-bottom-color: #1f2937; }
+.vie-scolaire-table tbody tr:hover { background-color: rgba(255, 255, 255, 0.1); }
+.dark .vie-scolaire-table tbody tr:hover { background-color: rgba(255, 255, 255, 0.04); }
 
-.vie-scolaire-table tbody tr:last-child {
-  @apply border-b-0;
-}
+.vie-scolaire-table tbody tr:last-child { border-bottom: 0; }
 
-.vie-student-cell {
-  @apply flex items-center space-x-3;
-}
+.vie-student-cell { display: flex; align-items: center; gap: 0.75rem; }
 
 .vie-avatar {
-  @apply w-10 h-10 rounded-full nm-inset flex items-center justify-center text-accent font-bold text-xs;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 0.75rem;
+  flex: 0 0 auto;
+  box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
 }
 
-.vie-student-info {
-  @apply flex flex-col;
-}
+.vie-student-info { display: flex; flex-direction: column; min-width: 0; }
+.vie-student-name { font-weight: 600; font-size: 0.875rem; }
+.vie-student-matricule { font-size: 0.75rem; color: #9ca3af; }
 
-.vie-student-name {
-  @apply font-semibold text-sm;
-}
-
-.vie-student-matricule {
-  @apply text-xs text-gray-400;
-}
-
-.vie-input-hours {
-  @apply w-20 p-2 rounded-xl input-nm text-center text-sm font-bold;
-}
-
+.vie-input-hours,
 .vie-input-text {
-  @apply w-full p-2 rounded-xl input-nm text-sm;
+  border-radius: 0.75rem;
+  background: var(--bg);
+  border: none;
+  outline: none;
+  box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
 }
-
-.vie-badge {
-  @apply inline-flex items-center px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider;
+.vie-input-hours {
+  width: 5rem;
+  padding: 0.5rem;
+  text-align: center;
+  font-size: 0.875rem;
+  font-weight: 700;
 }
+.vie-input-text { width: 100%; padding: 0.5rem; font-size: 0.875rem; }
 
-.vie-badge-absent {
-  @apply bg-red-500/10 text-red-500;
-}
-
-.vie-badge-justified {
-  @apply bg-green-500/10 text-green-500;
-}
-
-.vie-badge-warning {
-  @apply bg-amber-500/10 text-amber-500;
-}
-
+.vie-badge,
+.vie-badge-absent,
+.vie-badge-justified,
+.vie-badge-warning,
 .vie-badge-sanction {
-  @apply bg-orange-500/10 text-orange-500;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.5rem;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
+
+.vie-badge-absent { background-color: rgba(239, 68, 68, 0.1); color: #ef4444; }
+.vie-badge-justified { background-color: rgba(16, 185, 129, 0.1); color: #10b981; }
+.vie-badge-warning { background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+.vie-badge-sanction { background-color: rgba(249, 115, 22, 0.1); color: #f97316; }
 
 .vie-action-btn {
-  @apply px-3 py-1 bg-accent text-white text-xs font-bold rounded-lg hover:brightness-105 transition-all;
+  padding: 0.25rem 0.75rem;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: filter 0.2s ease;
 }
+.vie-action-btn:hover { filter: brightness(1.05); }
 
 .vie-section-header {
-  @apply flex justify-between items-center mb-6;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
 }
 
 .vie-alert {
-  @apply p-5 rounded-[32px] nm-flat flex items-start gap-3;
+  padding: 1.25rem;
+  border-radius: 2rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
 }
 
 .vie-empty-state {
-  @apply text-center py-12 text-gray-400;
+  text-align: center;
+  padding: 3rem 0;
+  color: #9ca3af;
 }
 
 /* Sanction modal specific */
-#sanction-modal .nm-flat {
-  @apply rounded-[40px];
-}
+#sanction-modal .nm-flat { border-radius: 2.5rem; }
 
 #sanction-modal select,
 #sanction-modal input,
 #sanction-modal textarea {
-  @apply w-full p-3 rounded-xl;
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
 }

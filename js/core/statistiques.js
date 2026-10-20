@@ -258,7 +258,7 @@
       moyMat.sort(function (a, b) { return b.valeur - a.valeur; });
       return {
         eleveId: e.id,
-        nom: ((e.prenom || '') + ' ' + (e.nom || '')).trim(),
+        nom: ((e.nom || '') + ' ' + (e.prenom || '')).trim(),
         matricule: e.matricule || '',
         moyenne: moyennes[e.id],
         rang: rangParId[e.id] || null,

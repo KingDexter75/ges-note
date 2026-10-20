@@ -127,6 +127,13 @@ img, picture, video, canvas, svg { max-width: 100%; }
 .table-scroll { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .table-scroll > table { min-width: 100%; }
 
+/* Respiration des lignes de tableau : le contenu ne doit jamais coller a la
+   bordure superieure ou inferieure de sa cellule. Ces regles sont ecrites en
+   CSS pur (pas en @apply) pour rester valides sans le CDN Tailwind. */
+.eduneum-tableau th,
+.eduneum-tableau td { padding: 0.9rem 0.75rem; vertical-align: middle; }
+.eduneum-tableau thead th { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+
 /* Le bandeau de contexte et les barres d'actions passent a la ligne. */
 #eduneum-contexte { max-width: 100%; }
 #actions { flex-wrap: wrap; }

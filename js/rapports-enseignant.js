@@ -94,8 +94,9 @@
       var note = n && n.statut === 'note' ? n.valeur : null;
       return {
         eleveId: e.id,
-        eleve: e.prenom + ' ' + e.nom,
+        eleve: e.nom + ' ' + e.prenom,
         matricule: e.matricule || '',
+        sexe: e.sexe || '',
         note: note,
         remarque: n ? (n.remarque || '') : '',
         nonNote: n ? (n.statut === 'non-note') : false
@@ -147,6 +148,75 @@
       }
     });
     return { etiquettes: etiq, compte: compte, max: Math.max(1, Math.max.apply(null, compte)) };
+  }
+
+  /* --------------------- Repartition par sexe -------------------------- */
+  /* Garcons et filles sont analyses separement : seuil = la moitie de la
+     note maximale, plus le min/max et le taux de reussite de chaque
+     sexe, et un taux global. */
+  function statsParSexe(r) {
+    var seuil = r.noteMax / 2;
+    function bloc(sexe) {
+      var notes = r.notes.filter(function (l) { return l.sexe === sexe; });
+      if (!notes.length) return { effectif: 0, reussis: 0, echoues: 0, max: null, min: null, taux: null };
+      var reussis = notes.filter(function (l) { return l.note >= seuil; }).length;
+      var valeurs = notes.map(function (l) { return l.note; });
+      return {
+        effectif: notes.length,
+        reussis: reussis,
+        echoues: notes.length - reussis,
+        max: Math.max.apply(null, valeurs),
+        min: Math.min.apply(null, valeurs),
+        taux: Math.round((reussis / notes.length) * 100)
+      };
+    }
+    var g = bloc('M'), f = bloc('F');
+    var total = r.notes.length;
+    return {
+      seuil: seuil,
+      garcons: g, filles: f,
+      tauxTotal: total ? Math.round(((g.reussis + f.reussis) / total) * 100) : null
+    };
+  }
+
+  /* Une carte resume : effectif, reussis/echoues, min-max. */
+  function carteSexe(titre, icone, couleur, b) {
+    if (!b.effectif) {
+      return P.carte({ label: titre, valeur: '—', icone: icone, couleur: couleur, note: 'aucun élève' });
+    }
+    return P.carte({
+      label: titre,
+      valeurHtml: '<span class="text-lg">' + b.reussis + ' / ' + b.effectif + '</span>',
+      icone: icone, couleur: couleur,
+      note: b.echoues + ' en échec · max ' + UI.nombre(b.max) + ' · min ' + UI.nombre(b.min)
+    });
+  }
+
+  /* Trois barres horizontales : reussis vs echoues pour chaque sexe,
+     puis le taux global. Meme style que la jauge de repartition. */
+  function repartitionSexe(r) {
+    var s = statsParSexe(r);
+    function barre(label, b) {
+      if (!b.effectif) {
+        return '<div class="flex items-center gap-3 text-xs font-bold text-gray-400">' +
+          '<span class="w-20">' + label + '</span><span class="flex-1 text-gray-400">aucun élève</span></div>';
+      }
+      var pct = Math.round((b.reussis / b.effectif) * 100);
+      return '<div class="flex items-center gap-3 text-xs font-bold text-gray-500">' +
+        '<span class="w-20">' + label + '</span>' +
+        '<div class="flex-1 seq-jauge"><span style="width:' + pct + '%"></span></div>' +
+        '<span class="w-20 text-right">' + b.reussis + '/' + b.effectif + ' (' + pct + '%)</span></div>';
+    }
+    var lignesHtml = barre(t('rapport.garcons', 'Garçons'), s.garcons) +
+      barre(t('rapport.filles', 'Filles'), s.filles);
+    var total = '<div class="pt-2 border-t border-gray-100 dark:border-gray-800 flex items-center gap-3 text-xs font-black text-accent">' +
+      '<span class="w-20">' + t('rapport.tauxTotal', 'Total') + '</span>' +
+      '<span class="flex-1"></span>' +
+      '<span class="w-20 text-right">' + (s.tauxTotal === null ? '—' : s.tauxTotal + '%') + '</span></div>';
+    var note = '<p class="text-[11px] text-gray-400 pt-1">' +
+      P.esc(t('rapport.seuilReussite', 'Réussite : note = la moitié de la note maximale') +
+        ' (≥ ' + UI.nombre(s.seuil) + ')') + '</p>';
+    return '<div class="nm-flat p-6 rounded-[32px] space-y-2">' + lignesHtml + total + note + '</div>';
   }
 
   /* ------------------------------ Rendu -------------------------------- */
@@ -367,6 +437,26 @@
         titre: t('rapport.repartitionNotes', 'Répartition des notes'), icone: 'bar-chart-3',
         contenu: r.saisie ? jauge(r) : UI.etatVide(t('rapport.aucuneNote', 'Aucune note enregistrée pour cette séquence.'))
       }));
+
+      /* Repartition par sexe : cartes + barres, uniquement s'il y a des
+         notes. Les cles i18n sont dans i18n.js (rapport.*). */
+      if (r.saisie) {
+        var sx = statsParSexe(r);
+        blocs.push(P.section({
+          titre: t('rapport.repartitionSexe', 'Répartition par sexe'), icone: 'users-round',
+          contenu: '<div class="space-y-4">' +
+            P.grilleKPI([
+              carteSexe(t('rapport.garcons', 'Garçons'), 'user', 'text-blue-500', sx.garcons),
+              carteSexe(t('rapport.filles', 'Filles'), 'user', 'text-pink-500', sx.filles),
+              P.carte({
+                label: t('rapport.tauxReussite', 'Taux de réussite'),
+                valeurHtml: '<span class="text-lg">' + (sx.tauxTotal === null ? '—' : sx.tauxTotal + '%') + '</span>',
+                icone: 'percent', couleur: 'text-green-500',
+                note: t('rapport.seuilReussite', 'Réussite : note = la moitié de la note maximale') + ' (≥ ' + UI.nombre(sx.seuil) + ')'
+              })
+            ]) + repartitionSexe(r) + '</div>'
+        }));
+      }
 
       blocs.push(P.avecTableau(
         P.section({

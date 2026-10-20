@@ -167,6 +167,12 @@
       'rapport.exporterPdf': 'Exporter en PDF',
       'rapport.exporterXlsx': 'Exporter en Excel',
       'rapport.imprimer': 'Imprimer',
+      'rapport.repartitionSexe': 'Répartition par sexe',
+      'rapport.garcons': 'Garçons',
+      'rapport.filles': 'Filles',
+      'rapport.tauxReussite': 'Taux de réussite',
+      'rapport.tauxTotal': 'Total',
+      'rapport.seuilReussite': 'Réussite : note ≥ la moitié de la note maximale',
 
       /* ---assiduité--- */
       'assiduite.appel': 'Appel',
@@ -355,6 +361,12 @@
       'rapport.exporterPdf': 'Export as PDF',
       'rapport.exporterXlsx': 'Export to Excel',
       'rapport.imprimer': 'Print',
+      'rapport.repartitionSexe': 'Breakdown by gender',
+      'rapport.garcons': 'Boys',
+      'rapport.filles': 'Girls',
+      'rapport.tauxReussite': 'Pass rate',
+      'rapport.tauxTotal': 'Total',
+      'rapport.seuilReussite': 'Pass mark: grade ≥ half of the maximum grade',
 
       'assiduite.appel': 'Attendance',
       'assiduite.presents': 'Present',

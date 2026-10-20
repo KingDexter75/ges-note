@@ -111,8 +111,8 @@
 
       return '<tr class="border-b border-gray-100 dark:border-gray-800" data-eleve="' + e.id + '">' +
         '<td class="py-3 px-4"><div class="vie-student-cell">' +
-        '<div class="vie-avatar">' + P.esc((e.prenom.charAt(0) + e.nom.charAt(0)).toUpperCase()) + '</div>' +
-        '<div class="vie-student-info"><p class="vie-student-name">' + P.esc(e.prenom + ' ' + e.nom) + '</p>' +
+        '<div class="vie-avatar">' + P.esc((e.nom.charAt(0) + e.prenom.charAt(0)).toUpperCase()) + '</div>' +
+        '<div class="vie-student-info"><p class="vie-student-name">' + P.esc(e.nom + ' ' + e.prenom) + '</p>' +
         '<p class="vie-student-matricule">' + P.esc(e.matricule) + '</p></div></div></td>' +
         '<td class="py-3 px-4 text-center">' +
         (peutEcrire
@@ -188,8 +188,8 @@
 
       return '<tr class="border-b border-gray-100 dark:border-gray-800" data-eleve="' + e.id + '">' +
         '<td class="py-3 px-4"><div class="vie-student-cell">' +
-        '<div class="vie-avatar">' + P.esc((e.prenom.charAt(0) + e.nom.charAt(0)).toUpperCase()) + '</div>' +
-        '<div class="vie-student-info"><p class="vie-student-name">' + P.esc(e.prenom + ' ' + e.nom) + '</p>' +
+        '<div class="vie-avatar">' + P.esc((e.nom.charAt(0) + e.prenom.charAt(0)).toUpperCase()) + '</div>' +
+        '<div class="vie-student-info"><p class="vie-student-name">' + P.esc(e.nom + ' ' + e.prenom) + '</p>' +
         '<p class="vie-student-matricule">' + P.esc(e.matricule) + '</p></div></div></td>' +
         '<td class="py-3 px-4">' + (badges || '<span class="text-xs text-gray-400">Aucune sanction</span>') + '</td>' +
         '<td class="py-3 px-4 text-center">' +
@@ -221,7 +221,7 @@
   function ouvrirModalSanction(eleveId, sequenceId, classeId) {
     var eleve = S.eleveParId(eleveId);
     var modal = document.getElementById('sanction-modal');
-    document.getElementById('sanction-eleve-name').textContent = eleve.prenom + ' ' + eleve.nom;
+    document.getElementById('sanction-eleve-name').textContent = eleve.nom + ' ' + eleve.prenom;
     document.getElementById('sanction-type').value = 'avertissement';
     document.getElementById('sanction-duree').value = '0';
     document.getElementById('sanction-motif').value = '';

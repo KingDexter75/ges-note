@@ -217,7 +217,7 @@
       var notee = n.statut === 'note';
       return '<li class="relative pl-6 border-l-2 border-gray-100 dark:border-gray-800">' +
         '<p class="text-xs font-bold">' +
-        P.esc(t('tdb.noteSaisie', 'Note saisie — {eleve}', { eleve: (e ? e.prenom + ' ' + e.nom : '?') })) +
+        P.esc(t('tdb.noteSaisie', 'Note saisie — {eleve}', { eleve: (e ? e.nom + ' ' + e.prenom : '?') })) +
         (c ? ' <span class="text-gray-400 font-normal">• ' + P.esc(c.nom) + '</span>' : '') + '</p>' +
         '<p class="text-[10px] font-black uppercase tracking-widest ' + (notee ? 'text-accent' : 'text-amber-500') + '">' +
         (notee ? P.esc(UI.nombre(n.valeur) + '/' + (m ? m.noteMax : 20)) + ' • ' + P.esc(m ? m.nom : '') : P.esc(t('commun.nonNote', 'Non noté'))) +

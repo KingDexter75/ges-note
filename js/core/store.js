@@ -389,8 +389,47 @@
 
   function anneeParId(id) { return all('annees').filter(function (x) { return x.id === id; })[0] || null; }
 
+  /* ------------------------------------------------------------------ */
+  /* Ordre des classes : par NIVEAU (Sixieme -> Terminale pour le
+     sous-systeme francophone, Form 1 -> Upper Sixth pour l'anglophone),
+     puis alphabetique a niveau egal. Cet ordre s'applique partout ou une
+     liste de classes est affichee (selecteurs, tableaux, tableaux de
+     bord, rapports, bulletins). */
+  var NIVEAUX_PAR_SECTION = {
+    francophone: ['Sixième', 'Cinquième', 'Quatrième', 'Troisième', 'Seconde', 'Première', 'Terminale'],
+    anglophone: ['Form 1', 'Form 2', 'Form 3', 'Form 4', 'Form 5', 'Lower Sixth', 'Upper Sixth']
+  };
+  function cleNiveau(n) {
+    return String(n || '')
+      .toLowerCase()
+      .replace(/[éèêë]/g, 'e').replace(/[àâä]/g, 'a').replace(/[îï]/g, 'i')
+      .replace(/[ôö]/g, 'o').replace(/[ûùü]/g, 'u').replace(/[ç]/g, 'c')
+      .replace(/[\s_\-]+/g, '');
+  }
+  var ORDRE_NIVEAUX = (function () {
+    var map = {};
+    NIVEAUX_PAR_SECTION.francophone.forEach(function (n, i) { map[cleNiveau(n)] = i; });
+    NIVEAUX_PAR_SECTION.anglophone.forEach(function (n, i) { map[cleNiveau(n)] = 100 + i; });
+    return map;
+  })();
+
+  /* Niveau inconnu ou absent : classes rangees en derniere, par nom. */
+  function comparerClasses(a, b) {
+    var oa = ORDRE_NIVEAUX[cleNiveau(a && a.niveau)];
+    var ob = ORDRE_NIVEAUX[cleNiveau(b && b.niveau)];
+    if (oa === undefined) oa = 10000;
+    if (ob === undefined) ob = 10000;
+    if (oa !== ob) return oa - ob;
+    var d = String((a && a.nom) || '').localeCompare(String((b && b.nom) || ''), 'fr',
+      { numeric: true, sensitivity: 'base' });
+    if (d) return d;
+    return String((a && a.id) || '').localeCompare(String((b && b.id) || ''));
+  }
+
   function classesDe(anneeId) {
-    return all('classes').filter(function (c) { return c.anneeId === anneeId && !c.archive; });
+    return all('classes')
+      .filter(function (c) { return c.anneeId === anneeId && !c.archive; })
+      .sort(comparerClasses);
   }
 
   function classeParId(id) { return all('classes').filter(function (c) { return c.id === id; })[0] || null; }
@@ -464,11 +503,24 @@
     });
   }
 
+  /* Les eleves d'une salle de classe sont TOUJOURS presents dans l'ordre
+     alphabetique (nom, puis prenom) : c'est l'ordre des listes officielles
+     et celui que chaque page (saisie, notes, rapports, bulletins) affiche. */
+  function comparerEleves(a, b) {
+    var na = String((a && a.nom) || '').toLowerCase();
+    var nb = String((b && b.nom) || '').toLowerCase();
+    var d = na.localeCompare(nb, 'fr', { numeric: true, sensitivity: 'base' });
+    if (d) return d;
+    return String((a && a.prenom) || '').toLowerCase()
+      .localeCompare(String((b && b.prenom) || '').toLowerCase(), 'fr', { numeric: true, sensitivity: 'base' });
+  }
+
   function elevesDeClasse(classeId, anneeId) {
     return all('inscriptions')
       .filter(function (i) { return i.classeId === classeId && i.anneeId === anneeId && !i.archive; })
       .map(function (i) { return eleveParId(i.eleveId); })
-      .filter(Boolean);
+      .filter(Boolean)
+      .sort(comparerEleves);
   }
 
   function classeDeEleve(eleveId, anneeId) {
@@ -1659,7 +1711,7 @@ function definirCoefficient(classeId, matiereId, valeur) {
   function envoyerSMSResultats(eleveId, anneeId, periode, resume) {
     var e = eleveParId(eleveId);
     if (!e || !e.telephone) return { ok: false, motif: 'Aucun téléphone pour cet élève.' };
-    var msg = 'EduNeum: ' + e.prenom + ' ' + e.nom + ' - ' + resume + '. Année ' + anneeId + ' période ' + periode;
+    var msg = 'EduNeum: ' + e.nom + ' ' + e.prenom + ' - ' + resume + '. Année ' + anneeId + ' période ' + periode;
     return envoyerSMS(e.telephone, msg);
   }
 
@@ -1667,7 +1719,7 @@ function definirCoefficient(classeId, matiereId, valeur) {
     var e = eleveParId(eleveId);
     if (!e || !e.telephone) return { ok: false, motif: 'Aucun téléphone pour cet élève.' };
     var seq = sequenceParId(sequenceId);
-    var msg = 'EduNeum Absences: ' + e.prenom + ' ' + e.nom + ' - ' + heuresTotal + 'h d\'absence (' + nonJustifiees + ' non just.) en ' + (seq ? seq.libelle : sequenceId);
+    var msg = 'EduNeum Absences: ' + e.nom + ' ' + e.prenom + ' - ' + heuresTotal + 'h d\'absence (' + nonJustifiees + ' non just.) en ' + (seq ? seq.libelle : sequenceId);
     return envoyerSMS(e.telephone, msg);
   }
 
@@ -1781,7 +1833,8 @@ function definirCoefficient(classeId, matiereId, valeur) {
     MIGRATIONS: MIGRATIONS,
     load: load, save: save, dernierRefus: dernierRefus, reset: reset, flush: flush, all: all, nextId: nextId, migrer: migrer,
     anneeActive: anneeActive, anneeParId: anneeParId,
-    classesDe: classesDe, classeParId: classeParId, matiereParId: matiereParId,
+    classesDe: classesDe, comparerClasses: comparerClasses,
+    classeParId: classeParId, matiereParId: matiereParId,
     eleveParId: eleveParId, enseignantParId: enseignantParId,
     coefficient: coefficient, matieresDeClasse: matieresDeClasse,
     elevesDeClasse: elevesDeClasse, classeDeEleve: classeDeEleve,

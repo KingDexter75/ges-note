@@ -4,19 +4,19 @@
   <title>Saisie des Notes (Couplée) | EduNeum Pro</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
-  <link rel="stylesheet" href="../css/eduneum-core.css?v=4"><link rel="stylesheet" href="../css/saisie-des-notes.css?v=2">
+  <link rel="stylesheet" href="../css/eduneum-core.css?v=5"><link rel="stylesheet" href="../css/saisie-des-notes.css?v=2">
                   <script src="../js/core/routes.js?v=3"></script>
-    <script src="../js/core/store.js?v=6"></script>
+    <script src="../js/core/store.js?v=9"></script>
     <script src="../js/core/calculs.js?v=3"></script>
     <script src="../js/core/auth.js?v=2"></script>
-    <script src="../js/core/ui.js?v=2"></script>
+    <script src="../js/core/ui.js?v=3"></script>
     <script src="../js/core/page.js?v=2"></script>
     <script src="../js/core/acces.js?v=4"></script>
     <script src="../js/core/layout.js?v=5"></script>
 <script src="../js/saisie-des-notes.tailwind.js?v=2"></script>
   <!-- i18n apres layout : le menu est genere au DOMContentLoaded, il doit
        exister deja pour que la traduction s'y applique. -->
-  <script src="../js/core/i18n.js?v=2"></script>
+  <script src="../js/core/i18n.js?v=4"></script>
 </head>
 <body>
   <div class="min-h-screen flex flex-col md:flex-row" data-sd-id="1">
@@ -123,15 +123,16 @@
             </tbody>
           </table>
 
-          <!-- Table Footer Actions -->
-          <div class="p-8 bg-gray-50/50 dark:bg-gray-900/50 flex justify-between items-center border-t border-gray-100 dark:border-gray-800" data-sd-id="82">
-            <div class="flex space-x-4 items-center">
+          <!-- Table Footer Actions. Sur mobile : le compteur occupe sa propre
+               ligne, AU-DESSUS des deux boutons qui restent cote a cote. -->
+          <div class="p-6 md:p-8 bg-gray-50/50 dark:bg-gray-900/50 border-t border-gray-100 dark:border-gray-800 flex flex-col gap-4 md:flex-row md:items-center md:justify-between" data-sd-id="82">
+            <div class="flex flex-wrap items-center gap-4">
               <p class="text-sm text-gray-500" data-sd-id="83" id="summary-count">Aucune liste chargée</p>
               <p class="text-xs text-gray-400">Effectif géré depuis le module Inscriptions.</p>
             </div>
-            <div class="flex space-x-4" data-sd-id="84">
-              <button id="btn-cancel" class="px-6 py-3 nm-soft-convex rounded-xl text-sm font-bold text-gray-500 hover:text-red-500 hover:nm-inset transition-all" data-sd-id="85">Annuler les modifications</button>
-              <button id="btn-save" class="px-8 py-3 bg-accent text-white rounded-xl text-sm font-bold btn-primary" data-sd-id="86">Enregistrer les notes</button>
+            <div class="flex gap-3 w-full md:w-auto" data-sd-id="84">
+              <button id="btn-cancel" class="flex-1 md:flex-none px-4 md:px-6 py-3 nm-soft-convex rounded-xl text-sm font-bold text-gray-500 hover:text-red-500 hover:nm-inset transition-all text-center leading-tight" data-sd-id="85"><span class="sm:hidden">Annuler</span><span class="hidden sm:inline">Annuler les modifications</span></button>
+              <button id="btn-save" class="flex-1 md:flex-none px-4 md:px-8 py-3 bg-accent text-white rounded-xl text-sm font-bold btn-primary text-center leading-tight" data-sd-id="86"><span class="sm:hidden">Enregistrer</span><span class="hidden sm:inline">Enregistrer les notes</span></button>
             </div>
           </div>
         </div>
@@ -172,6 +173,6 @@
   <!-- Notifications Stack -->
   <div id="toast-container" class="fixed bottom-8 right-8 space-y-4 z-50" data-sd-id="87"></div>
 
-  <script src="../js/saisie-notes-couplee.js?v=1"></script>
+  <script src="../js/saisie-notes-couplee.js?v=4"></script>
 
 </body></html>

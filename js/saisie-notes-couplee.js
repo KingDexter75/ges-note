@@ -82,7 +82,7 @@
 
     var classes = [], matieres = [];
     if (estGestionnaire()) {
-      classes = S.classesDe(an.id).slice().sort(function (a, b) { return a.nom.localeCompare(b.nom); });
+      classes = S.classesDe(an.id).slice().sort(S.comparerClasses);
       matieres = etat.classeId ? matieresDispensees(etat.classeId) : [];
     } else {
       var combi = mesCombinaisons();
@@ -92,6 +92,8 @@
         var c = S.classeParId(a.classeId);
         if (c) { vus[a.classeId] = 1; classes.push(c); }
       });
+      /* meme ordre que partout ailleurs : niveau, puis alphabetique */
+      classes.sort(S.comparerClasses);
       matieres = combi.filter(function (a) { return a.classeId === etat.classeId; })
         .map(function (a) { return S.matiereParId(a.matiereId); }).filter(Boolean);
       if (!combi.length) {
@@ -231,11 +233,9 @@
     tbody.innerHTML = eleves.map(function (e) {
       var cellules = etat.brouillon[e.id];
       return '<tr class="hover:bg-white/5 transition-colors group" data-eleve="' + e.id + '">' +
-        '<td class="py-4 px-8"><div class="flex items-center space-x-3">' +
-        '<div class="w-10 h-10 rounded-full nm-inset flex items-center justify-center text-accent font-bold text-xs">' +
-        P.esc((e.prenom.charAt(0) + e.nom.charAt(0)).toUpperCase()) + '</div>' +
-        '<div><p class="text-sm font-semibold">' + P.esc(e.prenom + ' ' + e.nom) + '</p>' +
-        '<p class="text-xs text-gray-400">' + P.esc(e.matricule) + '</p></div></div></td>' +
+        '<td class="py-4 px-8"><div>' +
+        '<p class="text-sm font-semibold">' + P.esc(e.nom + ' ' + e.prenom) + '</p>' +
+        '<p class="text-xs text-gray-400">' + P.esc(e.matricule) + '</p></div></td>' +
         etat.sequences.map(function (s) {
           var b = cellules[s.id];
           var gceInfo = '';
@@ -417,7 +417,7 @@
 
     var lignes = Array.from(tbody.querySelectorAll('tr')).map(function (tr) {
       var e = S.eleveParId(tr.getAttribute('data-eleve')) || {};
-      var ligne = { eleve: (e.prenom || '') + ' ' + (e.nom || ''), matricule: e.matricule || '' };
+      var ligne = { eleve: (e.nom || '') + ' ' + (e.prenom || ''), matricule: e.matricule || '' };
       etat.sequences.forEach(function (s) {
         var input = tr.querySelector('input[data-seq="' + s.id + '"]');
         ligne[s.id] = input && input.value !== '' ? input.value : 'non noté';
@@ -451,7 +451,7 @@
       var c = S.classeParId(n.classeId);
       var notee = n.statut === 'note';
       return '<tr class="border-b border-gray-100 dark:border-gray-800 hover:bg-white/5 transition-colors">' +
-        '<td class="py-4 px-2 font-medium">' + P.esc((e.prenom || '?') + ' ' + (e.nom || '')) +
+        '<td class="py-4 px-2 font-medium">' + P.esc((e.nom || '?') + ' ' + (e.prenom || '')) +
         (c ? ' <span class="text-xs text-gray-400">· ' + P.esc(c.nom) + '</span>' : '') + '</td>' +
         '<td class="py-4 px-2">' + P.esc(m ? m.nom : '—') + '</td>' +
         '<td class="py-4 px-2 font-bold text-accent">' + (notee ? P.esc(UI.nombre(n.valeur) + '/' + (m ? m.noteMax : 20)) : 'Non noté') + '</td>' +

@@ -272,11 +272,11 @@
         pagination.textContent = '';
         return;
       }
-      var table = el('table', { class: 'w-full text-sm' });
+      var table = el('table', { class: 'eduneum-tableau w-full text-sm' });
       var thead = el('thead');
       var tr = el('tr', { class: 'text-left text-xs uppercase tracking-wider text-gray-400' });
       opts.colonnes.forEach(function (c) {
-        var th = el('th', { class: 'py-3 px-2 font-bold ' + (c.classe || '') });
+        var th = el('th', { class: 'py-4 px-3 font-bold ' + (c.classe || '') });
         if (c.triable !== false) {
           var btn = el('button', { type: 'button', class: 'inline-flex items-center gap-1 hover:text-accent' });
           btn.appendChild(document.createTextNode(c.titre));
@@ -296,7 +296,7 @@
       visibles.forEach(function (l) {
         var r = el('tr', { class: 'border-t border-gray-100 dark:border-gray-800' });
         opts.colonnes.forEach(function (c) {
-          var td = el('td', { class: 'py-3 px-2 ' + (c.classeCellule || '') });
+          var td = el('td', { class: 'py-4 px-3 ' + (c.classeCellule || '') });
           if (c.rendu) {
             var out = c.rendu(l);
             if (out && out.nodeType) td.appendChild(out);
