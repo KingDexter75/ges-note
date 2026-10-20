@@ -337,7 +337,13 @@
     var d = droitsDe(mod);
     if (!d) return refuserEcriture('Module non déclaré dans la matrice d\'accès : ' + mod);
     if (d.ecrire.indexOf(role()) === -1) return refuserEcriture(messageRefus(mod, 'd\'effectuer cette modification'));
-    if (!anneeConsultable()) {
+    /* Exemption identique a peutEcrire() : la page Annees scolaires gere
+       l'etat des annees elles-memes, activer ou degeler une annee inactive
+       doit rester possible quelle que soit l'annee consultee. Sans elle, la
+       PREMIERE activation est impossible : sur une base vide, l'unique annee
+       (creee inactive) est aussi celle que la page consulte, donc verdict
+       « lecture seule » — cercle vicieux. */
+    if (mod !== 'admin_annees' && !anneeConsultable()) {
       var an = anneeConsultee();
       var libelle = an ? an.libelle : 'cette année scolaire';
       return refuserEcriture(an && an.cloturee
