@@ -1,12 +1,27 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
 
-    :root {
+    /* ------------------------------------------------------------------ */
+    /* Themes : light / dark / aqua / synthwave (meme mecanisme que       */
+    /* css/eduneum-core.css). Chaque theme definit TOUTES les variables,  */
+    /* pour que le fond, le texte et les select suivent toujours le       */
+    /* theme actif, sans dependre de l'ordre des feuilles de style.       */
+    /* ------------------------------------------------------------------ */
+    :root,
+    html[data-theme="light"] {
       --bg: #e0e5ec;
+      --bg-color: #e0e5ec;
       --shadow-dark: #babecc;
       --shadow-light: #ffffff;
       --accent: #8b5cf6;
       --error: #ef4444;
       --success: #22c55e;
+      --danger: #ef4444;
+      --text: #2d3748;
+      --text-main: #2d3748;
+      --text-sub: #718096;
+      --select-bg: #e0e5ec;
+      --select-fg: #2d3748;
+      --on-accent: #ffffff;
     }
 
     .dark {
@@ -16,30 +31,105 @@
       --accent: #a78bfa;
     }
 
-    /* Palettes DaisyUI (meme mechanisme que css/eduneum-core.css). */
+    html[data-theme="dark"] {
+      --bg: #1a202c;
+      --bg-color: #1a202c;
+      --shadow-dark: #0f172a;
+      --shadow-light: #2d3748;
+      --accent: #a78bfa;
+      --error: #ef4444;
+      --success: #22c55e;
+      --danger: #ef4444;
+      --text: #f7fafc;
+      --text-main: #f7fafc;
+      --text-sub: #cbd5e0;
+      --select-bg: #232c3b;
+      --select-fg: #e2e8f0;
+      --on-accent: #1a202c;
+    }
+
+    /* Palette DaisyUI aqua (meme mechanisme que css/eduneum-core.css). */
     html[data-theme="aqua"] {
       --bg: #a6e3e9;
+      --bg-color: #a6e3e9;
       --shadow-dark: #7bb6c0;
       --shadow-light: #d0f5f8;
       --accent: #0e7490;
+      --error: #ef4444;
+      --success: #15803d;
+      --danger: #ef4444;
+      --text: #0b2b33;
+      --text-main: #0b2b33;
+      --text-sub: #14586a;
+      --select-bg: #bde8ee;
+      --select-fg: #0b2b33;
+      --on-accent: #ffffff;
     }
+    /* Palette DaisyUI synthwave (sombre violet). */
     html[data-theme="synthwave"] {
       --bg: #2a2139;
+      --bg-color: #2a2139;
       --shadow-dark: #1a1425;
       --shadow-light: #3f3350;
       --accent: #ff7edb;
+      --error: #f87171;
+      --success: #34d399;
+      --danger: #f87171;
+      --text: #f3e9ff;
+      --text-main: #f3e9ff;
+      --text-sub: #d8c7f0;
+      --select-bg: #35294a;
+      --select-fg: #f3e9ff;
+      --on-accent: #2a2139;
     }
 
     body {
       font-family: 'DM Sans', sans-serif;
       background-color: var(--bg);
-      color: #2d3748;
+      color: var(--text-main);
       transition: background-color 0.4s ease, color 0.4s ease;
       margin: 0;
     }
 
-    .dark body {
-      color: #e2e8f0;
+    /* html[data-theme] body (0,1,2) l'emporte sur « .dark body ». */
+    html[data-theme] body {
+      background-color: var(--bg);
+      color: var(--text-main);
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Selects : la liste deroulante native utilise les couleurs systeme  */
+    /* (fond blanc / texte noir) sauf si <option> porte un fond ET une      */
+    /* couleur explicites. Sans ces regles le texte etait invisible dans   */
+    /* les themes sombres.                                                  */
+    /* ------------------------------------------------------------------ */
+    html[data-theme] select {
+      background-color: var(--select-bg);
+      color: var(--select-fg);
+    }
+    html[data-theme] select option,
+    html[data-theme] select optgroup {
+      background-color: var(--select-bg);
+      color: var(--select-fg);
+    }
+    html[data-theme] select option:checked,
+    html[data-theme] select option:checked:hover {
+      background-color: var(--accent);
+      color: var(--on-accent);
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Menu de selection du theme : le contraste suit le theme actif.       */
+    /* ------------------------------------------------------------------ */
+    #theme-menu > p {
+      color: var(--text-sub);
+    }
+    #theme-menu [data-theme-choix] {
+      color: var(--text-main);
+    }
+    #theme-menu [data-theme-choix]:hover,
+    #theme-menu [data-theme-choix].nm-actif {
+      color: var(--accent);
     }
 
     .display-font {

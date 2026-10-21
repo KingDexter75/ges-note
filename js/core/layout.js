@@ -625,7 +625,7 @@
       var actif = t.id === actuel;
       return '<button type="button" data-theme-choix="' + t.id + '" role="menuitem"' +
         ' class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all ' +
-        (actif ? 'nm-inset text-accent' : 'text-gray-500 hover:text-accent hover:nm-flat') + '">' +
+        (actif ? 'nm-inset nm-actif' : 'nm-menu-item') + '">' +
         '<iconify-icon icon="' + t.icone + '" width="16"></iconify-icon>' +
         '<span>' + trad(t.cle, t.defaut) + '</span>' +
         (actif ? '<iconify-icon icon="lucide:check" width="14" class="ml-auto"></iconify-icon>' : '') +

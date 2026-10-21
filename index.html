@@ -5,7 +5,7 @@
   <script>try{var t=localStorage.getItem('theme');if(['light','dark','aqua','synthwave'].indexOf(t)<0)t='light';document.documentElement.setAttribute('data-theme',t);document.documentElement.classList.toggle('dark',t==='dark'||t==='synthwave');document.documentElement.classList.toggle('light',!(t==='dark'||t==='synthwave'));}catch(e){}</script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
-  <link rel="stylesheet" href="css/connexion.css?v=3">
+  <link rel="stylesheet" href="css/connexion.css?v=4">
   <script src="js/connexion.tailwind.js?v=2"></script>
 </head>
 <body>
@@ -23,16 +23,16 @@
         </button>
         <div id="theme-menu" class="hidden absolute right-0 mt-2 w-44 nm-flat rounded-2xl p-2 space-y-1 z-50" style="background: var(--bg)">
           <p class="px-3 pt-1 pb-2 text-[10px] font-bold uppercase tracking-widest text-gray-400" id="txt-theme-title">Thème</p>
-          <button type="button" data-theme-choix="light" class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all">
+          <button type="button" data-theme-choix="light" class="nm-menu-item w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all">
             <iconify-icon icon="lucide:sun" width="16"></iconify-icon><span id="txt-theme-light">Clair</span>
           </button>
-          <button type="button" data-theme-choix="dark" class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all">
+          <button type="button" data-theme-choix="dark" class="nm-menu-item w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all">
             <iconify-icon icon="lucide:moon" width="16"></iconify-icon><span id="txt-theme-dark">Sombre</span>
           </button>
-          <button type="button" data-theme-choix="aqua" class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all">
+          <button type="button" data-theme-choix="aqua" class="nm-menu-item w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all">
             <iconify-icon icon="lucide:droplets" width="16"></iconify-icon><span id="txt-theme-aqua">Aqua</span>
           </button>
-          <button type="button" data-theme-choix="synthwave" class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all">
+          <button type="button" data-theme-choix="synthwave" class="nm-menu-item w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all">
             <iconify-icon icon="lucide:sparkles" width="16"></iconify-icon><span id="txt-theme-synthwave">Synthwave</span>
           </button>
         </div>
@@ -207,5 +207,5 @@
   <script src="js/core/routes.js?v=4"></script>
   <script src="js/core/store.js?v=9"></script>
   <script src="js/core/auth.js?v=2"></script>
-  <script src="js/connexion.js?v=3"></script>
+  <script src="js/connexion.js?v=4"></script>
 </body></html>

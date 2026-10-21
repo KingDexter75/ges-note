@@ -1,12 +1,33 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
 
 /* Socle visuel commun aux modules EduNeum : identique aux 14 pages d'origine. */
-:root {
+
+/* ------------------------------------------------------------------ */
+/* Themes : light / dark / aqua / synthwave.                           */
+/* ------------------------------------------------------------------ */
+/* Chaque theme definit TOUTES les variables, y compris les DEUX familles  */
+/* de noms utilisees par les pages (--bg / --bg-color et --text /          */
+/* --text-main). Avant, les pages qui n'utilisaient que --bg-color          */
+/* (eleves, rapports, statistiques, assiduite, saisie-des-notes)          */
+/* gardaient la palette CLAIRE en aqua/synthwave : leur fond, leur texte  */
+/* et leurs select ne suivaient pas le theme.                              */
+/*                                                                      */
+/* html[data-theme] (0,1,1) ecrase :root (0,1,0) et .dark (0,1,0) sans    */
+/* dependre de l'ordre des feuilles de style par page.                    */
+:root,
+html[data-theme="light"] {
   --bg: #e0e5ec;
+  --bg-color: #e0e5ec;
   --shadow-dark: #babecc;
   --shadow-light: #ffffff;
   --accent: #8b5cf6;
   --danger: #ef4444;
+  --text: #2d3748;
+  --text-main: #2d3748;
+  --text-sub: #718096;
+  --select-bg: #e0e5ec;
+  --select-fg: #2d3748;
+  --on-accent: #ffffff;
 }
 .dark {
   --bg: #1a202c;
@@ -14,29 +35,63 @@
   --shadow-light: #2d3748;
   --accent: #a78bfa;
 }
-/* Palettes DaisyUI : aqua (clair cyan) et synthwave (sombre violet).
-   html[data-theme] (0,1,1) ecrase .dark (0,1,0) sans dependre de l'ordre
-   des feuilles de style par page. */
+html[data-theme="dark"] {
+  --bg: #1a202c;
+  --bg-color: #1a202c;
+  --shadow-dark: #0f172a;
+  --shadow-light: #2d3748;
+  --accent: #a78bfa;
+  --danger: #ef4444;
+  --text: #f7fafc;
+  --text-main: #f7fafc;
+  --text-sub: #cbd5e0;
+  --select-bg: #232c3b;
+  --select-fg: #e2e8f0;
+  --on-accent: #1a202c;
+}
+/* Palette DaisyUI aqua (clair cyan). */
 html[data-theme="aqua"] {
   --bg: #a6e3e9;
+  --bg-color: #a6e3e9;
   --shadow-dark: #7bb6c0;
   --shadow-light: #d0f5f8;
   --accent: #0e7490;
+  --danger: #ef4444;
+  --text: #0b2b33;
+  --text-main: #0b2b33;
+  --text-sub: #14586a;
+  --select-bg: #bde8ee;
+  --select-fg: #0b2b33;
+  --on-accent: #ffffff;
 }
+/* Palette DaisyUI synthwave (sombre violet). */
 html[data-theme="synthwave"] {
   --bg: #2a2139;
+  --bg-color: #2a2139;
   --shadow-dark: #1a1425;
   --shadow-light: #3f3350;
   --accent: #ff7edb;
+  --danger: #f87171;
+  --text: #f3e9ff;
+  --text-main: #f3e9ff;
+  --text-sub: #d8c7f0;
+  --select-bg: #35294a;
+  --select-fg: #f3e9ff;
+  --on-accent: #2a2139;
 }
 body {
   font-family: 'DM Sans', sans-serif;
   background-color: var(--bg);
-  color: #2d3748;
-  transition: background-color 0.4s ease;
+  color: var(--text-main);
+  transition: background-color 0.4s ease, color 0.4s ease;
   margin: 0;
 }
-.dark body { color: #e2e8f0; }
+/* html[data-theme] body (0,1,2) l'emporte sur les « body { color: ... } */
+/* et « .dark body { color: ... } » des feuilles de style par page. */
+html[data-theme] body {
+  background-color: var(--bg);
+  color: var(--text-main);
+}
 .display-font { font-family: 'Plus Jakarta Sans', sans-serif; }
 
 .nm-flat { box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light); }
@@ -48,6 +103,60 @@ select, input, textarea {
   background: transparent;
   border: none;
   outline: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* Selects : texte lisible dans les 4 themes.                          */
+/* ------------------------------------------------------------------ */
+/* La liste deroulante d'un <select> est un widget NATIF : le            */
+/* navigateur la dessine avec les couleurs systeme (fond blanc, texte   */
+/* noir) sauf si <option> porte explicitement un fond ET une couleur.    */
+/* Sans ces regles, la liste sortait blanche en theme sombre et le      */
+/* texte clair y disparaitait ; en aqua/synthwave le texte herite de   */
+/* la couleur du body et sortait aussi sur un fond non theme.           */
+/*                                                                      */
+/* Les selecteurs html[data-theme] (0,1,2) l'emportent sur les classes  */
+/* Tailwind (text-gray-700 / dark:text-gray-200) et sur les regles      */
+/* « input, select, textarea { background: ... } » des pages.           */
+html[data-theme] select {
+  background-color: var(--select-bg);
+  color: var(--select-fg);
+}
+html[data-theme] select option,
+html[data-theme] select optgroup {
+  background-color: var(--select-bg);
+  color: var(--select-fg);
+}
+html[data-theme] select option:checked,
+html[data-theme] select option:checked:hover {
+  background-color: var(--accent);
+  color: var(--on-accent);
+}
+html[data-theme] select:disabled {
+  opacity: 0.55;
+}
+html[data-theme] select option[disabled] {
+  color: var(--text-sub);
+}
+
+/* ------------------------------------------------------------------ */
+/* Menu de selection du theme : le contraste doit suivre le theme.      */
+/* ------------------------------------------------------------------ */
+/* Les items utilisaient text-gray-500 : gris moyen sur fond aqua,      */
+/* donc presque illisible. Les couleurs sont imposees ici pour que le   */
+/* menu reste lisible quel que soit le theme actif.                    */
+#theme-menu > p {
+  color: var(--text-sub);
+}
+#theme-menu [data-theme-choix] {
+  color: var(--text-main);
+}
+#theme-menu [data-theme-choix]:hover,
+#theme-menu [data-theme-choix].nm-actif {
+  color: var(--accent);
+}
+#theme-menu .nm-menu-item:hover {
+  box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);
 }
 
 .checkbox-nm {

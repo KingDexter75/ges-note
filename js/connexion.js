@@ -113,9 +113,7 @@
       document.querySelectorAll('#theme-menu [data-theme-choix]').forEach((b) => {
         const actif = b.getAttribute('data-theme-choix') === state.theme;
         b.classList.toggle('nm-inset', actif);
-        b.classList.toggle('text-accent', actif);
-        b.classList.toggle('text-gray-500', !actif);
-        b.classList.toggle('hover:text-accent', !actif);
+        b.classList.toggle('nm-actif', actif);
         let check = b.querySelector('[data-theme-check]');
         if (actif && !check) {
           check = document.createElement('iconify-icon');
